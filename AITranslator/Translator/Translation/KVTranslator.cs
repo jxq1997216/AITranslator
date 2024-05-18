@@ -60,7 +60,7 @@ namespace AITranslator.Translator.Translation
 
 
         ////原始数据
-        //Dictionary<string, string> _dic_source;
+        Dictionary<string, string> _dic_source;
         //未翻译的内容字典
         Dictionary<string, string> _dic_nottranslated = new Dictionary<string, string>();
         //翻译成功的内容
@@ -81,11 +81,11 @@ namespace AITranslator.Translator.Translation
             Dictionary<string, string> failedDic)
         {
             _vm = ViewModelManager.ViewModel;
-            //_dic_source = sourceDic;
+            _dic_source = sourceDic;
             _dic_successful = successfulDic;
             _dic_failed = failedDic;
             //计算当前进度
-            _vm.Progress = (_dic_successful.Count + _dic_failed.Count) / (double)sourceDic.Count * 100;
+            CalculateProgress();
 
             //获取未翻译的内容
             foreach (var key in sourceDic.Keys)
@@ -185,8 +185,12 @@ namespace AITranslator.Translator.Translation
                         //如果合并后的字符串长度超过100了,进行合并翻译
                         if (length >= MaxLength || kv.Equals(_dic_nottranslated.Last()))
                         {
-                            //进行合并翻译
-                            string[] results = Translate_Mult(mergeValues);
+                            string[] results;
+                            if (mergeValues.Count == 1)//进行单句翻译
+                                results = new string[] { Translate_Single(mergeValues[0]) };
+                            else //进行合并翻译
+                                results = Translate_Mult(mergeValues);
+
                             if (results == null)//如果合并翻译失败,则逐条翻译
                             {
                                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]批量翻译换行数量不匹配，改为逐条翻译。");
@@ -206,6 +210,9 @@ namespace AITranslator.Translator.Translation
                                         _dic_failed[mergeKeys[i]] = mergeValues[i];
                                         SaveFailedFile();
                                     }
+
+                                    //计算进度
+                                    CalculateProgress();
                                 }
                             }
                             else
@@ -226,18 +233,15 @@ namespace AITranslator.Translator.Translation
                                         SaveFailedFile();
                                     }
                                 }
+
+                                //计算进度
+                                CalculateProgress();
                             }
 
                             //重置合并翻译数据
                             mergeKeys.Clear();
                             mergeValues.Clear();
                             length = 0;
-
-                            //计算计算进度
-                            int translatedCount = _dic_successful.Count + _dic_failed.Count;
-                            _vm.Progress = translatedCount * 100d / (_dic_nottranslated.Count + translatedCount);
-                            if (_vm.Progress > 100)
-                                _vm.Progress = 100;
                         }
                     }
 
@@ -408,10 +412,25 @@ namespace AITranslator.Translator.Translation
                     {
                         using (HttpResponseMessage? httpResponse = httpClient.PostAsync(new Uri(_vm.ServerURL + "/v1/chat/completions"), httpContent, token).Result)
                         {
-                            string json_result = httpResponse.Content.ReadAsStringAsync().Result;
-                            JObject jobj = (JObject)JsonConvert.DeserializeObject(json_result);
-                            str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString()?.Trim() ?? string.Empty;
-                            retry = false;
+                            if (httpResponse.StatusCode == HttpStatusCode.OK)
+                            {
+                                string json_result = httpResponse.Content.ReadAsStringAsync().Result;
+                                JObject jobj = (JObject)JsonConvert.DeserializeObject(json_result);
+                                str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString()?.Trim() ?? string.Empty;
+                                retry = false;
+                            }
+                            else
+                            {
+                                ViewModelManager.WriteLine("服务回复状态错误！");
+                                tryCount++;
+                                if (tryCount >= 3)
+                                    throw new KnownException("错误:多次回复状态错误！");
+                                else
+                                {
+                                    Thread.Sleep(1000);
+                                    continue;
+                                }
+                            }
                         }
                     }
                 }
@@ -620,6 +639,16 @@ namespace AITranslator.Translator.Translation
         {
             SaveSucessfulFile();
             SaveFailedFile();
+        }
+
+        /// <summary>
+        /// 计算当前翻译进度
+        /// </summary>
+        void CalculateProgress()
+        {
+            _vm.Progress = (_dic_successful.Count + _dic_failed.Count) / (double)_dic_source.Count * 100;
+            if (_vm.Progress > 100)
+                _vm.Progress = 100;
         }
     }
 }

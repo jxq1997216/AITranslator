@@ -18,6 +18,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Resources;
+using System.Windows.Shapes;
 
 namespace AITranslator
 {
@@ -141,6 +142,11 @@ namespace AITranslator
         {
             try
             {
+                if (vm.Progress >= 100)
+                {
+                    System.Diagnostics.Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
+                    return;
+                }
                 //如果正在翻译，则暂停翻译
                 if (vm.IsTranslating)
                 {
@@ -348,6 +354,5 @@ namespace AITranslator
             await Task.Delay(animTime);
             Close();
         }
-
     }
 }

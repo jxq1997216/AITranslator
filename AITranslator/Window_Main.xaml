@@ -92,11 +92,12 @@
                                 </Border.Background>
 
                                 <StackPanel Grid.Row="0">
-                                    <Button Height="25" IsEnabled="{calc:Binding 'Progress less 100'}" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource TaskbarButton}" Click="Button_Start_Taskbar_Click">
+                                    <Button Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource TaskbarButton}" Click="Button_Start_Taskbar_Click">
                                         <Button.Content>
-                                            <MultiBinding Converter="{StaticResource StartButtonText}" ConverterParameter="暂停 继续 开始">
+                                            <MultiBinding Converter="{StaticResource StartButtonText}" ConverterParameter="暂停 继续 开始 查看">
                                                 <Binding Path="IsTranslating"/>
                                                 <Binding Path="IsBreaked"/>
+                                                <Binding Path="Progress"/>
                                             </MultiBinding>
                                         </Button.Content>
                                     </Button>
@@ -115,11 +116,12 @@
                     </Grid.RowDefinitions>
                     <!--按钮区-->
                     <StackPanel Grid.Row="0">
-                        <Button Margin="0,0,0,5" Height="25" IsEnabled="{calc:Binding 'Progress less 100'}" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource ViewButton}" Click="Button_Start_Click">
+                        <Button Margin="0,0,0,5" Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource ViewButton}" Click="Button_Start_Click">
                             <Button.Content>
-                                <MultiBinding Converter="{StaticResource StartButtonText}" ConverterParameter="暂停 继续 开始">
+                                <MultiBinding Converter="{StaticResource StartButtonText}" ConverterParameter="暂停 继续 开始 查看">
                                     <Binding Path="IsTranslating"/>
                                     <Binding Path="IsBreaked"/>
+                                    <Binding Path="Progress"/>
                                 </MultiBinding>
                             </Button.Content>
                         </Button>
