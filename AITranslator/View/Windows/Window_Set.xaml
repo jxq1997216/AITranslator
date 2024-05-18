@@ -1,0 +1,89 @@
+﻿<Window x:Class="AITranslator.View.Windows.Window_Set"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
+        xmlns:control="clr-namespace:AITranslator.View.Controls"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+        mc:Ignorable="d"
+        Title="Start Config" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
+    <Window.DataContext>
+        <vm:ViewModel/>
+    </Window.DataContext>
+    <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="1" Color="#FF21252D"/>
+                <GradientStop Offset="0" Color="#FF273146"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FF6B6C6D"/>
+                <GradientStop Offset="1" Color="#FF464646"/>
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Grid>
+            <Grid.Clip>
+                <RectangleGeometry Rect="0 0 318 1000" RadiusX="9" RadiusY="9"/>
+            </Grid.Clip>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid Background="#FF191D25" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                    <TextBlock Margin="10,3,0,0" Grid.ColumnSpan="2" Text="{Binding Title,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" FontFamily="{StaticResource English}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12" Foreground="#FFD2D9DC"/>
+                    <StackPanel Margin="5,0,2,0" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
+                        <Button Style="{StaticResource TitleBarButton}" Click="Button_Close_Click">
+                            <Label Content="×" Margin="-5" Foreground="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="12"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Margin="5" Grid.Row="1">
+                    <StackPanel>
+                        <TextBlock Margin="5" Foreground="White" Text="请配置你的翻译所用参数:"/>
+                        <GroupBox Margin="5,0,5,10" BorderThickness="0.1" BorderBrush="White">
+                            <GroupBox.Header>
+                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                    <TextBlock Text="上下文记忆" Foreground="White" FontSize="10" />
+                                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding HistoryCount}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" Text="{Binding HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+
+
+                        <StackPanel Margin="0,0,0,5" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <control:ToggleButton Margin="0,0,5,0" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>
+                            <control:ToggleButton Margin="0,0,5,0" OnText="远程" OffText="本地" IsChecked="{Binding IsRomatePlatform}"/>
+                            <control:ToggleButton Margin="0,0,5,0" OnText="1B8" OffText="非1B8" IsChecked="{Binding IsModel1B8}"/>
+                        </StackPanel>
+                        <Grid Margin="5,0,5,5" Visibility="{calc:Binding IsRomatePlatform,FalseToVisibility=Collapsed}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" Margin="0,0,5,0" Text="远程地址" Foreground="White" />
+                            <Border Grid.Column="1" BorderThickness="1" BorderBrush="White" Height="25" CornerRadius="12.5" >
+                                <TextBox Name="tb_romateURL" Text="{Binding ServerURL}" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" Foreground="White" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                            </Border>
+                        </Grid>
+                        <Border Visibility="{calc:Binding SetViewError,FalseToVisibility=Collapsed}"  Margin="5,0,5,5" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
+                            <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SetViewErrorMessage}"/>
+                        </Border>
+                        <Button Margin="5,0" Style="{StaticResource ViewButton}" Content="确认" Height="25" Click="Button_OK_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,24 @@
+﻿<Application x:Class="AITranslator.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AITranslator"
+             xmlns:converter="clr-namespace:AITranslator.View.Converter"
+             StartupUri="Window_Main.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/TitleBarButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/TaskbarButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ViewButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/CheckButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ToggleButton.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <converter:StartButtonTextConverter x:Key="StartButtonText"/>
+            <converter:CollectionCountToStrConverter x:Key="CollectionCountToStr"/>
+            <converter:TaskbarIconToolTipTextConverter x:Key="TaskbarIconToolTipText"/>
+
+            <FontFamily x:Key="English">pack://application:,,,/AITranslator;component/View/Resources/Font/AGARAMONDPRO-BOLD.OTF#Adobe Garamond Pro Bold</FontFamily>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

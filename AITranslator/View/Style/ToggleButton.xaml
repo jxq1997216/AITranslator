@@ -1,0 +1,56 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:control="clr-namespace:AITranslator.View.Controls"
+                    xmlns:converter="clr-namespace:AITranslator.View.Converter"
+                    xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding">
+
+    <Style TargetType="{x:Type control:ToggleButton}">
+        <Setter Property="Width" Value="95"/>
+        <Setter Property="Height" Value="25"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:ToggleButton}">
+                    <Border x:Name="back" Width="95" Height="25" BorderBrush="#946CBB" BorderThickness="0" Background="#7B68B5" HorizontalAlignment="Center" CornerRadius="12.5">
+                        <Grid>
+                            <Ellipse x:Name="center" VerticalAlignment="Center" Width="18" Height="18" Fill="#D6B5E2">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform  x:Name="centerTrams" X="-34"/>
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+                            <TextBlock x:Name="offText" Margin="9,0" HorizontalAlignment="Right" Foreground="White" VerticalAlignment="Center" Text="{TemplateBinding OffText}"/>
+                            <TextBlock Opacity="0" x:Name="onText" Margin="9,0" HorizontalAlignment="Left" Foreground="White" VerticalAlignment="Center" Text="{TemplateBinding OnText}"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetName="center" Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)" To="#A181C6" Duration="0:0:0.2" />
+                                        <ColorAnimation Storyboard.TargetName="back" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#5A57A5" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="centerTrams" Storyboard.TargetProperty="X" To="34" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="offText" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="onText" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetName="center" Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)" To="#D6B5E2" Duration="0:0:0.2" />
+                                        <ColorAnimation Storyboard.TargetName="back" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#7B68B5" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="centerTrams" Storyboard.TargetProperty="X" To="-34" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="offText" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="onText" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
