@@ -82,6 +82,11 @@ namespace AITranslator.View.Models
         /// 控制台输出内容
         /// </summary>
         [ObservableProperty]
+        private string? version = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName).FileVersion;
+        /// <summary>
+        /// 控制台输出内容
+        /// </summary>
+        [ObservableProperty]
         private ObservableQueue<string> consoles = new ObservableQueue<string>(100);
 
         /// <summary>

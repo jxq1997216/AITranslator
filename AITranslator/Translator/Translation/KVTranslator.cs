@@ -410,7 +410,7 @@ namespace AITranslator.Translator.Translation
                         {
                             string json_result = httpResponse.Content.ReadAsStringAsync().Result;
                             JObject jobj = (JObject)JsonConvert.DeserializeObject(json_result);
-                            str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString() ?? string.Empty;
+                            str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString()?.Trim() ?? string.Empty;
                             retry = false;
                         }
                     }
