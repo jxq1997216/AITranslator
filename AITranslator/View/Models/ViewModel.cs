@@ -1,5 +1,6 @@
 ﻿using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
+using AITranslator.Translator.TranslateData;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -52,24 +53,70 @@ namespace AITranslator.View.Models
                 IsModel1B8 = ViewModel.IsModel1B8,
                 ServerURL = ViewModel.ServerURL,
                 HistoryCount = ViewModel.HistoryCount,
+                TranslateType = ViewModel.TranslateType,
             };
-            JsonPersister.JsonSave(save, PublicParams.ConfigPath);
+            JsonPersister.Save(save, PublicParams.ConfigPath);
         }
 
         /// <summary>
         /// 加载配置信息
         /// </summary>
-        public static void Load()
+        public static bool Load()
         {
             if (File.Exists(PublicParams.ConfigPath))
             {
-                ConfigSave save = JsonPersister.JsonRead<ConfigSave>(PublicParams.ConfigPath);
+                ConfigSave save = JsonPersister.Load<ConfigSave>(PublicParams.ConfigPath);
                 ViewModel.IsEnglish = save.IsEnglish;
                 ViewModel.IsRomatePlatform = save.IsRomatePlatform;
                 ViewModel.IsModel1B8 = save.IsModel1B8;
                 ViewModel.ServerURL = save.ServerURL;
                 ViewModel.HistoryCount = save.HistoryCount;
+                ViewModel.TranslateType = save.TranslateType;
+                return true;
             }
+            return false;
+        }
+
+        public static void SetNotStarted()
+        {
+            ViewModel.Progress = 0;
+            ViewModel.IsBreaked = false;
+            ViewModel.IsTranslating = false;
+        }
+
+        public static void SetPause()
+        {
+            //设置翻译中为False
+            ViewModel.IsTranslating = false;
+            //设置翻译暂停为True
+            ViewModel.IsBreaked = true;
+        }
+        public static void SetPause(double progress)
+        {
+            SetPause();
+            SetProgress(progress);
+        }
+
+        public static void SetStart()
+        {
+            //设置翻译中为False
+            ViewModel.IsTranslating = false;
+            //设置翻译暂停为True
+            ViewModel.IsBreaked = true;
+        }
+
+        public static void SetSuccessful()
+        {
+            ViewModel.IsBreaked = false;
+            ViewModel.IsTranslating = false;
+            ViewModel.Progress = 100;
+        }
+
+        public static void SetProgress(double progress)
+        {
+            if (progress > 100)
+                progress = 100;
+            ViewModel.Progress = progress;
         }
     }
 
@@ -132,6 +179,12 @@ namespace AITranslator.View.Models
         [Range(typeof(uint), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
         [ObservableProperty]
         private uint historyCount = 5;
+
+        /// <summary>
+        /// 翻译类型
+        /// </summary>
+        [ObservableProperty]
+        public TranslateDataType translateType;
 
         /// <summary>
         /// 翻译进度

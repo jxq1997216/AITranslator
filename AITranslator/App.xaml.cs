@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Data;
+using System.Text;
 using System.Windows;
 
 namespace AITranslator
@@ -11,6 +12,7 @@ namespace AITranslator
     {
         public App()
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AITranslator.Translator.TranslateData;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,6 +32,9 @@ namespace AITranslator.Translator.Models
         /// 上下文记忆数量
         /// </summary>
         public uint HistoryCount { get; set; }
-
+        /// <summary>
+        /// 翻译类型
+        /// </summary>
+        public TranslateDataType TranslateType;
     }
 }

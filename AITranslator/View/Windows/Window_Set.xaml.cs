@@ -58,7 +58,6 @@ namespace AITranslator.View.Windows
             temp_vm.CopyConfigTo(ViewModelManager.ViewModel);
 
             //保存配置参数到本地
-            ViewModelManager.Save();
             DialogResult = true;
             Close();
         }

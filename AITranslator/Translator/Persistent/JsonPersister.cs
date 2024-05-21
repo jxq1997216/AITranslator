@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using FileLoadException = AITranslator.Exceptions.FileLoadException;
 
 namespace AITranslator.Translator.Persistent
 {
@@ -23,7 +24,7 @@ namespace AITranslator.Translator.Persistent
         /// <param name="filePath">文件地址</param>
         /// <returns>被加载成功的数据</returns>
         /// <exception cref="JsonDeserializeLoadException">加载失败异常</exception>
-        public static T JsonRead<T>(string filePath)
+        public static T Load<T>(string filePath)
         {
             FileInfo fileInfo = new FileInfo(filePath);
             string fileExtension = fileInfo.Extension;
@@ -57,11 +58,15 @@ namespace AITranslator.Translator.Persistent
             }
             catch (IOException)
             {
-                throw new JsonDeserializeLoadException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
+                throw new FileLoadException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
             }
             catch (UnauthorizedAccessException)
             {
-                throw new JsonDeserializeLoadException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
+                throw new FileLoadException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
+            }
+            catch (JsonException err)
+            {
+                throw new FileLoadException($"读取Json文件失败:{err.InnerException?.Message ?? err.Message}");
             }
             return result;
         }
@@ -73,7 +78,7 @@ namespace AITranslator.Translator.Persistent
         /// <param name="obj">要被保存的数据</param>
         /// <param name="filePath">要保存到的地址</param>
         /// <exception cref="JsonSerializeSaveException">保存失败异常</exception>
-        public static void JsonSave<T>(T obj, string filePath)
+        public static void Save<T>(T obj, string filePath)
         {
             FileInfo fileInfo = new FileInfo(filePath);
             string fileExtension = fileInfo.Extension;
@@ -88,11 +93,11 @@ namespace AITranslator.Translator.Persistent
             }
             catch (IOException)
             {
-                throw new JsonSerializeSaveException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
+                throw new FileSaveException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
             }
             catch (UnauthorizedAccessException)
             {
-                throw new JsonSerializeSaveException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
+                throw new FileSaveException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
             }
         }
 

@@ -22,15 +22,15 @@ namespace AITranslator.Translator.Models
         /// <summary>
         /// 清理后的数据文件保存的位置
         /// </summary>
-        public const string SourcePath = $"{TranslatedDataDic}/清理后的数据.json";
+        public const string SourcePath = $"{TranslatedDataDic}/清理后的数据";
         /// <summary>
         /// 翻译成功文件保存的位置
         /// </summary>
-        public const string SuccessfulPath = $"{TranslatedDataDic}/翻译成功.json";
+        public const string SuccessfulPath = $"{TranslatedDataDic}/翻译成功";
         /// <summary>
         /// 翻译失败文件保存的位置
         /// </summary>
-        public const string FailedPath = $"{TranslatedDataDic}/翻译失败.json";
+        public const string FailedPath = $"{TranslatedDataDic}/翻译失败";
         /// <summary>
         /// 配置文件保存的位置
         /// </summary>

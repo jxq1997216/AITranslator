@@ -1,6 +1,8 @@
-﻿using AITranslator.Translator.Models;
+﻿using AITranslator.Exceptions;
+using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Pretreatment;
+using AITranslator.Translator.TranslateData;
 using AITranslator.Translator.Translation;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
@@ -33,33 +35,15 @@ namespace AITranslator
         const double showConsoleHeight = 360;
 
         /// <summary>
-        /// 主窗体的ViewModel
-        /// </summary>
-        ViewModel vm;
-
-        /// <summary>
-        /// 原始翻译数据
-        /// </summary>
-        Dictionary<string, string>? dic_source;
-        /// <summary>
-        /// 翻译成功的数据
-        /// </summary>
-        Dictionary<string, string>? dic_successful;
-        /// <summary>
-        /// 翻译失败的数据
-        /// </summary>
-        Dictionary<string, string>? dic_failed;
-
-        /// <summary>
         /// 翻译器
         /// </summary>
-        ITranslator _translator;
+        TranslatorBase _translator;
         public Window_Main()
         {
             InitializeComponent();
 
             //初始化ViewModel
-            vm = (DataContext as ViewModel)!;
+            ViewModel vm = (DataContext as ViewModel)!;
             vm.Dispatcher = Dispatcher;
             vm.Consoles.CollectionChanged += Consoles_CollectionChanged;
             ViewModelManager.SetViewModel(vm);
@@ -75,45 +59,26 @@ namespace AITranslator
         {
             try
             {
-                ViewModelManager.Load();
-                if (File.Exists(PublicParams.SourcePath))
+                //加载配置信息,检查是否存在中断的翻译
+                if (ViewModelManager.Load())
                 {
-                    dic_source = JsonPersister.JsonRead<Dictionary<string, string>>(PublicParams.SourcePath);
-                    vm.IsBreaked = true;
+                    _translator = ViewModelManager.ViewModel.TranslateType switch
+                    {
+                        TranslateDataType.KV => new KVTranslator(),
+                        TranslateDataType.Srt => new SrtTranslator(),
+                        TranslateDataType.Txt => new TxtTranslator(),
+                        _ => throw new ArgumentException("配置文件参数存在错误")
+                    };
                 }
                 else
-                {
-                    vm.Progress = 0;
-                    vm.IsBreaked = false;
-                    vm.IsTranslating = false;
-                }
-
-                if (File.Exists(PublicParams.SuccessfulPath))
-                    dic_successful = JsonPersister.JsonRead<Dictionary<string, string>>(PublicParams.SuccessfulPath);
-                else
-                    dic_successful = new Dictionary<string, string>();
-
-                if (File.Exists(PublicParams.FailedPath))
-                    dic_failed = JsonPersister.JsonRead<Dictionary<string, string>>(PublicParams.FailedPath);
-                else
-                    dic_failed = new Dictionary<string, string>();
-
-                if (vm.IsBreaked)
-                {
-                    vm.Progress = (dic_successful.Count + dic_failed.Count) / (double)dic_source.Count * 100;
-                    if (vm.Progress > 100)
-                        vm.Progress = 100;
-                }
-
+                    ViewModelManager.SetNotStarted();
             }
             catch (Exception err)
             {
                 Window_Message.ShowDialog("错误", err.Message + "\r\n程序初始化异常，无法启动", owner: this);
                 Environment.Exit(0);
             }
-
         }
-
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
         private void window_main_Closing(object sender, System.ComponentModel.CancelEventArgs e) => tbIcon.Dispose();
         private async void Button_Small_Click(object sender, RoutedEventArgs e) => await AnimHide();
@@ -142,96 +107,72 @@ namespace AITranslator
         {
             try
             {
-                if (vm.Progress >= 100)
+                if (ViewModelManager.ViewModel.Progress >= 100)
                 {
                     System.Diagnostics.Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
                     return;
                 }
                 //如果正在翻译，则暂停翻译
-                if (vm.IsTranslating)
+                if (ViewModelManager.ViewModel.IsTranslating)
                 {
                     await Task.Run(() => _translator.Pause());
                     return;
                 }
 
-                if (!vm.IsBreaked)
+                if (!ViewModelManager.ViewModel.IsBreaked)
                 {
                     OpenFileDialog openFileDialog = new OpenFileDialog()
                     {
                         Title = "请选择待翻译的文本文件",
                         Multiselect = false,
-                        FileName = "Select a json file",
-                        Filter = "Json files (*.json)|*.json",
+                        FileName = "Select a file",
+                        Filter = "游戏提取文件(*.json)|*.json|文本文件(*.txt)|*.txt|字幕文件(*.srt)|*.srt",
                     };
 
                     if (!openFileDialog.ShowDialog()!.Value)
                         return;
 
-                    try
+                    FileInfo fileInfo = new FileInfo(openFileDialog.FileName);
+                    switch (fileInfo.Extension)
                     {
-                        dic_source = JsonPersister.JsonRead<Dictionary<string, string>>(openFileDialog.FileName);
+                        case ".json":
+                            if (!CreateJsonTranslator(fileInfo.FullName))
+                                return;
+                            break;
+                        case ".srt":
+                            if (!CreateSrtTranslator(fileInfo.FullName))
+                                return;
+                            break;
+                        case ".txt":
+                            if (!CreateTxtTranslator(fileInfo.FullName))
+                                return;
+                            break;
+                        default:
+                            throw new KnownException("不支持的文件格式！");
                     }
-                    catch (JsonException err)
-                    {
-                        string error = $"读取Json文件失败:{err.InnerException?.Message ?? err.Message}";
-                        ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}");
-                        Window_Message.ShowDialog("错误", error, owner: this);
-                        return;
-                    }
-
-                    Window_Set window_Set = new Window_Set();
-                    window_Set.Owner = this;
-                    window_Set.ShowDialog();
-                    if (!window_Set.DialogResult!.Value)
-                        return;
-
-                    Window_Replace window_Replace = new Window_Replace();
-                    window_Replace.Owner = this;
-                    window_Replace.ShowDialog();
-                    if (!window_Replace.DialogResult!.Value)
-                        return;
-
-                    //生成替换数据字典
-                    Directory.CreateDirectory(PublicParams.TranslatedDataDic);
-                    Dictionary<string, string> dic_replaces = window_Replace.Replaces;
-
-                    //读取屏蔽数据字典
-                    string[] array_block;
-                    Uri exampleURI = new Uri($"pack://application:,,,/AITranslator;component/{PublicParams.BlockPath}");
-                    StreamResourceInfo info = System.Windows.Application.GetResourceStream(exampleURI);
-                    using (UnmanagedMemoryStream stream = info.Stream as UnmanagedMemoryStream)
-                    {
-                        byte[] bytes = new byte[stream.Length];
-                        stream.Read(bytes);
-                        string block_json = Encoding.UTF8.GetString(bytes);
-                        array_block = JsonConvert.DeserializeObject<string[]>(block_json)!;
-                    }
-                    Dictionary<string, object?> dic_block = array_block.ToDictionary(key => key, value => default(object));
-
-                    //预处理
-                    dic_source = dic_source.Pretreatment(vm.IsEnglish, dic_replaces, dic_block);
-
-                    JsonPersister.JsonSave(dic_source, PublicParams.SourcePath);
-
-                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]清理数据完成");
-
-                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
                 }
                 else
                 {
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]继续翻译");
                 }
 
-                vm.IsTranslating = true;
-                _translator = new KVTranslator(dic_source, dic_successful, dic_failed);
+                ViewModelManager.ViewModel.IsTranslating = true;
+
                 _translator.Stoped += JsonTranslator_Stoped;
                 _translator.Start();
+            }
+            catch (KnownException err)
+            {
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{err.Message}");
+                Window_Message.ShowDialog("错误", err.Message, owner: this);
+                ViewModelManager.ViewModel.IsTranslating = false;
+                return;
             }
             catch (FileNotFoundException err)
             {
                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{err.Message}");
                 Window_Message.ShowDialog("错误", err.Message, owner: this);
-                vm.IsTranslating = false;
+                ViewModelManager.ViewModel.IsTranslating = false;
                 return;
             }
             catch (Exception err)
@@ -239,9 +180,134 @@ namespace AITranslator
                 string error = $"意料外的错误:{err}";
                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}");
                 Window_Message.ShowDialog("错误", "发生意料外的错误，详情请看日志输出", owner: this);
-                vm.IsTranslating = false;
+                ViewModelManager.ViewModel.IsTranslating = false;
                 return;
             }
+        }
+
+        bool CreateJsonTranslator(string filePath)
+        {
+            ViewModelManager.ViewModel.TranslateType = TranslateDataType.KV;
+
+            Dictionary<string, string> dic_source = JsonPersister.Load<Dictionary<string, string>>(filePath);
+
+            Window_Replace window_Replace = new Window_Replace();
+            window_Replace.Owner = this;
+            window_Replace.ShowDialog();
+            if (!window_Replace.DialogResult!.Value)
+                return false;
+
+            Window_Set window_Set = new Window_Set();
+            window_Set.Owner = this;
+            window_Set.ShowDialog();
+            if (!window_Set.DialogResult!.Value)
+                return false;
+
+            //生成替换数据字典
+            Directory.CreateDirectory(PublicParams.TranslatedDataDic);
+            Dictionary<string, string> dic_replaces = window_Replace.Replaces;
+
+            //读取屏蔽数据字典
+            string[] array_block;
+            Uri exampleURI = new Uri($"pack://application:,,,/AITranslator;component/{PublicParams.BlockPath}");
+            StreamResourceInfo info = System.Windows.Application.GetResourceStream(exampleURI);
+            using (UnmanagedMemoryStream stream = info.Stream as UnmanagedMemoryStream)
+            {
+                byte[] bytes = new byte[stream.Length];
+                stream.Read(bytes);
+                string block_json = Encoding.UTF8.GetString(bytes);
+                array_block = JsonConvert.DeserializeObject<string[]>(block_json)!;
+            }
+            Dictionary<string, object?> dic_block = array_block.ToDictionary(key => key, value => default(object));
+
+            //预处理
+            dic_source = dic_source.Pretreatment(ViewModelManager.ViewModel.IsEnglish, dic_replaces, dic_block);
+
+            JsonPersister.Save(dic_source, PublicParams.SourcePath + ".json");
+
+            ViewModelManager.Save();
+
+            _translator = new KVTranslator(dic_source);
+
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]清理数据完成");
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
+            return true;
+        }
+        bool CreateTxtTranslator(string filePath)
+        {
+            ViewModelManager.ViewModel.TranslateType = TranslateDataType.Txt;
+
+            List<string> list_source = TxtPersister.Load(filePath);
+
+            Window_Replace window_Replace = new Window_Replace();
+            window_Replace.Owner = this;
+            window_Replace.ShowDialog();
+            if (!window_Replace.DialogResult!.Value)
+                return false;
+
+            Window_Set window_Set = new Window_Set();
+            window_Set.Owner = this;
+            window_Set.ShowDialog();
+            if (!window_Set.DialogResult!.Value)
+                return false;
+
+            //生成替换数据字典
+            Directory.CreateDirectory(PublicParams.TranslatedDataDic);
+            Dictionary<string, string> dic_replaces = window_Replace.Replaces;
+            for (int i = 0; i < list_source.Count; i++)
+            {
+                foreach (var replace in dic_replaces)
+                    list_source[i] = list_source[i].Replace(replace.Key, replace.Value);
+            }
+
+            TxtPersister.Save(list_source, PublicParams.SourcePath + ".txt");
+
+            ViewModelManager.Save();
+
+            _translator = new TxtTranslator(list_source);
+
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]数据清理完成");
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
+
+            return true;
+        }
+        bool CreateSrtTranslator(string filePath)
+        {
+            ViewModelManager.ViewModel.TranslateType = TranslateDataType.Srt;
+
+            Dictionary<int, SrtData> dic_source = SrtPersister.Load(filePath);
+
+            Window_Replace window_Replace = new Window_Replace();
+            window_Replace.Owner = this;
+            window_Replace.ShowDialog();
+            if (!window_Replace.DialogResult!.Value)
+                return false;
+
+            Window_Set window_Set = new Window_Set();
+            window_Set.Owner = this;
+            window_Set.ShowDialog();
+            if (!window_Set.DialogResult!.Value)
+                return false;
+
+            //生成替换数据字典
+            Directory.CreateDirectory(PublicParams.TranslatedDataDic);
+            Dictionary<string, string> dic_replaces = window_Replace.Replaces;
+            foreach (var source in dic_source)
+            {
+                foreach (var replace in dic_replaces)
+                    source.Value.Text = source.Value.Text.Replace(replace.Key, replace.Value);
+            }
+
+            SrtPersister.Save(dic_source, PublicParams.SourcePath + ".srt");
+
+            ViewModelManager.Save();
+
+            _translator = new SrtTranslator(dic_source);
+
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]数据清理完成");
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
+
+            return true;
         }
 
         private void JsonTranslator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
@@ -294,6 +360,7 @@ namespace AITranslator
             window_Set.ShowDialog();
             if (!window_Set.DialogResult!.Value)
                 return;
+            ViewModelManager.Save();
         }
 
         private void tbIcon_TrayLeftMouseDoubleClick(object sender, RoutedEventArgs e) => AnimShow();

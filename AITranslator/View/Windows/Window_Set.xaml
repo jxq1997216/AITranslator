@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
         xmlns:control="clr-namespace:AITranslator.View.Controls"
-        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:translatedata="clr-namespace:AITranslator.Translator.TranslateData"
         mc:Ignorable="d"
         Title="Start Config" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Window.DataContext>
@@ -65,7 +65,7 @@
                         <StackPanel Margin="0,0,0,5" Orientation="Horizontal" HorizontalAlignment="Center">
                             <control:ToggleButton Margin="0,0,5,0" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>
                             <control:ToggleButton Margin="0,0,5,0" OnText="远程" OffText="本地" IsChecked="{Binding IsRomatePlatform}"/>
-                            <control:ToggleButton Margin="0,0,5,0" OnText="1B8" OffText="非1B8" IsChecked="{Binding IsModel1B8}"/>
+                            <control:ToggleButton Margin="0,0,5,0" Visibility="{calc:Binding 'TranslateType == translatedata:TranslateDataType.KV',FalseToVisibility=Collapsed}" OnText="1B8" OffText="非1B8" IsChecked="{Binding IsModel1B8}"/>
                         </StackPanel>
                         <Grid Margin="5,0,5,5" Visibility="{calc:Binding IsRomatePlatform,FalseToVisibility=Collapsed}">
                             <Grid.ColumnDefinitions>

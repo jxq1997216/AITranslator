@@ -21,8 +21,11 @@
 
   <ItemGroup>
     <None Remove="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
+    <None Remove="内置参数\固定示例对话_en.json" />
+    <None Remove="内置参数\固定示例对话_en_1b8.json" />
+    <None Remove="内置参数\固定示例对话_jp.json" />
+    <None Remove="内置参数\固定示例对话_jp_1b8.json" />
     <None Remove="内置参数\屏蔽列表.json" />
-    <None Remove="内置参数\特殊名词替换.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,28 +37,16 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="H.NotifyIcon.Wpf" Version="2.0.131" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
-    <Resource Include="内置参数\固定示例对话_en.json">
-      <CopyToOutputDirectory></CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="内置参数\固定示例对话_en_1b8.json">
-      <CopyToOutputDirectory></CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="内置参数\固定示例对话_jp.json">
-      <CopyToOutputDirectory></CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="内置参数\固定示例对话_jp_1b8.json">
-      <CopyToOutputDirectory></CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="内置参数\屏蔽列表.json">
-      <CopyToOutputDirectory></CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="内置参数\特殊名词替换.json">
-      <CopyToOutputDirectory></CopyToOutputDirectory>
-    </Resource>
+    <Resource Include="内置参数\固定示例对话_en.json" />
+    <Resource Include="内置参数\固定示例对话_en_1b8.json" />
+    <Resource Include="内置参数\固定示例对话_jp.json" />
+    <Resource Include="内置参数\固定示例对话_jp_1b8.json" />
+    <Resource Include="内置参数\屏蔽列表.json" />
   </ItemGroup>
 
 </Project>
