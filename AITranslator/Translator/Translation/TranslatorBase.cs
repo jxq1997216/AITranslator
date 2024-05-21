@@ -97,6 +97,7 @@ namespace AITranslator.Translator.Translation
                 {
                     Translate();
                     TranslateSuccessful();
+                    TranslateEnd();
                 }
                 catch (FileSaveException err)
                 {
@@ -147,10 +148,18 @@ namespace AITranslator.Translator.Translation
             ViewModelManager.SetPause();
         }
 
+        /// <summary>
+        /// 翻译抽象方法，子类继承并实现翻译方式
+        /// </summary>
         internal abstract void Translate();
 
         /// <summary>
-        /// 完成翻译后进行的操作
+        /// 翻译结束虚方法，子类继承后实现附加的翻译结束处理流程
+        /// </summary>
+        internal virtual void TranslateEnd() { }
+
+        /// <summary>
+        /// 完成翻译后保存文件并销毁Http连接
         /// </summary>
         void TranslateSuccessful()
         {

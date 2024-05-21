@@ -41,6 +41,7 @@ namespace AITranslator
         public Window_Main()
         {
             InitializeComponent();
+            Window_Message.DefaultOwner = this;
 
             //初始化ViewModel
             ViewModel vm = (DataContext as ViewModel)!;
@@ -75,7 +76,7 @@ namespace AITranslator
             }
             catch (Exception err)
             {
-                Window_Message.ShowDialog("错误", err.Message + "\r\n程序初始化异常，无法启动", owner: this);
+                Window_Message.ShowDialog("错误", err.Message + "\r\n程序初始化异常，无法启动");
                 Environment.Exit(0);
             }
         }
@@ -109,7 +110,7 @@ namespace AITranslator
             {
                 if (ViewModelManager.ViewModel.Progress >= 100)
                 {
-                    System.Diagnostics.Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
+                    Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
                     return;
                 }
                 //如果正在翻译，则暂停翻译
@@ -164,14 +165,14 @@ namespace AITranslator
             catch (KnownException err)
             {
                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{err.Message}");
-                Window_Message.ShowDialog("错误", err.Message, owner: this);
+                Window_Message.ShowDialog("错误", err.Message);
                 ViewModelManager.ViewModel.IsTranslating = false;
                 return;
             }
             catch (FileNotFoundException err)
             {
                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{err.Message}");
-                Window_Message.ShowDialog("错误", err.Message, owner: this);
+                Window_Message.ShowDialog("错误", err.Message);
                 ViewModelManager.ViewModel.IsTranslating = false;
                 return;
             }
@@ -179,7 +180,7 @@ namespace AITranslator
             {
                 string error = $"意料外的错误:{err}";
                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}");
-                Window_Message.ShowDialog("错误", "发生意料外的错误，详情请看日志输出", owner: this);
+                Window_Message.ShowDialog("错误", "发生意料外的错误，详情请看日志输出");
                 ViewModelManager.ViewModel.IsTranslating = false;
                 return;
             }
@@ -336,7 +337,7 @@ namespace AITranslator
             {
                 string error = $"清除进度失败:{err}";
                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}");
-                Window_Message.ShowDialog("错误", "清除进度失败，详情请看日志输出", owner: this);
+                Window_Message.ShowDialog("错误", "清除进度失败，详情请看日志输出");
             }
         }
 

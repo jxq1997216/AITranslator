@@ -4,6 +4,7 @@ using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Tools;
 using AITranslator.Translator.TranslateData;
 using AITranslator.View.Models;
+using AITranslator.View.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -73,33 +74,6 @@ namespace AITranslator.Translator.Translation
                 }
             }
         }
-        //internal override void Translate()
-        //{
-
-        //    //遍历未被翻译的数据
-        //    foreach (var kv in Data.Dic_NotTranslated)
-        //    {
-        //        int key = kv.Key;
-        //        string value = kv.Value;
-
-        //        string result_single = Translate_Single(value, true, 600, 0.2, 0);
-        //        if (result_single.Length > value.Length + 100)
-        //        {
-        //            ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译后字数超过限制，怀疑模型退化，记录到错误列表。");
-        //            Data.Dic_Failed[key] = value;
-        //            SaveFailedFile();
-        //        }
-        //        else
-        //        {
-        //            Data.Dic_Successful[key] = result_single;
-        //            SaveSuccessfulFile();
-        //            AddHistory(value, result_single);
-        //            ViewModelManager.WriteLine($"\r\n" + value + "\r\n" + "    ⬇" + "\r\n" + result_single);
-        //        }
-        //        CalculateProgress();
-        //    }
-        //}
-
         internal override void Translate()
         {
             int MaxLength = 200;
@@ -189,6 +163,26 @@ namespace AITranslator.Translator.Translation
 
             }
         }
+
+        internal override void TranslateEnd()
+        {
+            Data = new TxtTranslateData();
+            CalculateProgress();
+            if (Data.Dic_Failed.Count != 0)
+            {
+                bool result = Window_Message.ShowDialog("提示", "当前翻译存在翻译失败内容\r\n" +
+                    "点击确认继续合并翻译文件，这将把翻译失败文件中的内容合并到结果中\r\n" +
+                    "点击取消暂停合并，打开翻译结果文件夹手动修改",false);
+                if (!result)
+                {
+                    Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
+                    return;
+                }
+            }
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
+
+            base.TranslateEnd();
+        }
         internal override void SaveFailedFile()
         {
             int count = 0;
@@ -242,6 +236,8 @@ namespace AITranslator.Translator.Translation
         void CalculateProgress()
         {
             double progress = (Data.Dic_Successful.Count + Data.Dic_Failed.Count) / (double)Data.List_Source.Count * 100;
+            if (!File.Exists(PublicParams.SuccessfulPath + Data.Extension))
+                progress -= 0.1;
             ViewModelManager.SetProgress(progress);
         }
     }

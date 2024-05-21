@@ -33,6 +33,8 @@ namespace AITranslator.View.Windows
         /// </summary>
         [ObservableProperty]
         private bool isSingleBtn;
+
+        public static Window DefaultOwner;
         private Window_Message()
         {
             InitializeComponent();
@@ -69,6 +71,8 @@ namespace AITranslator.View.Windows
             Window_Message window = new Window_Message();
             if (owner.IsLoaded)
             {
+                if (owner is null)
+                    owner = DefaultOwner;
                 window.Owner = owner;
                 window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             }
