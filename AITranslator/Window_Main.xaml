@@ -151,6 +151,13 @@
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                            <Button Margin="5,0" Style="{StaticResource TitleBarButton}" ToolTip="软件声明" Click="Button_Declare_Click">
+                                <Button.Content>
+                                    <Viewbox Margin="2">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M512.172014 0C238.32555 0 12.987065 222.930287 12.987065 499.012935c0 273.846464 222.930287 499.012935 499.012935 499.012934 273.846464 0 499.012935-222.930287 499.012935-499.012934C1008.776751 222.930287 785.846464 0 512.172014 0m0 925.435915c-234.971275 0-426.42298-191.451705-426.42298-426.42298S277.200739 72.761969 512.172014 72.761969 938.594994 264.04166 938.594994 499.012935 747.143289 925.435915 512.172014 925.435915M475.877037 775.267596h70.181757v-356.069209H475.877037v356.069209z m36.294977-523.266924c-14.621199 0-26.662187 4.816395-38.703175 14.621199-9.63279 9.63279-14.621199 24.25399-14.621199 38.703175 0 14.621199 4.816395 29.070385 14.621199 38.703175 9.63279 9.63279 24.25399 14.621199 38.703175 14.621199s26.662187-4.816395 38.703175-14.621199c9.63279-9.63279 14.621199-24.25399 14.621199-38.703175 0-14.621199-4.816395-26.662187-14.621199-38.703175-12.040988-9.804804-24.25399-14.621199-38.703175-14.621199"/>
+                                    </Viewbox>
+                                </Button.Content>
+                            </Button>
                             <CheckBox x:Name="cb_ShowConsoles" Style="{StaticResource CheckButton}" Width="30" Content="日志"  Checked="cb_ShowConsoles_Checked" Unchecked="cb_ShowConsoles_Unchecked"/>
                         </StackPanel>
                     </Grid>

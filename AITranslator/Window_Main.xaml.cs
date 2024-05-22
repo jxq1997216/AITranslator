@@ -17,6 +17,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Resources;
@@ -41,6 +42,7 @@ namespace AITranslator
         public Window_Main()
         {
             InitializeComponent();
+            App.OtherProgressSend += App_OtherProgressSend;
             Window_Message.DefaultOwner = this;
 
             //初始化ViewModel
@@ -51,6 +53,18 @@ namespace AITranslator
 
             //读取初始化配置
             InitState();
+        }
+
+        private void App_OtherProgressSend(object? sender, byte[] e)
+        {
+            if (e.Length == 1 && e[0] == 1)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    AnimShow();
+                    Activate();
+                });
+            }
         }
 
         /// <summary>
@@ -423,6 +437,11 @@ namespace AITranslator
 
             await Task.Delay(animTime);
             Close();
+        }
+
+        private void Button_Declare_Click(object sender, RoutedEventArgs e)
+        {
+            Window_Message.ShowDialog("软件声明", "软件只提供AI翻译服务，仅作学习交流使用\r\n所有由本软件制成的翻译内容，与软件制作人无关，请各位遵守法律，合法翻译。");
         }
     }
 }
