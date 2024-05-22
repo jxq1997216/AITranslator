@@ -60,16 +60,14 @@ namespace AITranslator.Translator.TranslateData
             Dic_Source = sourceDic;
             Dic_Successful = successfulDic;
             Dic_Failed = failedDic;
-
-            //获取未翻译的内容
-            GetNotTranslatedData();
         }
 
         /// <summary>
         /// 获取未翻译的内容
         /// </summary>
-        void GetNotTranslatedData()
+        public void GetNotTranslatedData()
         {
+            Dic_NotTranslated.Clear();
             foreach (var key in Dic_Source.Keys)
             {
                 if (Dic_Successful.ContainsKey(key))

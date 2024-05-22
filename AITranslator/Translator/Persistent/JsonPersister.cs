@@ -78,7 +78,7 @@ namespace AITranslator.Translator.Persistent
         /// <param name="obj">要被保存的数据</param>
         /// <param name="filePath">要保存到的地址</param>
         /// <exception cref="JsonSerializeSaveException">保存失败异常</exception>
-        public static void Save<T>(T obj, string filePath)
+        public static void Save<T>(T obj, string filePath,bool hide = false)
         {
             FileInfo fileInfo = new FileInfo(filePath);
             string fileExtension = fileInfo.Extension;
@@ -90,6 +90,12 @@ namespace AITranslator.Translator.Persistent
                 string json = JsonConvert.SerializeObject(obj, Formatting.Indented);
                 File.WriteAllText(fileBakName, json);
                 File.Move(fileBakName, fileName, true);
+                if (hide)
+                {
+                    FileAttributes attributes = File.GetAttributes(filePath);
+                    attributes |= FileAttributes.Hidden;
+                    File.SetAttributes(filePath, attributes);
+                }
             }
             catch (IOException)
             {

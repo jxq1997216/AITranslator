@@ -19,5 +19,7 @@ namespace AITranslator.Translator.TranslateData
     {
         public TranslateDataType Type { get; }
         public string Extension { get; }
+
+        public void GetNotTranslatedData();
     }
 }

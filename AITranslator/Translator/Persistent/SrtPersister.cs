@@ -54,7 +54,7 @@ namespace AITranslator.Translator.Persistent
             }
         }
 
-        public static void Save(Dictionary<int, SrtData> datas, string filePath)
+        public static void Save(Dictionary<int, SrtData> datas, string filePath,bool hide = false)
         {
             FileInfo fileInfo = new FileInfo(filePath);
             string fileExtension = fileInfo.Extension;
@@ -69,6 +69,12 @@ namespace AITranslator.Translator.Persistent
                 string strString = stringBuilder.ToString();
                 File.WriteAllText(fileBakName, strString);
                 File.Move(fileBakName, fileName, true);
+                if (hide)
+                {
+                    FileAttributes attributes = File.GetAttributes(filePath);
+                    attributes |= FileAttributes.Hidden;
+                    File.SetAttributes(filePath, attributes);
+                }
             }
             catch (IOException)
             {

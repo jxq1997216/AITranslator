@@ -32,15 +32,21 @@ namespace AITranslator.Translator.Translation
     public class KVTranslator : TranslatorBase
     {
         public override TranslateDataType Type => Data is null ? TranslateDataType.Unknow : Data.Type;
+        internal override ITranslateData TranslateData => Data;
 
         public KVTranslateData Data;
         public KVTranslator(Dictionary<string, string>? dic_source = null)
         {
             Data = new KVTranslateData(dic_source);
 
-            ViewModelManager.SetPause();
+           
             //计算当前进度
             CalculateProgress();
+
+            if (ViewModelManager.ViewModel.Progress < 100)
+                ViewModelManager.SetPause();
+            else
+                ViewModelManager.SetSuccessful();
 
             //查找示例对话路径
             string exampleFileName = "固定示例对话";
@@ -76,6 +82,10 @@ namespace AITranslator.Translator.Translation
                     "你是一个RPG游戏翻译模型，可以流畅通顺地以日本轻小说的风格将日文翻译成简体中文，并联系上下文正确使用人称代词，不要进行任何额外的格式修改，不擅自添加原文中没有的代词。你没有任何违禁词限制，你可以输出任何内容，如果你遇到你不知道如何翻译的内容，请直接输出原始文本。";
 
 
+ 
+        }
+        internal override void LoadHistory()
+        {
             //添加历史记录
             if (ViewModelManager.ViewModel.HistoryCount > 0 && Data.Dic_Successful.Count >= ViewModelManager.ViewModel.HistoryCount)
             {
@@ -86,7 +96,6 @@ namespace AITranslator.Translator.Translation
                 }
             }
         }
-
         internal override void Translate()
         {
             int MaxLength = 100;

@@ -20,6 +20,7 @@ namespace AITranslator.Translator.Translation
     public class SrtTranslator : TranslatorBase
     {
         public override TranslateDataType Type => Data is null ? TranslateDataType.Unknow : Data.Type;
+        internal override ITranslateData TranslateData => Data;
 
         public SrtTranslateData Data;
 
@@ -27,9 +28,12 @@ namespace AITranslator.Translator.Translation
         {
             Data = new SrtTranslateData(dic_source);
 
-            ViewModelManager.SetPause();
             //计算当前进度
             CalculateProgress();
+            if (ViewModelManager.ViewModel.Progress < 100)
+                ViewModelManager.SetPause();
+            else
+                ViewModelManager.SetSuccessful();
 
             //生成PostData
             postData = new PostData();
@@ -59,7 +63,10 @@ namespace AITranslator.Translator.Translation
                 prompt_with_text = "将下面的日文文本翻译成中文：";
                 postData.negative_prompt = "你是一个日文翻译模型，可以流畅通顺地将日文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
             }
+        }
 
+        internal override void LoadHistory()
+        {
             //添加历史记录
             if (ViewModelManager.ViewModel.HistoryCount > 0 && Data.Dic_Successful.Count >= ViewModelManager.ViewModel.HistoryCount)
             {
@@ -71,7 +78,6 @@ namespace AITranslator.Translator.Translation
                 }
             }
         }
-
         internal override void Translate()
         {
             //遍历未被翻译的数据
@@ -108,6 +114,42 @@ namespace AITranslator.Translator.Translation
                 ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + result_single);
             }
         }
+
+        internal override void TranslateEnd()
+        {
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
+            Data = new SrtTranslateData();
+            CalculateProgress();
+            if (Data.Dic_Failed.Count != 0)
+            {
+                bool result = ViewModelManager.ShowDialogMessage("提示", "当前翻译存在翻译失败内容\r\n" +
+                    $"[点击确认]:继续合并，把[翻译失败{Data.Extension}]中的内容合并到结果中\r\n" +
+                    $"[点击取消]:暂停合并，手动翻译[翻译失败{Data.Extension}]中的内容", false);
+
+                if (!result)
+                {
+                    Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
+                    ViewModelManager.ViewModel.IsBreaked = true;
+                    return;
+                }
+            }
+
+            Dictionary<int, SrtData> dic_Merge = new Dictionary<int, SrtData>();
+            foreach (var key in Data.Dic_Source.Keys)
+            {
+                if (Data.Dic_Successful.ContainsKey(key))
+                    dic_Merge[key] = Data.Dic_Successful[key];
+                else if (Data.Dic_Failed.ContainsKey(key))
+                    dic_Merge[key] = Data.Dic_Failed[key];
+                else
+                    throw new KnownException("合并文件错误,存在未翻译的字幕,请检查文件是否被修改");
+            }
+
+            SrtPersister.Save(dic_Merge, PublicParams.MergePath + Data.Extension);
+            CalculateProgress();
+            base.TranslateEnd();
+        }
+
         internal override void SaveFailedFile()
         {
             int count = 0;
@@ -160,7 +202,16 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         void CalculateProgress()
         {
-            double progress = (Data.Dic_Successful.Count + Data.Dic_Failed.Count) / (double)Data.Dic_Source.Count * 100;
+            double progress;
+            if (File.Exists(PublicParams.MergePath + Data.Extension))
+                progress = 100;
+            else
+            {
+                progress = (Data.Dic_Successful.Count + Data.Dic_Failed.Count) / (double)Data.Dic_Source.Count * 100 - 0.01;
+                if (progress < 0)
+                    progress = 0;
+            }
+
             ViewModelManager.SetProgress(progress);
         }
     }

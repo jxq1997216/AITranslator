@@ -36,7 +36,14 @@ namespace AITranslator.Translator.Translation
 
     public abstract class TranslatorBase
     {
+        /// <summary>
+        /// 翻译类型
+        /// </summary>
         public abstract TranslateDataType Type { get; }
+        /// <summary>
+        /// 翻译数据
+        /// </summary>
+        internal abstract ITranslateData TranslateData { get; }
         /// <summary>
         /// 翻译停止事件，用于通讯UI
         /// </summary>
@@ -95,6 +102,9 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
+                    TranslateData.GetNotTranslatedData();
+                    _history.Clear();
+                    LoadHistory();
                     Translate();
                     TranslateSuccessful();
                     TranslateEnd();
@@ -198,6 +208,10 @@ namespace AITranslator.Translator.Translation
         }
 
         /// <summary>
+        /// 加载历史记录
+        /// </summary>
+        internal abstract void LoadHistory();
+        /// <summary>
         /// 添加历史上下文
         /// </summary>
         /// <param name="source">原始数据</param>
@@ -299,7 +313,6 @@ namespace AITranslator.Translator.Translation
                     postData.frequency_penalty = frequencyPenalty;
                     postData.max_tokens = maxTokens;
 
-                    //string sendJson = System.Text.Json.JsonSerializer.Serialize(postData);
 
                     string sendJson = JsonConvert.SerializeObject(postData);
                     using (StringContent httpContent = new StringContent(sendJson, Encoding.UTF8, "application/json"))

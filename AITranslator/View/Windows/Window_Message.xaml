@@ -39,10 +39,10 @@
                 <Label Grid.Row="1" Margin="5" HorizontalContentAlignment="Center" >
                     <TextBlock TextWrapping="Wrap" Foreground="White" Text="{Binding Message,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
                 </Label>
-                    
+
                 <StackPanel HorizontalAlignment="Center" Margin="5" Grid.Row="2" Orientation="Horizontal">
                     <Button Margin="5" IsEnabled="True" Height="25" Width="120" Content="确认" Style="{StaticResource ViewButton}" Click="Button_Yes_Click" Cursor="Hand"/>
-                    <Button Margin="5" IsEnabled="{calc:Binding !IsSingleBtn,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" Visibility="Collapsed" Height="25" Width="120" Content="取消" Style="{StaticResource ViewButton}" Click="Button_No_Click" Cursor="Hand"/>
+                    <Button Margin="5" Visibility="{calc:Binding !IsSingleBtn,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}},FalseToVisibility=Collapsed}" Height="25" Width="120" Content="取消" Style="{StaticResource ViewButton}" Click="Button_No_Click" Cursor="Hand"/>
                 </StackPanel>
             </Grid>
         </Grid>

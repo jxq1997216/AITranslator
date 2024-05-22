@@ -1,6 +1,7 @@
 ﻿using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
 using AITranslator.Translator.TranslateData;
+using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace AITranslator.View.Models
@@ -55,7 +57,7 @@ namespace AITranslator.View.Models
                 HistoryCount = ViewModel.HistoryCount,
                 TranslateType = ViewModel.TranslateType,
             };
-            JsonPersister.Save(save, PublicParams.ConfigPath);
+            JsonPersister.Save(save, PublicParams.ConfigPath, true);
         }
 
         /// <summary>
@@ -117,6 +119,16 @@ namespace AITranslator.View.Models
             if (progress > 100)
                 progress = 100;
             ViewModel.Progress = progress;
+        }
+
+        public static bool ShowDialogMessage(string title, string message, bool isSingleBtn = true, Window? owner = null)
+        {
+            return ViewModel.Dispatcher.Invoke(() => Window_Message.ShowDialog(title, message, isSingleBtn, owner));
+        }
+
+        public static void ShowMessage(string title, string message, bool isSingleBtn = true, Window? owner = null)
+        {
+            ViewModel.Dispatcher.Invoke(() => Window_Message.Show(title, message, isSingleBtn, owner));
         }
     }
 

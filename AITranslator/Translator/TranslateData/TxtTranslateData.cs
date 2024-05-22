@@ -50,7 +50,7 @@ namespace AITranslator.Translator.TranslateData
                 else
                     successfulDic = new Dictionary<int, string>();
 
-                if (File.Exists(PublicParams.FailedPath))
+                if (File.Exists(PublicParams.FailedPath + tempFileExtension))
                     failedDic = JsonPersister.Load<Dictionary<int, string>>(PublicParams.FailedPath + tempFileExtension);
                 else
                     failedDic = new Dictionary<int, string>();
@@ -65,16 +65,14 @@ namespace AITranslator.Translator.TranslateData
             List_Source = sourceDic;
             Dic_Successful = successfulDic;
             Dic_Failed = failedDic;
-
-            //获取未翻译的内容
-            GetNotTranslatedData();
         }
 
         /// <summary>
         /// 获取未翻译的内容
         /// </summary>
-        void GetNotTranslatedData()
+        public void GetNotTranslatedData()
         {
+            Dic_NotTranslated.Clear();
             for (int i = 0; i < List_Source.Count; i++)
             {
                 if (Dic_Successful.ContainsKey(i))

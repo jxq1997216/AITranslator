@@ -237,6 +237,7 @@ namespace AITranslator
         bool CreateTxtTranslator(string filePath)
         {
             ViewModelManager.ViewModel.TranslateType = TranslateDataType.Txt;
+            ViewModelManager.ViewModel.HistoryCount = 3;
 
             List<string> list_source = TxtPersister.Load(filePath);
 
@@ -356,6 +357,7 @@ namespace AITranslator
 
         private void Button_Set_Click(object sender, RoutedEventArgs e)
         {
+            bool enable = ViewModelManager.ViewModel.IsBreaked && !ViewModelManager.ViewModel.IsTranslating;
             Window_Set window_Set = new Window_Set();
             window_Set.Owner = this;
             window_Set.ShowDialog();

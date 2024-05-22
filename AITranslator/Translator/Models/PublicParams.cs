@@ -32,6 +32,10 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public const string FailedPath = $"{TranslatedDataDic}/翻译失败";
         /// <summary>
+        /// 合并结果文件保存的位置
+        /// </summary>
+        public const string MergePath = $"{TranslatedDataDic}/合并结果";
+        /// <summary>
         /// 配置文件保存的位置
         /// </summary>
         public const string ConfigPath = $"{TranslatedDataDic}/配置文件.json";

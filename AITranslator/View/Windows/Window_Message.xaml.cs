@@ -55,7 +55,7 @@ namespace AITranslator.View.Windows
 
         public static bool ShowDialog(string title, string message, bool isSingleBtn = true, Window? owner = null)
         {
-            Window_Message window = InitWindow(title,message, isSingleBtn, owner);
+            Window_Message window = InitWindow(title, message, isSingleBtn, owner);
             window.ShowDialog();
             return window.DialogResult!.Value;
         }
@@ -69,10 +69,10 @@ namespace AITranslator.View.Windows
         static Window_Message InitWindow(string title, string message, bool isSingleBtn = true, Window? owner = null)
         {
             Window_Message window = new Window_Message();
-            if (owner.IsLoaded)
+            if (owner is null)
+                owner = DefaultOwner;
+            if (owner != null && owner.IsLoaded)
             {
-                if (owner is null)
-                    owner = DefaultOwner;
                 window.Owner = owner;
                 window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             }
