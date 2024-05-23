@@ -50,8 +50,9 @@ namespace AITranslator.Translator.Pretreatment
                             new Regex(@"^[a-zA-Z +*/]+$"),  // 匹配包含字母、空格和运算符号的组合
                             new Regex(@"^[a-zA-Z ,.;_*+/=]+$"),  // 匹配包含字母、空格和标点符号的组合
                             new Regex(@"^[\u4e00-\u9fff]+$"),  // 匹配仅包含汉字
-                            new Regex(@"^(?![\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]).*$")  // 匹配不包含日文字符
-                        };
+                            new Regex(@"^(?![\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]).*$"),  // 匹配不包含日文字符
+                            //new Regex(@"[^\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]+")  // 匹配不包含日文字符
+        };
 
             /// <summary>
             /// 校验用正则表达式
@@ -90,6 +91,14 @@ namespace AITranslator.Translator.Pretreatment
                         return false;
                 }
                 return true;
+
+                ////方法1
+                //Regex regex = new Regex(@"^(?![\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]).*$");
+                //return regex.IsMatch(string);
+
+                ////方法2
+                //Regex regex = new Regex(@"[\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]+");
+                //return !regex.IsMatch(string);
             }
         }
         public static Dictionary<string, string> Pretreatment(this Dictionary<string, string> input, bool isEnglish, Dictionary<string, string> dic_replace, Dictionary<string, object?> dic_block)

@@ -49,4 +49,19 @@
     <Resource Include="内置参数\屏蔽列表.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="llama\cublas64_12.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="llama\cublasLt64_12.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="llama\cudart64_12.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="llama\llama.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

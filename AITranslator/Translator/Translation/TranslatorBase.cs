@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AITranslator.Translator.TranslateData;
+using AITranslator.Translator.Communicator;
 
 namespace AITranslator.Translator.Translation
 {
@@ -48,10 +49,6 @@ namespace AITranslator.Translator.Translation
         /// 翻译停止事件，用于通讯UI
         /// </summary>
         internal event EventHandler<TranslateStopEventArgs> Stoped;
-        /// <summary>
-        /// 连接Http服务客户端
-        /// </summary>
-        HttpClient httpClient;
 
         //发送数据包
         internal PostData postData;
@@ -66,10 +63,6 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         Task _translateTask;
 
-        /// <summary>
-        /// 用于通知翻译线程停止
-        /// </summary>
-        CancellationTokenSource cts;
 
         /// <summary>
         /// 历史上下文
@@ -81,6 +74,7 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         internal ExampleDialogue[] _example;
 
+        internal HttpCommunicator _communicator;
 
         internal void TrigerStopedEvent(TranslateStopEventArgs args)
         {
@@ -92,11 +86,7 @@ namespace AITranslator.Translator.Translation
         public void Start()
         {
             //创建连接客户端，设置超时时间10分钟
-            cts = new CancellationTokenSource();
-            httpClient = new HttpClient()
-            {
-                Timeout = TimeSpan.FromMinutes(10)
-            };
+            _communicator = new HttpCommunicator(new Uri(ViewModelManager.ViewModel.ServerURL + "/v1/chat/completions"));
 
             _translateTask = Task.Factory.StartNew(() =>
             {
@@ -151,7 +141,7 @@ namespace AITranslator.Translator.Translation
         public void Pause()
         {
             //通知停止线程
-            cts?.Cancel();
+            _communicator.Cancel();
             //等待线程停止
             _translateTask.Wait();
             //设置界面暂停
@@ -176,8 +166,7 @@ namespace AITranslator.Translator.Translation
             //保存文件
             SaveFiles();
 
-            cts.Dispose();
-            httpClient.Dispose();
+            _communicator.Dispose();
             _translateTask = null;
             ViewModelManager.SetSuccessful();
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
@@ -188,8 +177,8 @@ namespace AITranslator.Translator.Translation
             if (save)
                 SaveFiles();
 
-            cts.Dispose();
-            httpClient.Dispose();
+            _communicator.Dispose();
+
             _translateTask = null;
             ViewModelManager.SetPause();
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error} 翻译暂停");
@@ -300,82 +289,13 @@ namespace AITranslator.Translator.Translation
                 list_example.AddRange(_history);
             list_example.Add(new("user", $"{prompt_with_text}{str}"));
 
-            string str_result = string.Empty;
-            int tryCount = 0;
-            bool retry = true;
-            while (retry)
-            {
-                try
-                {
-                    CancellationToken token = cts.Token;
-                    postData.messages = list_example.ToArray();
-                    postData.temperature = temperature;
-                    postData.frequency_penalty = frequencyPenalty;
-                    postData.max_tokens = maxTokens;
+            postData.messages = list_example.ToArray();
+            postData.temperature = temperature;
+            postData.frequency_penalty = frequencyPenalty;
+            postData.max_tokens = maxTokens;
 
+            string str_result = _communicator.Translate(postData);
 
-                    string sendJson = JsonConvert.SerializeObject(postData);
-                    using (StringContent httpContent = new StringContent(sendJson, Encoding.UTF8, "application/json"))
-                    {
-                        using (HttpResponseMessage? httpResponse = httpClient.PostAsync(new Uri(ViewModelManager.ViewModel.ServerURL + "/v1/chat/completions"), httpContent, token).Result)
-                        {
-                            if (httpResponse.StatusCode == HttpStatusCode.OK)
-                            {
-                                string json_result = httpResponse.Content.ReadAsStringAsync().Result;
-                                JObject jobj = (JObject)JsonConvert.DeserializeObject(json_result);
-                                str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString()?.Trim() ?? string.Empty;
-                                retry = false;
-                            }
-                            else
-                            {
-                                ViewModelManager.WriteLine("服务回复状态错误！");
-                                tryCount++;
-                                if (tryCount >= 3)
-                                    throw new KnownException("错误:多次回复状态错误！");
-                                else
-                                {
-                                    Thread.Sleep(1000);
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (AggregateException err)
-                {
-                    Exception innerEx = err.InnerException!;
-                    if (innerEx is TaskCanceledException)
-                    {
-                        if (cts.Token.IsCancellationRequested)
-                            throw new KnownException("按下暂停按钮");
-                        else
-                        {
-                            ViewModelManager.WriteLine("接收数据超时！");
-                            tryCount++;
-                            if (tryCount >= 3)
-                                throw new KnownException("错误:多次接收数据超时！");
-                            else
-                            {
-                                Thread.Sleep(1000);
-                                continue;
-                            }
-                        }
-                    }
-                    else if (innerEx is HttpRequestException)
-                    {
-                        ViewModelManager.WriteLine(innerEx?.Message ?? string.Empty);
-                        tryCount++;
-                        if (tryCount >= 3)
-                            throw new KnownException("错误:多次连接服务失败！");
-                        else
-                        {
-                            Thread.Sleep(1000);
-                            continue;
-                        }
-                    }
-                    throw;
-                }
-            }
             return str_result;
         }
     }

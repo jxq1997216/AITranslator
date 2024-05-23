@@ -184,7 +184,6 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private bool isModel1B8;
 
-
         /// <summary>
         /// 上下文记忆数量
         /// </summary>
