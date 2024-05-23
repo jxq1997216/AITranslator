@@ -22,42 +22,41 @@ namespace AITranslator.Translator.Pretreatment
             /// <summary>
             /// 校验英语用的正则表达式
             /// </summary>
-            static Regex[] regexes_en = new Regex[]
-                       {
-                            new Regex(@"^\d+$"),  // 匹配仅包含数字
-                            new Regex(@"^[\d,]+$"),  // 匹配仅包含数字和逗号
-                            new Regex(@"^[+\-*/=]+$"),  // 匹配仅包含运算符号
-                            new Regex(@"^[,.;_*+/=]+$"),  // 匹配仅包含标点字符的组合
-                       };
+            static Dictionary<Regex, bool> regexes_en = new Dictionary<Regex, bool>()
+            {
+                { new Regex(@"^\d+$"),true },  // 匹配仅包含数字
+                { new Regex(@"^[\d,]+$"),true },  // 匹配仅包含数字和逗号
+                { new Regex(@"^[+\-*/=]+$"),true},  // 匹配仅包含运算符号
+                { new Regex(@"^[,.;_*+/=]+$"),true },  // 匹配仅包含标点字符的组合
+            };
 
             /// <summary>
             /// 校验日语用的正则表达式
             /// </summary>
-            static Regex[] regexes_jp = new Regex[]
+            static Dictionary<Regex, bool> regexes_jp = new Dictionary<Regex, bool>()
                        {
-                            new Regex(@"^\d+$"),  // 匹配仅包含数字
-                            new Regex(@"^[a-zA-Z]+$"),  // 匹配仅包含英文字母
-                            new Regex(@"^[\d,]+$"),  // 匹配仅包含数字和逗号
-                            new Regex(@"^[a-zA-Z,._]+$"),  // 匹配包含英文字母和标点字符
-                            new Regex(@"^[a-zA-Z0-9,._; ]+$"),  // 匹配包含英文字母、数字和标点字符的组合
-                            new Regex(@"^[\d+\-*/a-zA-Z ]+$"),  // 匹配数字、字母和运算符号的组合
-                            new Regex(@"^[+\-*/=]+$"),  // 匹配仅包含运算符号
-                            new Regex(@"^[a-zA-Z+\-*/ ]+$"),  // 匹配字母和运算符号的组合
-                            new Regex(@"^[a-zA-Z+\-*/,._; ]+$"),  // 匹配运算符号、字母和标点字符的组合
-                            new Regex(@"^[,.;_*+/=]+$"),  // 匹配仅包含标点字符的组合
-                            new Regex(@"^[a-zA-Z0-9\\,.;_*+/=]+$"),  // 匹配包含反斜杠、字母、数字和标点字符的组合
-                            new Regex(@"^[a-zA-Z ]+$"),  // 匹配包含字母和空格的组合
-                            new Regex(@"^[a-zA-Z +*/]+$"),  // 匹配包含字母、空格和运算符号的组合
-                            new Regex(@"^[a-zA-Z ,.;_*+/=]+$"),  // 匹配包含字母、空格和标点符号的组合
-                            new Regex(@"^[\u4e00-\u9fff]+$"),  // 匹配仅包含汉字
-                            new Regex(@"^(?![\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]).*$"),  // 匹配不包含日文字符
-                            //new Regex(@"[^\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]+")  // 匹配不包含日文字符
+                            {new Regex(@"^\d+$") ,true },  // 匹配仅包含数字
+                            {new Regex(@"^[a-zA-Z]+$"),true },  // 匹配仅包含英文字母
+                            {new Regex(@"^[\d,]+$"),true },  // 匹配仅包含数字和逗号
+                            {new Regex(@"^[a-zA-Z,._]+$"),true },  // 匹配包含英文字母和标点字符
+                            {new Regex(@"^[a-zA-Z0-9,._; ]+$"),true },  // 匹配包含英文字母、数字和标点字符的组合
+                            {new Regex(@"^[\d+\-*/a-zA-Z ]+$"),true },  // 匹配数字、字母和运算符号的组合
+                            {new Regex(@"^[+\-*/=]+$"),true },  // 匹配仅包含运算符号
+                            {new Regex(@"^[a-zA-Z+\-*/ ]+$"),true },  // 匹配字母和运算符号的组合
+                            {new Regex(@"^[a-zA-Z+\-*/,._; ]+$"),true },  // 匹配运算符号、字母和标点字符的组合
+                            {new Regex(@"^[,.;_*+/=]+$"),true },  // 匹配仅包含标点字符的组合
+                            {new Regex(@"^[a-zA-Z0-9\\,.;_*+/=]+$"),true },  // 匹配包含反斜杠、字母、数字和标点字符的组合
+                            {new Regex(@"^[a-zA-Z ]+$"),true },  // 匹配包含字母和空格的组合
+                            {new Regex(@"^[a-zA-Z +*/]+$"),true },  // 匹配包含字母、空格和运算符号的组合
+                            {new Regex(@"^[a-zA-Z ,.;_*+/=]+$"),true },  // 匹配包含字母、空格和标点符号的组合
+                            {new Regex(@"^[\u4e00-\u9fff]+$"),true },  // 匹配仅包含汉字
+                            {new Regex(@"[\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]+"),false },  // 匹配不包含日文字符
         };
 
             /// <summary>
             /// 校验用正则表达式
             /// </summary>
-            Regex[] regexes;
+            Dictionary<Regex, bool> regexes;
 
             /// <summary>
             /// 屏蔽列表
@@ -85,9 +84,14 @@ namespace AITranslator.Translator.Pretreatment
             {
                 if (dic_shield.ContainsKey(str))
                     return false;
-                foreach (var regex in regexes)
+                foreach (var regexkv in regexes)
                 {
-                    if (regex.IsMatch(str))
+                    Regex regex = regexkv.Key;
+                    bool reverse = regexkv.Value; 
+                    bool result = regex.IsMatch(str);
+                    if (!reverse)
+                        result = !result;
+                    if (result)
                         return false;
                 }
                 return true;
