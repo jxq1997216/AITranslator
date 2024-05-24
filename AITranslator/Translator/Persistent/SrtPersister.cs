@@ -32,6 +32,7 @@ namespace AITranslator.Translator.Persistent
                         continue;
 
                     string[] srt_string = srtString.Split('\n');
+                    srt_string = srt_string.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
                     int index = int.Parse(srt_string[0]);
                     if (index != i + 1)
                         throw new FileLoadException($"\r\nSrt文件格式错误:非连续序号！");

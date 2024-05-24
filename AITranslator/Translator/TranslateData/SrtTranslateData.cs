@@ -25,7 +25,6 @@ namespace AITranslator.Translator.TranslateData
 
         public SrtData(string[] datas)
         {
-            CultureInfo provider = CultureInfo.InvariantCulture;
             Time = datas[0];
             Text = datas[1];
         }
