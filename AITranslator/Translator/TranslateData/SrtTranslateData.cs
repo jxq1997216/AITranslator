@@ -13,13 +13,12 @@ namespace AITranslator.Translator.TranslateData
 {
     public class SrtData
     {
-        public TimeSpan BeginTime;
-        public TimeSpan EndTime;
+        public string Time;
         public string Text;
 
         public override string ToString()
         {
-            return BeginTime.ToString(@"hh\:mm\:ss\,fff") + " --> " + EndTime.ToString(@"hh\:mm\:ss\,fff") + "\n" + Text;
+            return Time + "\n" + Text;
         }
 
         private SrtData() { }
@@ -27,9 +26,7 @@ namespace AITranslator.Translator.TranslateData
         public SrtData(string[] datas)
         {
             CultureInfo provider = CultureInfo.InvariantCulture;
-            string[] times = datas[0].Split(" --> ");
-            BeginTime = TimeSpan.ParseExact(times[0], @"hh\:mm\:ss\,fff", provider);
-            EndTime = TimeSpan.ParseExact(times[1], @"hh\:mm\:ss\,fff", provider);
+            Time = datas[0];
             Text = datas[1];
         }
 
@@ -37,8 +34,7 @@ namespace AITranslator.Translator.TranslateData
         {
             SrtData srtData = new SrtData()
             {
-                BeginTime = BeginTime,
-                EndTime = EndTime,
+                Time = Time,
                 Text = Text
             };
             return srtData;
