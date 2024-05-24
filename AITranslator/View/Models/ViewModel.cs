@@ -284,6 +284,7 @@ namespace AITranslator.View.Models
             target.IsRomatePlatform = IsRomatePlatform;
             target.IsModel1B8 = IsModel1B8;
             target.ServerURL = ServerURL;
+            target.TranslateType = TranslateType;
             target.HistoryCount = HistoryCount;
         }
     }

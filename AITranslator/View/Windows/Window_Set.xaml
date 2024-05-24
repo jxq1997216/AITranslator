@@ -47,7 +47,7 @@
                         <GroupBox Margin="5,0,5,10" BorderThickness="0.1" BorderBrush="White">
                             <GroupBox.Header>
                                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <TextBlock Text="上下文记忆" Foreground="White" FontSize="10" />
+                                    <TextBlock Text="上下文记忆" Foreground="White" FontSize="10"/>
                                     <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
                                 </StackPanel>
                             </GroupBox.Header>
@@ -60,6 +60,17 @@
                                 <TextBox Grid.Column="1" Text="{Binding HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                             </Grid>
                         </GroupBox>
+                        <!--<GroupBox Margin="5,0,5,10" BorderThickness="0.1" BorderBrush="White">
+                            <GroupBox.Header>
+                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                    <TextBlock Text="模型加载器" Foreground="White" FontSize="11" VerticalAlignment="Center"/>
+                                    <control:ToggleButton Margin="5,0,0,0" OnText="第三方" OffText="内置" Style="{StaticResource ToggleButton_Small}" IsChecked="{Binding IsRomatePlatform}"/>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <StackPanel Margin="0,0,0,5" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <control:ToggleButton Margin="0,0,5,0" OnText="远程" OffText="本地" IsChecked="{Binding IsRomatePlatform}"/>
+                            </StackPanel>
+                        </GroupBox>-->
 
 
                         <StackPanel Margin="0,0,0,5" Orientation="Horizontal" HorizontalAlignment="Center">

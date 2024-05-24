@@ -8,7 +8,8 @@
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationIcon>View\Resources\Icon\Icon.ico</ApplicationIcon>
-	<FileVersion>1.1.2</FileVersion>
+	<FileVersion>1.1.3</FileVersion>
+	<Authors>FireFrog</Authors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
