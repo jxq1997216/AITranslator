@@ -37,7 +37,9 @@
     <PackageReference Include="CalcBinding" Version="2.5.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="H.NotifyIcon.Wpf" Version="2.0.131" />
+    <PackageReference Include="LLamaSharp" Version="0.12.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
@@ -48,21 +50,6 @@
     <Resource Include="内置参数\固定示例对话_jp.json" />
     <Resource Include="内置参数\固定示例对话_jp_1b8.json" />
     <Resource Include="内置参数\屏蔽列表.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="llama\cublas64_12.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="llama\cublasLt64_12.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="llama\cudart64_12.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="llama\llama.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 ﻿using AITranslator.Exceptions;
+using AITranslator.Translator.Communicator;
 using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Pretreatment;
@@ -118,6 +119,8 @@ namespace AITranslator
 
         private void cb_ShowConsoles_Checked(object sender, RoutedEventArgs e) => AnimateConsoleHeight(showConsoleHeight);
         private void cb_ShowConsoles_Unchecked(object sender, RoutedEventArgs e) => AnimateConsoleHeight(0);
+
+        Stopwatch sw = new Stopwatch();
         private async void Button_Start_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -131,6 +134,8 @@ namespace AITranslator
                 if (ViewModelManager.ViewModel.IsTranslating)
                 {
                     await Task.Run(() => _translator.Pause());
+                    sw.Stop();
+                    ViewModelManager.WriteLine($"耗时:{sw.ElapsedMilliseconds}");
                     return;
                 }
 
@@ -171,6 +176,7 @@ namespace AITranslator
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]继续翻译");
                 }
 
+                sw.Restart();
                 ViewModelManager.ViewModel.IsTranslating = true;
 
                 _translator.Stoped += JsonTranslator_Stoped;

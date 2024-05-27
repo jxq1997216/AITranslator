@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AITranslator", "AITranslator\AITranslator.csproj", "{F19155C7-BCFF-49CA-A2E3-2FFDA4FC7840}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLamaSelect", "LLamaSelect\LLamaSelect.csproj", "{D61C3F0E-B9C6-4E0C-BB28-15FE7217C522}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F19155C7-BCFF-49CA-A2E3-2FFDA4FC7840}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F19155C7-BCFF-49CA-A2E3-2FFDA4FC7840}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F19155C7-BCFF-49CA-A2E3-2FFDA4FC7840}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D61C3F0E-B9C6-4E0C-BB28-15FE7217C522}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D61C3F0E-B9C6-4E0C-BB28-15FE7217C522}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D61C3F0E-B9C6-4E0C-BB28-15FE7217C522}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D61C3F0E-B9C6-4E0C-BB28-15FE7217C522}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -74,7 +74,7 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         internal ExampleDialogue[] _example;
 
-        internal HttpCommunicator _communicator;
+        internal ICommunicator _communicator;
 
         internal void TrigerStopedEvent(TranslateStopEventArgs args)
         {
@@ -85,13 +85,16 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         public void Start()
         {
-            //创建连接客户端，设置超时时间10分钟
-            _communicator = new HttpCommunicator(new Uri(ViewModelManager.ViewModel.ServerURL + "/v1/chat/completions"));
 
             _translateTask = Task.Factory.StartNew(() =>
             {
                 try
                 {
+                    //创建连接客户端，设置超时时间10分钟
+                    //_communicator = new HttpCommunicator(new Uri(ViewModelManager.ViewModel.ServerURL + "/v1/chat/completions"));
+
+                    _communicator = new LLamaCommunicator("F:\\AITranslate\\Models\\sakura-7b Publisher\\sakura-7b Repository\\sakura-7b-lnovel-v0.9-Q4_K_M.gguf");
+                    
                     TranslateData.GetNotTranslatedData();
                     _history.Clear();
                     LoadHistory();
