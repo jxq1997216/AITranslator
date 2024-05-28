@@ -75,7 +75,7 @@ namespace AITranslator.Translator.TranslateData
                 else
                     successfulDic = new Dictionary<int, SrtData>();
 
-                if (File.Exists(PublicParams.FailedPath))
+                if (File.Exists(PublicParams.FailedPath + Extension))
                     failedDic = SrtPersister.Load(PublicParams.FailedPath + Extension);
                 else
                     failedDic = new Dictionary<int, SrtData>();

@@ -104,7 +104,6 @@ namespace AITranslator.Translator.Communicator
 
                 while (!translateTask.IsCompleted)
                 {
-
                     if (_cts.Token.IsCancellationRequested)
                         throw new KnownException("按下暂停按钮");
 

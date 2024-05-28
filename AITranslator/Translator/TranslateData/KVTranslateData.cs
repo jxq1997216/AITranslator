@@ -45,7 +45,7 @@ namespace AITranslator.Translator.TranslateData
                 else
                     successfulDic = new Dictionary<string, string>();
 
-                if (File.Exists(PublicParams.FailedPath))
+                if (File.Exists(PublicParams.FailedPath + Extension))
                     failedDic = JsonPersister.Load<Dictionary<string, string>>(PublicParams.FailedPath + Extension);
                 else
                     failedDic = new Dictionary<string, string>();
