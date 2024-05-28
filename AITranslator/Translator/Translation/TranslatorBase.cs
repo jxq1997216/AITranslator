@@ -14,6 +14,8 @@ using System.Text;
 using System.Threading.Tasks;
 using AITranslator.Translator.TranslateData;
 using AITranslator.Translator.Communicator;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Diagnostics;
 
 namespace AITranslator.Translator.Translation
 {
@@ -80,21 +82,25 @@ namespace AITranslator.Translator.Translation
         {
             Stoped?.Invoke(this, args);
         }
+
+        Stopwatch sw = new Stopwatch();
+
         /// <summary>
         /// 启动翻译
         /// </summary>
         public void Start()
         {
-
+            sw.Restart();
             _translateTask = Task.Factory.StartNew(() =>
             {
                 try
                 {
                     //创建连接客户端，设置超时时间10分钟
-                    //_communicator = new HttpCommunicator(new Uri(ViewModelManager.ViewModel.ServerURL + "/v1/chat/completions"));
+                    if (ViewModelManager.ViewModel.IsOpenAILoader)
+                        _communicator = new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.ServerURL + "/v1/chat/completions"));
+                    else
+                        _communicator = new LLamaCommunicator();
 
-                    _communicator = new LLamaCommunicator("F:\\AITranslate\\Models\\sakura-7b Publisher\\sakura-7b Repository\\sakura-7b-lnovel-v0.9-Q4_K_M.gguf");
-                    
                     TranslateData.GetNotTranslatedData();
                     _history.Clear();
                     LoadHistory();
@@ -173,6 +179,10 @@ namespace AITranslator.Translator.Translation
             _translateTask = null;
             ViewModelManager.SetSuccessful();
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
+            TrigerStopedEvent(TranslateStopEventArgs.CreateSucess());
+
+            sw.Stop();
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]耗时{sw.ElapsedMilliseconds / 1000d}秒");
         }
         void TranslateBreaked(string error, bool save = true, bool isKnownError = true)
         {

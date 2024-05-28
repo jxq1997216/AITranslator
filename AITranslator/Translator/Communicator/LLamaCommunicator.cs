@@ -14,16 +14,16 @@ using static LLama.Common.ChatHistory;
 using static System.Formats.Asn1.AsnWriter;
 using AITranslator.Exceptions;
 using AITranslator.View.Models;
+using AITranslator.View.Windows;
+using LLama.Exceptions;
 
 namespace AITranslator.Translator.Communicator
 {
-    internal class LLamaCommunicator : ICommunicator
+    public static class LLamaLoader
     {
-        CancellationTokenSource _cts;
-        LLamaWeights model;
-        StatelessExecutor executor;
-
-        static LLamaCommunicator()
+        static LLamaWeights model;
+        public static StatelessExecutor Executor;
+        static LLamaLoader()
         {
             string llamaPath = "llama/";
             if (File.Exists("llama/LLamaSelect.dll"))
@@ -36,27 +36,47 @@ namespace AITranslator.Translator.Communicator
             else
                 llamaPath += "llama.dll";
             NativeLibraryConfig.Instance.WithLibrary(llamaPath, null);
-
         }
-        public LLamaCommunicator(string modelPath, int gpuLayerCount = -1, uint contextSize = 2048)
+
+        public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, CancellationToken ctk, IProgress<float> progressReporter)
+        {
+            try
+            {
+                var parameters = new ModelParams(modelPath)
+                {
+                    ContextSize = contextSize, // The longest length of chat as memory.
+                    GpuLayerCount = gpuLayerCount // How many layers to offload to GPU. Please adjust it according to your GPU memory.
+                };
+                model = await LLamaWeights.LoadFromFileAsync(parameters, ctk, progressReporter);
+                Executor = new StatelessExecutor(model, parameters);
+            }
+            catch (OperationCanceledException err)
+            {
+                throw new KnownException("取消加载");
+            }
+            catch (TypeInitializationException err)
+            {
+                throw new KnownException("模型加载库可能损坏，请重新下载模型加载库后，重启软件尝试重新加载模型");
+            }
+            catch (LoadWeightsFailedException err)
+            {
+                throw new KnownException("加载模型失败，模型文件可能损坏，请重新下载模型文件后再试");
+            }
+        }
+
+        public static void Unload()
+        {
+            Executor = null;
+            model?.Dispose();
+        }
+    }
+    internal class LLamaCommunicator : ICommunicator
+    {
+        CancellationTokenSource _cts;
+
+        public LLamaCommunicator()
         {
             _cts = new CancellationTokenSource();
-            _init(modelPath, gpuLayerCount, contextSize);
-        }
-
-        void _init(string modelPath, int gpuLayerCount, uint contextSize)
-        {
-
-            var parameters = new ModelParams(modelPath)
-            {
-                //MainGpu = 1,
-                ContextSize = contextSize, // The longest length of chat as memory.
-                GpuLayerCount = gpuLayerCount // How many layers to offload to GPU. Please adjust it according to your GPU memory.
-            };
-            ViewModelManager.WriteLine("正在加载模型");
-            model = LLamaWeights.LoadFromFile(parameters);
-            executor = new StatelessExecutor(model, parameters);
-            ViewModelManager.WriteLine("加载模型成功");
         }
 
         public string Translate(PostData postData)
@@ -77,9 +97,26 @@ namespace AITranslator.Translator.Communicator
                 AntiPrompts = postData.stop,
             };
 
-            var str = string.Join("", executor.InferAsync(data, inferenceParams, token).ToArrayAsync(token));
-            if (_cts.Token.IsCancellationRequested)
-                throw new KnownException("按下暂停按钮");
+            Task<string> translateTask;
+            try
+            {
+                translateTask = Task.Run(() => string.Join("", LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token)));
+
+                while (!translateTask.IsCompleted)
+                {
+
+                    if (_cts.Token.IsCancellationRequested)
+                        throw new KnownException("按下暂停按钮");
+
+                    Thread.Sleep(100);
+                }
+            }
+            catch (ObjectDisposedException err)
+            {
+                return string.Empty;
+            }
+            string str = translateTask.Result;
+
             foreach (var stop in postData.stop)
             {
                 if (str.EndsWith(stop))
@@ -95,9 +132,7 @@ namespace AITranslator.Translator.Communicator
 
         public void Dispose()
         {
-            executor = null;
             _cts.Dispose();
-            model.Dispose();
         }
 
         string HistoryToText(List<Message> example)

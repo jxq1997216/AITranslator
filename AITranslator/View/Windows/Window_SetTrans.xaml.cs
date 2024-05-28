@@ -19,10 +19,10 @@ namespace AITranslator.View.Windows
     /// <summary>
     /// 设置配置参数的窗口
     /// </summary>
-    public partial class Window_Set : Window
+    public partial class Window_SetTrans : Window
     {
         ViewModel temp_vm;
-        public Window_Set()
+        public Window_SetTrans()
         {
             InitializeComponent();
 

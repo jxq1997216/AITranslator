@@ -18,130 +18,20 @@ using System.Windows.Threading;
 namespace AITranslator.View.Models
 {
     /// <summary>
-    /// 用于在全局获取到ViewModel的静态类
-    /// </summary>
-    public static class ViewModelManager
-    {
-        static bool _setted = false;
-        public static ViewModel ViewModel { get; private set; }
-        public static void SetViewModel(ViewModel vm)
-        {
-            if (_setted)
-                throw new InvalidOperationException("已设置过ViewModel，不能再次设置");
-            ViewModel = vm;
-            _setted = true;
-        }
-
-        /// <summary>
-        /// 打印控制台
-        /// </summary>
-        /// <param name="str"></param>
-        public static void WriteLine(string str)
-        {
-            ViewModel.ConsoleWriteLine(str);
-        }
-
-        /// <summary>
-        /// 保存需要持久化的配置信息
-        /// </summary>
-        public static void Save()
-        {
-            Directory.CreateDirectory(PublicParams.TranslatedDataDic);
-
-            ConfigSave save = new ConfigSave()
-            {
-                IsEnglish = ViewModel.IsEnglish,
-                IsRomatePlatform = ViewModel.IsRomatePlatform,
-                IsModel1B8 = ViewModel.IsModel1B8,
-                ServerURL = ViewModel.ServerURL,
-                HistoryCount = ViewModel.HistoryCount,
-                TranslateType = ViewModel.TranslateType,
-            };
-            JsonPersister.Save(save, PublicParams.ConfigPath, true);
-        }
-
-        /// <summary>
-        /// 加载配置信息
-        /// </summary>
-        public static bool Load()
-        {
-            if (File.Exists(PublicParams.ConfigPath))
-            {
-                ConfigSave save = JsonPersister.Load<ConfigSave>(PublicParams.ConfigPath);
-                ViewModel.IsEnglish = save.IsEnglish;
-                ViewModel.IsRomatePlatform = save.IsRomatePlatform;
-                ViewModel.IsModel1B8 = save.IsModel1B8;
-                ViewModel.ServerURL = save.ServerURL;
-                ViewModel.HistoryCount = save.HistoryCount;
-                ViewModel.TranslateType = save.TranslateType;
-                return true;
-            }
-            return false;
-        }
-
-        public static void SetNotStarted()
-        {
-            ViewModel.Progress = 0;
-            ViewModel.IsBreaked = false;
-            ViewModel.IsTranslating = false;
-        }
-
-        public static void SetPause()
-        {
-            //设置翻译中为False
-            ViewModel.IsTranslating = false;
-            //设置翻译暂停为True
-            ViewModel.IsBreaked = true;
-        }
-        public static void SetPause(double progress)
-        {
-            SetPause();
-            SetProgress(progress);
-        }
-
-        public static void SetStart()
-        {
-            //设置翻译中为False
-            ViewModel.IsTranslating = false;
-            //设置翻译暂停为True
-            ViewModel.IsBreaked = true;
-        }
-
-        public static void SetSuccessful()
-        {
-            ViewModel.IsBreaked = false;
-            ViewModel.IsTranslating = false;
-            ViewModel.Progress = 100;
-        }
-
-        public static void SetProgress(double progress)
-        {
-            if (progress > 100)
-                progress = 100;
-            ViewModel.Progress = progress;
-        }
-
-        public static bool ShowDialogMessage(string title, string message, bool isSingleBtn = true, Window? owner = null)
-        {
-            return ViewModel.Dispatcher.Invoke(() => Window_Message.ShowDialog(title, message, isSingleBtn, owner));
-        }
-
-        public static void ShowMessage(string title, string message, bool isSingleBtn = true, Window? owner = null)
-        {
-            ViewModel.Dispatcher.Invoke(() => Window_Message.Show(title, message, isSingleBtn, owner));
-        }
-    }
-
-    /// <summary>
     /// 用于界面绑定的ViewModel
     /// </summary>
     public partial class ViewModel : ObservableValidator
     {
         /// <summary>
-        /// 控制台输出内容
+        /// 版本号
         /// </summary>
         [ObservableProperty]
         private string? version = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName).FileVersion;
+        /// <summary>
+        /// 是否为测试版本
+        /// </summary>
+        [ObservableProperty]
+        private bool isBeta = true;
         /// <summary>
         /// 控制台输出内容
         /// </summary>
@@ -153,7 +43,17 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private ObservableCollection<KeyValueStr> replaces = new ObservableCollection<KeyValueStr>();
+        /// <summary>
+        /// 模型加载进度
+        /// </summary>
+        [ObservableProperty]
+        private double modelLoadProgress;
 
+        /// <summary>
+        /// 模型正在加载
+        /// </summary>
+        [ObservableProperty]
+        private bool isLoadingModel;
         /// <summary>
         /// 是否为中断的翻译
         /// </summary>
@@ -172,11 +72,6 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private bool isEnglish;
 
-        /// <summary>
-        /// 是否是远程平台
-        /// </summary>
-        [ObservableProperty]
-        private bool isRomatePlatform;
 
         /// <summary>
         /// 是否为1B8模型
@@ -202,7 +97,16 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private double progress;
-
+        /// <summary>
+        /// 是否使用OpenAI接口的第三方加载库
+        /// </summary>
+        [ObservableProperty]
+        private bool isOpenAILoader;
+        /// <summary>
+        /// 是否是远程平台
+        /// </summary>
+        [ObservableProperty]
+        private bool isRomatePlatform;
         /// <summary>
         /// 翻译服务的URL
         /// </summary>
@@ -210,9 +114,33 @@ namespace AITranslator.View.Models
         [Url(ErrorMessage = "请输入有效的远程URL！")]
         [ObservableProperty]
         private string serverURL = "http://127.0.0.1:5000";
-
         /// <summary>
-        /// 设置节目的错误信息
+        /// 本地LLM模型路径
+        /// </summary>
+        [ObservableProperty]
+        private string modelPath;
+        /// <summary>
+        /// GpuLayerCount
+        /// </summary>
+        [ObservableProperty]
+        private int gpuLayerCount = -1;
+        /// <summary>
+        /// ContextSize
+        /// </summary>
+        [ObservableProperty]
+        private uint contextSize = 2048;
+        /// <summary>
+        /// 模型是否已加载
+        /// </summary>
+        [ObservableProperty]
+        private bool modelLoaded;
+        /// <summary>
+        /// 启动自动加载模型
+        /// </summary>
+        [ObservableProperty]
+        private bool autoLoadModel;
+        /// <summary>
+        /// 设置界面的错误信息
         /// </summary>
         [ObservableProperty]
         private string setViewErrorMessage;
@@ -281,9 +209,7 @@ namespace AITranslator.View.Models
         public void CopyConfigTo(ViewModel target)
         {
             target.IsEnglish = IsEnglish;
-            target.IsRomatePlatform = IsRomatePlatform;
             target.IsModel1B8 = IsModel1B8;
-            target.ServerURL = ServerURL;
             target.TranslateType = TranslateType;
             target.HistoryCount = HistoryCount;
         }

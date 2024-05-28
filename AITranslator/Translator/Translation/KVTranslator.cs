@@ -303,12 +303,10 @@ namespace AITranslator.Translator.Translation
         /// <returns>字符串是否过于相似</returns>
         internal bool CheckSimilarity(string source, string translated)
         {
-            if (translated.Length >= 10)
-            {
-                double similarity_pt = source.CalculateSimilarity(translated);
-                if (similarity_pt > 90)
-                    return false;
-            }
+            double similarity_pt = source.CalculateSimilarity(translated);
+            if (similarity_pt > 90)
+                return false;
+
             return true;
         }
 

@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:AITranslator"
         xmlns:vm="clr-namespace:AITranslator.View.Models"
         mc:Ignorable="d"
-        Title="AI Translator" SizeToContent="Height" Height="Auto" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Closing="window_main_Closing">
+        Title="AI Translator" SizeToContent="Height" Height="Auto" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Closing="window_main_Closing" Loaded="Window_Loaded">
     <Window.RenderTransform>
         <TransformGroup>
             <ScaleTransform CenterX="{calc:Binding ActualWidth/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" CenterY="{calc:Binding ActualHeight/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" x:Name="window_scale"/>
@@ -47,6 +47,9 @@
                 <RectangleGeometry Rect="0 0 400 1000" RadiusX="9" RadiusY="9"></RectangleGeometry>
             </Grid.Clip>
             <Grid>
+                <Grid.Effect>
+                    <BlurEffect Radius="{calc:Binding IsLoadingModel?5:0}" KernelType="Gaussian"/>
+                </Grid.Effect>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
@@ -58,8 +61,19 @@
                     <StackPanel Orientation="Horizontal" Margin="10,3,0,0" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Title,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" FontFamily="{StaticResource English}" VerticalAlignment="Center" FontSize="20" Foreground="#FFD2D9DC"/>
                         <TextBlock Margin="10,0,0,0" Text="{Binding Version,StringFormat=v{0}}" FontFamily="{StaticResource English}" FontSize="12" Foreground="#FFD2D9DC" VerticalAlignment="Center"/>
+                        <TextBlock Margin="3,0,0,0" Text="Beta" Visibility="{calc:Binding IsBeta,FalseToVisibility=Collapsed}" FontFamily="{StaticResource English}" FontSize="12" Foreground="#FFD2D9DC" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Margin="5,0,2,0" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
+                        <Button Margin="0,0,3,0" Style="{StaticResource TitleBarButton}" IsEnabled="{calc:Binding 'IsOpenAILoader ? !IsTranslating : (ModelLoaded and !IsTranslating)'}" ToolTip="手动翻译" Click="Button_ManualTranslate_Click">
+                            <Viewbox Margin="0,3,0,0">
+                                <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M890.88 981.333333H132.693333C106.581333 981.333333 85.333333 960.384 85.333333 934.570667c0-25.813333 21.205333-46.762667 47.36-46.762667h758.186667c26.197333 0 47.402667 20.906667 47.402667 46.762667 0 25.813333-21.205333 46.762667-47.36 46.762666zM369.706667 833.28H180.053333c-26.154667 0-47.36-20.906667-47.36-46.762667v-186.965333c0-12.373333 4.992-24.32 13.866667-33.066667L620.458667 99.029333a47.829333 47.829333 0 0 1 66.986666 0l189.568 186.965334a46.293333 46.293333 0 0 1 0 66.133333L403.2 819.584c-8.874667 8.789333-20.906667 13.653333-33.493333 13.696z m-142.165334-93.482667h122.538667L776.533333 319.061333l-122.538666-120.917333-426.496 420.736v120.917333z"/>
+                            </Viewbox>
+                        </Button>
+                        <Button Style="{StaticResource TitleBarButton}" IsEnabled="{calc:Binding !IsTranslating}" ToolTip="模型加载设置" Click="Button_SetCommunicator_Click">
+                            <Viewbox Margin="0,4,0,0">
+                                <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M512.492024 0a511.704786 511.704786 0 1 1-512.098405 511.704786 511.704786 511.704786 0 0 1 512.098405-511.704786z m0 102.340957a409.363829 409.363829 0 1 0 409.363828 409.363829 409.6 409.6 0 0 0-409.363828-409.324467z m-48.808764 187.835018l146.426292 443.569326h-100.766481l-32.276763-107.615453H332.214492l-33.064002 107.615453H205.075533L352.289064 290.175975h111.394196z m307.41649 0v443.569326H677.024793V290.215337h94.074957z m-363.704017 90.532386h-4.723429l-51.957716 173.546646h107.851624l-51.170479-173.586008z"/>
+                            </Viewbox>
+                        </Button>
                         <Button Style="{StaticResource TitleBarButton}" Click="Button_Small_Click">
                             <Label Content="-" Margin="-5" Foreground="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18"/>
                         </Button>
@@ -185,7 +199,13 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </Border>
-
+            </Grid>
+            <Grid x:Name="loadingView" Background="#CF191D25" Visibility="{calc:Binding IsLoadingModel,FalseToVisibility=Collapsed}">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Text="正在加载模型"/>
+                    <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Text="{Binding ModelLoadProgress,StringFormat={}{0:0.#}%}"/>
+                </StackPanel>
+                <Button Margin="5" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="30" Width="60" Content="取消加载" Style="{StaticResource ViewButton}" Click="Button_StopLoad_Click"/>
             </Grid>
         </Grid>
     </Border>

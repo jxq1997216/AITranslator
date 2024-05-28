@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace AITranslator.Translator.Communicator
 {
-    internal class HttpCommunicator : ICommunicator
+    internal class OpenAICommunicator : ICommunicator
     {
         HttpClient _client;
         Uri _url;
         CancellationTokenSource _cts;
-        public HttpCommunicator(Uri url)
+        public OpenAICommunicator(Uri url)
         {
             _cts = new CancellationTokenSource();
             _url = url;

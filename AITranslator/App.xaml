@@ -17,6 +17,10 @@
             <converter:StartButtonTextConverter x:Key="StartButtonText"/>
             <converter:CollectionCountToStrConverter x:Key="CollectionCountToStr"/>
             <converter:TaskbarIconToolTipTextConverter x:Key="TaskbarIconToolTipText"/>
+            <converter:LoadModelButtonTextConverter x:Key="LoadModelButtonText"/>
+            <converter:GpuLayerCountConverter x:Key="GpuLayerCount"/>
+            <converter:GpuLayerTextConverter x:Key="GpuLayerText"/>
+            <converter:BoolToTextConverter x:Key="BoolToText"/>
 
             <FontFamily x:Key="English">pack://application:,,,/AITranslator;component/View/Resources/Font/AGARAMONDPRO-BOLD.OTF#Adobe Garamond Pro Bold</FontFamily>
         </ResourceDictionary>

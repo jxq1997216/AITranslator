@@ -11,18 +11,13 @@ using Microsoft.Win32;
 using Newtonsoft.Json;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Resources;
-using System.Windows.Shapes;
 
 namespace AITranslator
 {
@@ -120,7 +115,6 @@ namespace AITranslator
         private void cb_ShowConsoles_Checked(object sender, RoutedEventArgs e) => AnimateConsoleHeight(showConsoleHeight);
         private void cb_ShowConsoles_Unchecked(object sender, RoutedEventArgs e) => AnimateConsoleHeight(0);
 
-        Stopwatch sw = new Stopwatch();
         private async void Button_Start_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -134,8 +128,12 @@ namespace AITranslator
                 if (ViewModelManager.ViewModel.IsTranslating)
                 {
                     await Task.Run(() => _translator.Pause());
-                    sw.Stop();
-                    ViewModelManager.WriteLine($"耗时:{sw.ElapsedMilliseconds}");
+                    return;
+                }
+
+                if (!ViewModelManager.ViewModel.IsOpenAILoader && !ViewModelManager.ViewModel.ModelLoaded)
+                {
+                    Window_Message.ShowDialog("错误", "请先点击右上角AI图标加载翻译模型");
                     return;
                 }
 
@@ -176,10 +174,9 @@ namespace AITranslator
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]继续翻译");
                 }
 
-                sw.Restart();
                 ViewModelManager.ViewModel.IsTranslating = true;
 
-                _translator.Stoped += JsonTranslator_Stoped;
+                _translator.Stoped += Translator_Stoped;
                 _translator.Start();
             }
             catch (KnownException err)
@@ -218,7 +215,7 @@ namespace AITranslator
             if (!window_Replace.DialogResult!.Value)
                 return false;
 
-            Window_Set window_Set = new Window_Set();
+            Window_SetTrans window_Set = new Window_SetTrans();
             window_Set.Owner = this;
             window_Set.ShowDialog();
             if (!window_Set.DialogResult!.Value)
@@ -246,7 +243,7 @@ namespace AITranslator
 
             JsonPersister.Save(dic_source, PublicParams.SourcePath + ".json");
 
-            ViewModelManager.Save();
+            ViewModelManager.SaveTranslateConfig();
 
             _translator = new KVTranslator(dic_source);
 
@@ -267,7 +264,7 @@ namespace AITranslator
             if (!window_Replace.DialogResult!.Value)
                 return false;
 
-            Window_Set window_Set = new Window_Set();
+            Window_SetTrans window_Set = new Window_SetTrans();
             window_Set.Owner = this;
             window_Set.ShowDialog();
             if (!window_Set.DialogResult!.Value)
@@ -284,7 +281,7 @@ namespace AITranslator
 
             TxtPersister.Save(list_source, PublicParams.SourcePath + ".txt");
 
-            ViewModelManager.Save();
+            ViewModelManager.SaveTranslateConfig();
 
             _translator = new TxtTranslator(list_source);
 
@@ -305,7 +302,7 @@ namespace AITranslator
             if (!window_Replace.DialogResult!.Value)
                 return false;
 
-            Window_Set window_Set = new Window_Set();
+            Window_SetTrans window_Set = new Window_SetTrans();
             window_Set.Owner = this;
             window_Set.ShowDialog();
             if (!window_Set.DialogResult!.Value)
@@ -322,7 +319,7 @@ namespace AITranslator
 
             SrtPersister.Save(dic_source, PublicParams.SourcePath + ".srt");
 
-            ViewModelManager.Save();
+            ViewModelManager.SaveTranslateConfig();
 
             _translator = new SrtTranslator(dic_source);
 
@@ -332,9 +329,9 @@ namespace AITranslator
             return true;
         }
 
-        private void JsonTranslator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
+        private void Translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
         {
-            _translator.Stoped -= JsonTranslator_Stoped;
+            _translator.Stoped -= Translator_Stoped;
             if (e.IsPause)
                 tbIcon.ShowNotification(title: "翻译已暂停", message: e.PauseMsg);
             else
@@ -378,12 +375,12 @@ namespace AITranslator
         private void Button_Set_Click(object sender, RoutedEventArgs e)
         {
             bool enable = ViewModelManager.ViewModel.IsBreaked && !ViewModelManager.ViewModel.IsTranslating;
-            Window_Set window_Set = new Window_Set();
+            Window_SetTrans window_Set = new Window_SetTrans();
             window_Set.Owner = this;
             window_Set.ShowDialog();
             if (!window_Set.DialogResult!.Value)
                 return;
-            ViewModelManager.Save();
+            ViewModelManager.SaveTranslateConfig();
         }
 
         private void tbIcon_TrayLeftMouseDoubleClick(object sender, RoutedEventArgs e) => AnimShow();
@@ -448,6 +445,79 @@ namespace AITranslator
         private void Button_Declare_Click(object sender, RoutedEventArgs e)
         {
             Window_Message.ShowDialog("软件声明", "软件只提供AI翻译服务，仅作学习交流使用\r\n所有由本软件制成的翻译内容，与软件制作人无关，请各位遵守法律，合法翻译。");
+        }
+
+        private async void Button_SetCommunicator_Click(object sender, RoutedEventArgs e)
+        {
+            Window_SetLoader loaderSet = new Window_SetLoader();
+            loaderSet.Owner = this;
+            loaderSet.ShowDialog();
+            if (loaderSet.DialogResult!.Value && !ViewModelManager.ViewModel.IsOpenAILoader)
+                await LoadModel();
+        }
+
+        CancellationTokenSource _cts;
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!ViewModelManager.ViewModel.IsOpenAILoader && ViewModelManager.ViewModel.AutoLoadModel)
+                await LoadModel();
+        }
+
+        async Task LoadModel()
+        {
+            if (!File.Exists("llama/llama.dll") && !File.Exists("llama/LLamaSelect.dll"))
+            {
+                Window_Message.ShowDialog("错误", "模型加载库不存在，请下载对应您显卡版本的模型加载库放入软件目录下的llama文件夹中");
+                return;
+            }
+            if (!File.Exists(ViewModelManager.ViewModel.ModelPath))
+            {
+                Window_Message.ShowDialog("错误", "模型文件不存在");
+                return;
+            }
+            Progress<float> progress = new Progress<float>();
+            try
+            {
+                ViewModelManager.ViewModel.ModelLoadProgress = 0;
+                ViewModelManager.ViewModel.IsLoadingModel = true;
+                _cts = new CancellationTokenSource();
+                CancellationToken ctk = _cts.Token;
+                progress.ProgressChanged += Progress_ProgressChanged;
+                await LLamaLoader.Load(ViewModelManager.ViewModel.ModelPath, ViewModelManager.ViewModel.GpuLayerCount, ViewModelManager.ViewModel.ContextSize, ctk, progress);
+            }
+            catch (KnownException err)
+            {
+                Window_Message.ShowDialog("错误", err.Message);
+                return;
+            }
+            catch (Exception err)
+            {
+                Window_Message.ShowDialog("错误", err.ToString());
+                return;
+            }
+            finally
+            {
+                ViewModelManager.ViewModel.IsLoadingModel = false;
+                progress.ProgressChanged -= Progress_ProgressChanged;
+            }
+            Window_Message.ShowDialog("提示", "加载模型成功");
+            ViewModelManager.ViewModel.ModelLoaded = true;
+
+        }
+        private void Progress_ProgressChanged(object? sender, float e)
+        {
+            ViewModelManager.ViewModel.ModelLoadProgress = Math.Round(e * 100, 1);
+        }
+        private void Button_StopLoad_Click(object sender, RoutedEventArgs e)
+        {
+            _cts?.Cancel();
+        }
+
+        private void Button_ManualTranslate_Click(object sender, RoutedEventArgs e)
+        {
+            Window_ManualTranslate window_ManualTranslate = new Window_ManualTranslate();
+            window_ManualTranslate.Owner = this;
+            window_ManualTranslate.ShowDialog();
         }
     }
 }

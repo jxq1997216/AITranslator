@@ -36,9 +36,13 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public const string MergePath = $"{TranslatedDataDic}/合并结果";
         /// <summary>
-        /// 配置文件保存的位置
+        /// 基础配置文件保存的位置
         /// </summary>
-        public const string ConfigPath = $"{TranslatedDataDic}/配置文件.json";
+        public const string ConfigPath_LoadModel = $"Config.json";
+        /// <summary>
+        /// 翻译配置文件保存的位置
+        /// </summary>
+        public const string ConfigPath_Translate = $"{TranslatedDataDic}/配置文件.json";
         /// <summary>
         /// 屏蔽数据所在的位置
         /// </summary>
