@@ -144,7 +144,7 @@ namespace AITranslator
                         Title = "请选择待翻译的文本文件",
                         Multiselect = false,
                         FileName = "Select a file",
-                        Filter = "游戏提取文件(*.json)|*.json|文本文件(*.txt)|*.txt|字幕文件(*.srt)|*.srt",
+                        Filter = "待翻译文件(*.json;*.txt;*.srt)|*.json;*.txt;*.srt",
                     };
 
                     if (!openFileDialog.ShowDialog()!.Value)
