@@ -31,7 +31,7 @@ namespace AITranslator.View.Models
         /// 是否为测试版本
         /// </summary>
         [ObservableProperty]
-        private bool isBeta = true;
+        private bool isBeta = false;
         /// <summary>
         /// 控制台输出内容
         /// </summary>
