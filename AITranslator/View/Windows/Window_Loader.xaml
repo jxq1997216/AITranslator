@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
         xmlns:control="clr-namespace:AITranslator.View.Controls"
-        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:translatedata="clr-namespace:AITranslator.Translator.TranslateData"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" 
+        xmlns:translatedata="clr-namespace:AITranslator.Translator.TranslateData"
         mc:Ignorable="d"
         Title="Loader Config" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Window.DataContext>

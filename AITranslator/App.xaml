@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:AITranslator"
              xmlns:converter="clr-namespace:AITranslator.View.Converter"
-             StartupUri="Window_Main.xaml">
+             StartupUri="Window_Main2.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
