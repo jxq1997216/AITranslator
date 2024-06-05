@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
-        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
         Title="Confirm Clear" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
@@ -51,7 +51,7 @@
                         <Border x:Name="bd_error" Visibility="Collapsed"  Margin="5,0,5,5" Height="18" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
                             <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="请输入正确的确认字符！"/>
                         </Border>
-                        <Button Margin="5,0" Style="{StaticResource ViewButton}" Content="确认" Height="25" Click="Button_OK_Click"/>
+                        <controls:ViewButton Margin="5,0"  Content="确认" Height="25" Click="Button_OK_Click"/>
                     </StackPanel>
                 </Grid>
             </Grid>

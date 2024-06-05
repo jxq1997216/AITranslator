@@ -8,7 +8,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type CheckBox}">
-                    <Border x:Name="Border" Background="#1FFFFFFF" BorderBrush="#1FFFFFFF" BorderThickness="1" CornerRadius="2">
+                    <Border x:Name="Border" Background="#1FFFFFFF" BorderBrush="#1FFFFFFF" BorderThickness="0,1,0,0" CornerRadius="2">
                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -18,7 +18,7 @@
                                     <ColorAnimation
                                       Storyboard.TargetName="Border"
                                       Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                      To="#1F1A1A1A" Duration="0:0:0.1" />
+                                      To="#1FFFFFFF" Duration="0:0:0.1" />
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
@@ -28,7 +28,7 @@
                                     <ColorAnimation
                                       Storyboard.TargetName="Border"
                                       Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                      To="#1FFFFFFF" Duration="0:0:0.1" />
+                                      To="#1F1A1A1A" Duration="0:0:0.1" />
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>

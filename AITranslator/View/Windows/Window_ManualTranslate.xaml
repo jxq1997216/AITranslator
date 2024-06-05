@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
-        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
         Title="Manual Translate" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
@@ -43,7 +43,7 @@
                         <Border Margin="5" Grid.Column="1" BorderThickness="1" BorderBrush="White" Height="120" CornerRadius="5" >
                             <TextBox Name="tb_input" TextWrapping="Wrap" Foreground="White" CaretBrush="White" HorizontalContentAlignment="Left" Margin="3" BorderThickness="0" Background="Transparent"/>
                         </Border>
-                        <Button Margin="5" Style="{StaticResource ViewButton0}" IsEnabled="{calc:Binding !Translating}" Content="{Binding Translating,Converter={StaticResource BoolToText},ConverterParameter='翻译中 ↓翻译↓'}" Height="25" Click="Button_Translate_Click"/>
+                        <controls:ViewButton Margin="5" IsEnabled="{calc:Binding !Translating}" Content="{Binding Translating,Converter={StaticResource BoolToText},ConverterParameter='翻译中 ↓翻译↓'}" Height="25" Click="Button_Translate_Click"/>
                         <Border Margin="5" Grid.Column="1" BorderThickness="1" BorderBrush="White" Height="120" CornerRadius="5" >
                             <TextBox Name="tb_output" TextWrapping="Wrap" Foreground="White" CaretBrush="White" HorizontalContentAlignment="Left" Margin="3" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
                         </Border>

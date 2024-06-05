@@ -53,7 +53,7 @@ namespace AITranslator.View.Models
         /// 模型正在加载
         /// </summary>
         [ObservableProperty]
-        private bool isLoadingModel;
+        private bool modelLoading;
         /// <summary>
         /// 是否为中断的翻译
         /// </summary>

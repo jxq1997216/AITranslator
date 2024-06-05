@@ -6,9 +6,9 @@
         xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
         xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
         xmlns:local="clr-namespace:AITranslator"
-        xmlns:vm="clr-namespace:AITranslator.View.Models"
+        xmlns:vm="clr-namespace:AITranslator.View.Models" xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
-        Title="AI Translator" SizeToContent="Height" Height="Auto" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Closing="window_main_Closing" Loaded="Window_Loaded">
+        Title="AI Translator" SizeToContent="Height" Height="Auto" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Closing="window_main_Closing">
     <Window.RenderTransform>
         <TransformGroup>
             <ScaleTransform CenterX="{calc:Binding ActualWidth/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" CenterY="{calc:Binding ActualHeight/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" x:Name="window_scale"/>
@@ -29,7 +29,7 @@
     <Window.DataContext>
         <vm:ViewModel/>
     </Window.DataContext>
-    <Border x:Name="border_Main" CornerRadius="10" BorderThickness="0">
+    <Border x:Name="border_Main" CornerRadius="10" BorderThickness="0" ClipToBounds="True">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                 <GradientStop Offset="1" Color="#FF21252D"/>
@@ -69,11 +69,6 @@
                                 <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M890.88 981.333333H132.693333C106.581333 981.333333 85.333333 960.384 85.333333 934.570667c0-25.813333 21.205333-46.762667 47.36-46.762667h758.186667c26.197333 0 47.402667 20.906667 47.402667 46.762667 0 25.813333-21.205333 46.762667-47.36 46.762666zM369.706667 833.28H180.053333c-26.154667 0-47.36-20.906667-47.36-46.762667v-186.965333c0-12.373333 4.992-24.32 13.866667-33.066667L620.458667 99.029333a47.829333 47.829333 0 0 1 66.986666 0l189.568 186.965334a46.293333 46.293333 0 0 1 0 66.133333L403.2 819.584c-8.874667 8.789333-20.906667 13.653333-33.493333 13.696z m-142.165334-93.482667h122.538667L776.533333 319.061333l-122.538666-120.917333-426.496 420.736v120.917333z"/>
                             </Viewbox>
                         </Button>
-                        <Button Style="{StaticResource TitleBarButton}" IsEnabled="{calc:Binding !IsTranslating}" ToolTip="模型加载设置" Click="Button_SetCommunicator_Click">
-                            <Viewbox Margin="0,4,0,0">
-                                <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M512.492024 0a511.704786 511.704786 0 1 1-512.098405 511.704786 511.704786 511.704786 0 0 1 512.098405-511.704786z m0 102.340957a409.363829 409.363829 0 1 0 409.363828 409.363829 409.6 409.6 0 0 0-409.363828-409.324467z m-48.808764 187.835018l146.426292 443.569326h-100.766481l-32.276763-107.615453H332.214492l-33.064002 107.615453H205.075533L352.289064 290.175975h111.394196z m307.41649 0v443.569326H677.024793V290.215337h94.074957z m-363.704017 90.532386h-4.723429l-51.957716 173.546646h107.851624l-51.170479-173.586008z"/>
-                            </Viewbox>
-                        </Button>
                         <Button Style="{StaticResource TitleBarButton}" Click="Button_Small_Click">
                             <Label Content="-" Margin="-5" Foreground="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18"/>
                         </Button>
@@ -100,17 +95,17 @@
                                 </Border.Background>
 
                                 <StackPanel Grid.Row="0">
-                                    <Button Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource TaskbarButton}" Click="Button_Start_Taskbar_Click">
-                                        <Button.Content>
+                                    <controls:ViewButton Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource TaskbarButton}" Click="Button_Start_Taskbar_Click">
+                                        <controls:ViewButton.Content>
                                             <MultiBinding Converter="{StaticResource StartButtonText}" ConverterParameter="暂停 继续 开始 查看">
                                                 <Binding Path="IsTranslating"/>
                                                 <Binding Path="IsBreaked"/>
                                                 <Binding Path="Progress"/>
                                             </MultiBinding>
-                                        </Button.Content>
-                                    </Button>
-                                    <Button IsEnabled="{calc:Binding 'Progress >= 100 or (IsBreaked and !IsTranslating)'}"  Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Height="25" Style="{StaticResource TaskbarButton}" Content="清除当前进度" Click="Button_Clear_Taskbar_Click"/>
-                                    <Button Height="25" Style="{StaticResource TaskbarButton}" Content="退出" Click="Button_Close_Taskbar_Click"/>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                    <controls:ViewButton  IsEnabled="{calc:Binding 'Progress >= 100 or (IsBreaked and !IsTranslating)'}"  Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Height="25" Style="{StaticResource TaskbarButton}" Content="清除当前进度" Click="Button_Clear_Taskbar_Click"/>
+                                    <controls:ViewButton  Height="25" Style="{StaticResource TaskbarButton}" Content="退出" Click="Button_Close_Taskbar_Click"/>
                                 </StackPanel>
                             </Border>
                         </tb:TaskbarIcon.TrayPopup>
@@ -129,7 +124,7 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource ViewButton}" Click="Button_Start_Click">
+                            <controls:ViewButton EnableAnimation="Vertical" Grid.Column="0" Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Click="Button_Start_Click">
                                 <Button.Content>
                                     <MultiBinding Converter="{StaticResource StartButtonText}" ConverterParameter="暂停 继续 开始 查看">
                                         <Binding Path="IsTranslating"/>
@@ -137,16 +132,16 @@
                                         <Binding Path="Progress"/>
                                     </MultiBinding>
                                 </Button.Content>
-                            </Button>
-                            <Button Style="{StaticResource ViewButton2}" Margin="2,0,0,0" Grid.Column="1" Width="25" Height="25" Click="Button_Set_Click" IsEnabled="{calc:Binding 'IsBreaked and !IsTranslating'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}">
+                            </controls:ViewButton>
+                            <controls:ViewButton EnableAnimation="Horizontal" Margin="2,0,0,0" Grid.Column="1" Width="25" Height="25" Click="Button_Set_Click" IsEnabled="{calc:Binding 'IsBreaked and !IsTranslating'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}">
                                 <Viewbox Margin="3" VerticalAlignment="Center">
                                     <Path Data="M944.48 552.458667l-182.357333 330.666666a73.792 73.792 0 0 1-64.565334 38.325334h-362.133333a73.792 73.792 0 0 1-64.565333-38.325334l-182.357334-330.666666a75.338667 75.338667 0 0 1 0-72.682667l182.357334-330.666667a73.792 73.792 0 0 1 64.565333-38.325333h362.133333a73.792 73.792 0 0 1 64.565334 38.325333l182.357333 330.666667a75.338667 75.338667 0 0 1 0 72.682667z m-55.989333-31.146667a10.773333 10.773333 0 0 0 0-10.378667l-182.037334-330.666666a10.517333 10.517333 0 0 0-9.205333-5.482667H335.733333a10.517333 10.517333 0 0 0-9.205333 5.482667l-182.037333 330.666666a10.773333 10.773333 0 0 0 0 10.378667l182.037333 330.666667a10.517333 10.517333 0 0 0 9.205333 5.472h361.514667a10.517333 10.517333 0 0 0 9.205333-5.472l182.037334-330.666667zM513.738667 682.666667c-94.261333 0-170.666667-76.405333-170.666667-170.666667s76.405333-170.666667 170.666667-170.666667c94.250667 0 170.666667 76.405333 170.666666 170.666667s-76.416 170.666667-170.666666 170.666667z m0-64c58.912 0 106.666667-47.754667 106.666666-106.666667s-47.754667-106.666667-106.666666-106.666667-106.666667 47.754667-106.666667 106.666667 47.754667 106.666667 106.666667 106.666667z"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}"/>
                                 </Viewbox>
-                            </Button>
+                            </controls:ViewButton>
                         </Grid>
-                       
-                        <Button Margin="0,0,0,5" IsEnabled="{calc:Binding 'Progress >= 100 or (IsBreaked and !IsTranslating)'}"  Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Height="25" Style="{StaticResource ViewButton}" Content="清除当前进度" Click="Button_Clear_Click"/>
+
+                        <controls:ViewButton EnableAnimation="Vertical" Margin="0,0,0,5" IsEnabled="{calc:Binding 'Progress >= 100 or (IsBreaked and !IsTranslating)'}"  Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Height="25" Content="清除当前进度" Click="Button_Clear_Click"/>
                     </StackPanel>
                     <!--进度区-->
                     <Grid Margin="0,5,0,8" Grid.Row="1" Height="20">
@@ -205,7 +200,7 @@
                     <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Text="正在加载模型"/>
                     <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Text="{Binding ModelLoadProgress,StringFormat={}{0:0.#}%}"/>
                 </StackPanel>
-                <Button Margin="5" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="30" Width="60" Content="取消加载" Style="{StaticResource ViewButton}" Click="Button_StopLoad_Click"/>
+                <controls:ViewButton Margin="5" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="30" Width="60" Content="取消加载" Click="Button_StopLoad_Click"/>
             </Grid>
         </Grid>
     </Border>

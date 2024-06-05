@@ -9,18 +9,46 @@
         <Setter Property="Height" Value="25"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="OnBackground" Value="#5A57A5"/>
+        <Setter Property="OffBackground" Value="#7B68B5"/>
+        <Setter Property="OnForeground" Value="#A181C6"/>
+        <Setter Property="OffForeground" Value="#D6B5E2"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type control:ToggleButton}">
-                    <Border x:Name="back" Width="95" Height="25" BorderBrush="#946CBB" BorderThickness="0" Background="#7B68B5" HorizontalAlignment="Center" CornerRadius="12.5">
+                    <Border x:Name="back" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" BorderBrush="#946CBB" BorderThickness="0"  HorizontalAlignment="Center" CornerRadius="{calc:Binding Height/2, RelativeSource={RelativeSource Mode=TemplatedParent}}">
+                        <Border.Background>
+                            <SolidColorBrush>
+                                <SolidColorBrush.Color>
+                                    <MultiBinding Converter="{StaticResource AnimProgressToColor}">
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="AnimProgress"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="OffBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="OnBackground"/>
+                                    </MultiBinding>
+                                </SolidColorBrush.Color>
+                            </SolidColorBrush>
+                        </Border.Background>
                         <Grid>
-                            <Ellipse x:Name="center" VerticalAlignment="Center" Width="18" Height="18" Fill="#D6B5E2">
+                            <Ellipse VerticalAlignment="Center" Width="{calc:Binding Height * 0.75, RelativeSource={RelativeSource Mode=TemplatedParent}}" Height="{calc:Binding Height * 0.75, RelativeSource={RelativeSource Mode=TemplatedParent}}">
+                                <Ellipse.Fill>
+                                    <SolidColorBrush>
+                                        <SolidColorBrush.Color>
+                                            <MultiBinding Converter="{StaticResource AnimProgressToColor}">
+                                                <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="AnimProgress"/>
+                                                <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="OffForeground"/>
+                                                <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="OnForeground"/>
+                                            </MultiBinding>
+                                        </SolidColorBrush.Color>
+                                    </SolidColorBrush>
+                                </Ellipse.Fill>
                                 <Ellipse.RenderTransform>
-                                    <TranslateTransform  x:Name="centerTrams" X="-34"/>
+                                    <TranslateTransform  x:Name="centerTrams" X="{calc:Binding (Width - Height) * (AnimProgress - 0.5), RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
                                 </Ellipse.RenderTransform>
                             </Ellipse>
-                            <TextBlock x:Name="offText" Margin="9,0" HorizontalAlignment="Right" Foreground="White" VerticalAlignment="Center" Text="{TemplateBinding OffText}"/>
-                            <TextBlock Opacity="0" x:Name="onText" Margin="9,0" HorizontalAlignment="Left" Foreground="White" VerticalAlignment="Center" Text="{TemplateBinding OnText}"/>
+                            <Grid Margin="{TemplateBinding Height,Converter={StaticResource HeightToMargin}}">
+                                <TextBlock Opacity="{calc:Binding 1-AnimProgress, RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Right" FontSize="{TemplateBinding FontSize}" Foreground="White" VerticalAlignment="Center" Text="{TemplateBinding OffText}"/>
+                                <TextBlock Opacity="{Binding AnimProgress, RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Left" FontSize="{TemplateBinding FontSize}" Foreground="White" VerticalAlignment="Center" Text="{TemplateBinding OnText}"/>
+                            </Grid>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -28,22 +56,14 @@
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <ColorAnimation Storyboard.TargetName="center" Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)" To="#A181C6" Duration="0:0:0.2" />
-                                        <ColorAnimation Storyboard.TargetName="back" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#5A57A5" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="centerTrams" Storyboard.TargetProperty="X" To="34" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="offText" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="onText" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetProperty="AnimProgress" To="1" Duration="0:0:0.2"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <ColorAnimation Storyboard.TargetName="center" Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)" To="#D6B5E2" Duration="0:0:0.2" />
-                                        <ColorAnimation Storyboard.TargetName="back" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#7B68B5" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="centerTrams" Storyboard.TargetProperty="X" To="-34" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="offText" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="onText" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetProperty="AnimProgress" To="0" Duration="0:0:0.2"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
@@ -53,55 +73,4 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-    <Style x:Key="ToggleButton_Small" TargetType="{x:Type control:ToggleButton}">
-        <Setter Property="Width" Value="50"/>
-        <Setter Property="Height" Value="15"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type control:ToggleButton}">
-                    <Border x:Name="back" Width="50" Height="15 " BorderBrush="#946CBB" BorderThickness="0" Background="#7B68B5" HorizontalAlignment="Center" CornerRadius="7.5">
-                        <Grid>
-                            <Ellipse x:Name="center" VerticalAlignment="Center" Width="12" Height="12" Fill="#D6B5E2">
-                                <Ellipse.RenderTransform>
-                                    <TranslateTransform  x:Name="centerTrams" X="-17"/>
-                                </Ellipse.RenderTransform>
-                            </Ellipse>
-                            <TextBlock x:Name="offText" FontSize="10" Margin="4,0" HorizontalAlignment="Right" Foreground="White" VerticalAlignment="Center" Text="{TemplateBinding OffText}"/>
-                            <TextBlock Opacity="0" x:Name="onText" FontSize="10" Margin="4,0" HorizontalAlignment="Left" Foreground="White" VerticalAlignment="Center" Text="{TemplateBinding OnText}"/>
-                        </Grid>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <ColorAnimation Storyboard.TargetName="center" Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)" To="#A181C6" Duration="0:0:0.2" />
-                                        <ColorAnimation Storyboard.TargetName="back" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#5A57A5" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="centerTrams" Storyboard.TargetProperty="X" To="17" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="offText" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="onText" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <ColorAnimation Storyboard.TargetName="center" Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)" To="#D6B5E2" Duration="0:0:0.2" />
-                                        <ColorAnimation Storyboard.TargetName="back" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#7B68B5" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="centerTrams" Storyboard.TargetProperty="X" To="-17" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="offText" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2" />
-                                        <DoubleAnimation Storyboard.TargetName="onText" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
 </ResourceDictionary>

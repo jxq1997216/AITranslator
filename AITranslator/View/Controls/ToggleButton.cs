@@ -16,11 +16,10 @@ namespace AITranslator.View.Controls
     {
         static ToggleButton()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(ToggleButton),
-                new FrameworkPropertyMetadata(typeof(ToggleButton)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(ToggleButton), new FrameworkPropertyMetadata(typeof(ToggleButton)));
         }
         public static readonly DependencyProperty OffTextProperty =
-            DependencyProperty.Register("OffText", typeof(string), typeof(ToggleButton),
+            DependencyProperty.Register(nameof(OffText), typeof(string), typeof(ToggleButton),
                 new PropertyMetadata("Off"));
         public string OffText
         {
@@ -29,7 +28,7 @@ namespace AITranslator.View.Controls
         }
 
         public static readonly DependencyProperty OnTextProperty =
-            DependencyProperty.Register("OnText", typeof(string), typeof(ToggleButton),
+            DependencyProperty.Register(nameof(OnText), typeof(string), typeof(ToggleButton),
                 new PropertyMetadata("On"));
         public string OnText
         {
@@ -37,8 +36,49 @@ namespace AITranslator.View.Controls
             set { SetValue(OnTextProperty, value); }
         }
 
+        public static readonly DependencyProperty OnBackgroundProperty =
+            DependencyProperty.Register(nameof(OnBackground), typeof(Color), typeof(ToggleButton));
+
+        public Color OnBackground
+        {
+            get => (Color)GetValue(OnBackgroundProperty);
+            set => SetValue(OnBackgroundProperty, value);
+        }
+
+        public static readonly DependencyProperty OffBackgroundProperty =
+            DependencyProperty.Register(nameof(OffBackground), typeof(Color), typeof(ToggleButton));
+
+        public Color OffBackground
+        {
+            get => (Color)GetValue(OffBackgroundProperty);
+            set => SetValue(OffBackgroundProperty, value);
+        }
+
         public static readonly DependencyProperty OnForegroundProperty =
-            DependencyProperty.Register("OnForeground", typeof(Brush), typeof(ToggleButton),
-                new PropertyMetadata(Brushes.Silver));
+    DependencyProperty.Register(nameof(OnForeground), typeof(Color), typeof(ToggleButton));
+
+        public Color OnForeground
+        {
+            get => (Color)GetValue(OnForegroundProperty);
+            set => SetValue(OnForegroundProperty, value);
+        }
+
+        public static readonly DependencyProperty OffForegroundProperty =
+            DependencyProperty.Register(nameof(OffForeground), typeof(Color), typeof(ToggleButton));
+
+        public Color OffForeground
+        {
+            get => (Color)GetValue(OffForegroundProperty);
+            set => SetValue(OffForegroundProperty, value);
+        }
+
+        private static readonly DependencyProperty AnimProgressProperty =
+DependencyProperty.Register(nameof(AnimProgress), typeof(double), typeof(ToggleButton));
+
+        private double AnimProgress
+        {
+            get => (double)GetValue(AnimProgressProperty);
+            set => SetValue(AnimProgressProperty, value);
+        }
     }
 }

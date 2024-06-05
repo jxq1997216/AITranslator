@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
-        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
         Title="Replace Config" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Window.DataContext>
@@ -68,23 +68,23 @@
                                         <TextBox Grid.Column="0" CaretBrush="White" VerticalAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Key}"/>
                                         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Foreground="White" FocusVisualStyle="{x:Null}" Text="→"/>
                                         <TextBox Grid.Column="2" VerticalAlignment="Center" CaretBrush="White" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Value}"/>
-                                        <Button Grid.Column="3" Style="{StaticResource ViewButton}" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
+                                        <controls:ViewButton Grid.Column="3" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
                         <StackPanel Margin="5,0,6,5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Button  Style="{StaticResource ViewButton}" Content="+" Width="20" Height="20" Click="Button_Add_Click"/>
+                            <controls:ViewButton  Content="+" Width="20" Height="20" Click="Button_Add_Click"/>
                         </StackPanel>
                         <Grid Margin="5,5" >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <Button Margin="0,0,5,0" Grid.Column="0" Style="{StaticResource ViewButton}" Content="导入" Height="25" Click="Button_Import_Click" Cursor=""/>
-                            <Button Margin="5,0,0,0"  Grid.Column="1" Style="{StaticResource ViewButton}" Content="导出" Height="25" Click="Button_Export_Click" Cursor=""/>
+                            <controls:ViewButton Margin="0,0,5,0" Grid.Column="0" Content="导入" Height="25" Click="Button_Import_Click" Cursor=""/>
+                            <controls:ViewButton Margin="5,0,0,0"  Grid.Column="1" Content="导出" Height="25" Click="Button_Export_Click" Cursor=""/>
                         </Grid>
-                        <Button Margin="5,0" Style="{StaticResource ViewButton}" Content="{Binding Replaces.Count,Converter={StaticResource CollectionCountToStr},ConverterParameter='跳过添加 确认'}" Height="25" Click="Button_OK_Click" Cursor=""/>
+                        <controls:ViewButton Margin="5,0" Content="{Binding Replaces.Count,Converter={StaticResource CollectionCountToStr},ConverterParameter='跳过添加 确认'}" Height="25" Click="Button_OK_Click" Cursor=""/>
                     </StackPanel>
                 </Grid>
             </Grid>

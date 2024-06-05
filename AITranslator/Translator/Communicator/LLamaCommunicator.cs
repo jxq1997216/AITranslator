@@ -16,6 +16,7 @@ using AITranslator.Exceptions;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using LLama.Exceptions;
+using System.Windows;
 
 namespace AITranslator.Translator.Communicator
 {
@@ -36,6 +37,50 @@ namespace AITranslator.Translator.Communicator
             else
                 llamaPath += "llama.dll";
             NativeLibraryConfig.Instance.WithLibrary(llamaPath, null);
+        }
+
+        static CancellationTokenSource _cts;
+        public static async Task<string> LoadModel()
+        {
+            if (!File.Exists("llama/llama.dll") && !File.Exists("llama/LLamaSelect.dll"))
+                return "模型加载库不存在，请下载对应您显卡版本的模型加载库放入软件目录下的llama文件夹中";
+            if (!File.Exists(ViewModelManager.ViewModel.ModelPath))
+                return "模型文件不存在";
+            Progress<float> progress = new Progress<float>();
+            try
+            {
+                ViewModelManager.ViewModel.ModelLoadProgress = 0;
+                ViewModelManager.ViewModel.ModelLoading = true;
+                _cts = new CancellationTokenSource();
+                CancellationToken ctk = _cts.Token;
+                progress.ProgressChanged += Progress_ProgressChanged;
+                await LLamaLoader.Load(ViewModelManager.ViewModel.ModelPath, ViewModelManager.ViewModel.GpuLayerCount, ViewModelManager.ViewModel.ContextSize, ctk, progress);
+            }
+            catch (KnownException err)
+            {
+                return err.Message;
+            }
+            catch (Exception err)
+            {
+                return err.ToString();
+            }
+            finally
+            {
+                ViewModelManager.ViewModel.ModelLoading = false;
+                progress.ProgressChanged -= Progress_ProgressChanged;
+            }
+            ViewModelManager.ViewModel.ModelLoaded = true;
+            //ViewModelManager.ViewModel.ModelLoadProgress = 0;
+            return string.Empty;
+        }
+
+        public static void StopLoadModel()
+        {
+            _cts?.Cancel();
+        }
+        private static void Progress_ProgressChanged(object? sender, float e)
+        {
+            ViewModelManager.ViewModel.ModelLoadProgress = Math.Round(e * 100, 1);
         }
 
         public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, CancellationToken ctk, IProgress<float> progressReporter)

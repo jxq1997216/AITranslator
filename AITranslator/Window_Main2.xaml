@@ -7,9 +7,9 @@
         xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
         xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
         xmlns:vm="clr-namespace:AITranslator.View.Models" 
-        xmlns:uc="clr-namespace:AITranslator.View.UserControls"
+        xmlns:uc="clr-namespace:AITranslator.View.UserControls" xmlns:converter="clr-namespace:AITranslator.View.Converter" xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
-        Title="AI Translator" SizeToContent="Height" Height="Auto" Width="600" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Closing="window_main_Closing" Loaded="Window_Loaded">
+        Title="AI Translator" Height="600" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Closing="window_main_Closing">
     <Window.RenderTransform>
         <TransformGroup>
             <ScaleTransform CenterX="{calc:Binding ActualWidth/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" CenterY="{calc:Binding ActualHeight/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" x:Name="window_scale"/>
@@ -45,7 +45,7 @@
         </Border.BorderBrush>
         <Grid>
             <Grid.Clip>
-                <RectangleGeometry Rect="0 0 600 1000" RadiusX="9" RadiusY="9"/>
+                <RectangleGeometry Rect="0 0 400 1000" RadiusX="9" RadiusY="9"/>
             </Grid.Clip>
             <Grid>
                 <Grid.RowDefinitions>
@@ -71,23 +71,23 @@
                             </Border.Background>
 
                             <StackPanel Grid.Row="0">
-                                <Button Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource TaskbarButton}" Click="Button_Start_Taskbar_Click">
-                                    <Button.Content>
+                                <controls:ViewButton  Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource TaskbarButton}" Click="Button_Start_Taskbar_Click">
+                                    <controls:ViewButton.Content>
                                         <MultiBinding Converter="{StaticResource StartButtonText}" ConverterParameter="暂停 继续 开始 查看">
                                             <Binding Path="IsTranslating"/>
                                             <Binding Path="IsBreaked"/>
                                             <Binding Path="Progress"/>
                                         </MultiBinding>
-                                    </Button.Content>
-                                </Button>
-                                <Button IsEnabled="{calc:Binding 'Progress >= 100 or (IsBreaked and !IsTranslating)'}"  Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Height="25" Style="{StaticResource TaskbarButton}" Content="清除当前进度" Click="Button_Clear_Taskbar_Click"/>
-                                <Button Height="25" Style="{StaticResource TaskbarButton}" Content="退出" Click="Button_Close_Taskbar_Click"/>
+                                    </controls:ViewButton.Content>
+                                </controls:ViewButton>
+                                <controls:ViewButton IsEnabled="{calc:Binding 'Progress >= 100 or (IsBreaked and !IsTranslating)'}"  Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Height="25" Style="{StaticResource TaskbarButton}" Content="清除当前进度" Click="Button_Clear_Taskbar_Click"/>
+                                <controls:ViewButton Height="25" Style="{StaticResource TaskbarButton}" Content="退出" Click="Button_Close_Taskbar_Click"/>
                             </StackPanel>
                         </Border>
                     </tb:TaskbarIcon.TrayPopup>
                 </tb:TaskbarIcon>
                 <!--标题栏-->
-                <Grid Background="MediumPurple" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Grid Background="#FF312D87" MouseLeftButtonDown="Header_MouseLeftButtonDown">
                     <StackPanel Orientation="Horizontal" Margin="10,3,0,0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Title,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" FontFamily="{StaticResource English}" VerticalAlignment="Center" FontSize="20" Foreground="#FFD2D9DC"/>
                         <TextBlock Margin="10,0,0,0" Text="{Binding Version,StringFormat=v{0}}" FontFamily="{StaticResource English}" FontSize="12" Foreground="#FFD2D9DC" VerticalAlignment="Center"/>
@@ -117,21 +117,25 @@
                 <!--主体-->
                 <DockPanel Grid.Row="1">
                     <!--模型加载区-->
-                    <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" BorderBrush="Black">
-                        <uc:UserControl_ModelLoader DockPanel.Dock="Top" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
-                    </Border>
+                    <uc:UserControl_ModelLoader DockPanel.Dock="Top" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
                     <Border DockPanel.Dock="Left" BorderThickness="0,0,1,0"  BorderBrush="Black">
                         <StackPanel Width="50">
-                            <Rectangle Fill="Red" Height="50"/>
-                            <Rectangle Fill="Green" Height="50"/>
-                            <RadioButton x:Name="rb_TranslateView" Content="翻译" IsChecked="True" Height="50"/>
-                            <RadioButton x:Name="rb_LogView" Content="日志"/>
+                            <RadioButton x:Name="rb_TranslatingView" Content="翻译中" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}"/>
+                            <RadioButton x:Name="rb_TranslatedView" Content="翻译完成" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}"/>
+                            <RadioButton x:Name="rb_ManualTranslate" Content="手动翻译" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}"/>
+                            <RadioButton x:Name="rb_LogView" Content="日志" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}"/>
                         </StackPanel>
                     </Border>
 
 
-                    <Grid DockPanel.Dock="Right" Height="600" >
-                        <Grid Background="Yellow" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslateView,FalseToVisibility=Collapsed}">
+                    <Grid DockPanel.Dock="Right">
+                        <Grid Background="Yellow" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}">
+
+                        </Grid>
+                        <Grid Background="Aqua" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatedView,FalseToVisibility=Collapsed}">
+
+                        </Grid>
+                        <Grid Background="Red" Visibility="{calc:Binding IsChecked,ElementName=rb_ManualTranslate,FalseToVisibility=Collapsed}">
 
                         </Grid>
                         <Grid Background="Black" Visibility="{calc:Binding IsChecked,ElementName=rb_LogView,FalseToVisibility=Collapsed}">

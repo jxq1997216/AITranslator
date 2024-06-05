@@ -7,104 +7,119 @@
              xmlns:vm="clr-namespace:AITranslator.View.Models"
              xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" 
              xmlns:local="clr-namespace:AITranslator.View.UserControls"
+             xmlns:media ="clr-namespace:System.Windows.Media;assembly=PresentationCore"
              mc:Ignorable="d" 
-             Height="Auto" d:DesignWidth="600">
-    <Grid Margin="5" Grid.Row="1">
-        <StackPanel >
-            <GroupBox Margin="5,0,5,10" BorderThickness="0.1" BorderBrush="White">
-                <GroupBox.Header>
-                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                        <TextBlock Text="加载器" Foreground="White" FontSize="11" VerticalAlignment="Center"/>
-                        <control:ToggleButton Margin="5,0,0,0" OnText="非内置" OffText="内置"  IsEnabled="{calc:Binding !ModelLoaded}" Style="{StaticResource ToggleButton_Small}" IsChecked="{Binding IsOpenAILoader}"/>
-                    </StackPanel>
-                </GroupBox.Header>
-                <StackPanel Margin="5">
-                    <Grid Visibility="{calc:Binding IsOpenAILoader,FalseToVisibility=Collapsed}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <control:ToggleButton Margin="0,0,5,0" OnText="远程" OffText="本地" IsChecked="{Binding IsRomatePlatform}"/>
-                        <Border Grid.Column="1" BorderThickness="1"  Visibility="{calc:Binding IsRomatePlatform,FalseToVisibility=Collapsed}" BorderBrush="White" Height="25" CornerRadius="12.5" >
-                            <TextBox Name="tb_romateURL" Text="{Binding ServerURL}" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" Foreground="White" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
-                        </Border>
-                        <Button Margin="5,0" Width="50" Grid.Column="2" Content="应用" Style="{StaticResource ViewButton}" />
-                    </Grid>
-                    <StackPanel Visibility="{calc:Binding !IsOpenAILoader,FalseToVisibility=Collapsed}">
-                        <StackPanel Margin="2,0" IsEnabled="{calc:Binding !ModelLoaded}">
-                            <Button Height="30" Content="请选择模型" Style="{StaticResource ViewButton}"/>
-                            <!--<GroupBox  BorderThickness="0.1" BorderBrush="White">
-                                <GroupBox.Header>
-                                    <TextBlock Text="模型地址" Foreground="White" FontSize="10"/>
-                                </GroupBox.Header>
-                                <Grid Margin="2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Margin="0,0,5,0" Grid.Column="0" BorderThickness="1"  BorderBrush="White" Height="25" CornerRadius="12.5" >
-                                        <TextBox Name="tb_modelPath" BorderThickness="0" IsReadOnly="True" Text="{Binding ModelPath}" ToolTip="{Binding ModelPath}" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" Foreground="Gray"  Margin="5,0"  Background="Transparent" FontSize="10"/>
-                                    </Border>
-                                    <Button Content="选择" Grid.Column="1" Height="25" Style="{StaticResource ViewButton2}" Click="Button_Select_Click"/>
-                                </Grid>
-                            </GroupBox>-->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
-                                    <GroupBox.Header>
-                                        <TextBlock Text="GpuLayerCount" Foreground="White" FontSize="10"/>
-                                    </GroupBox.Header>
-                                    <Grid Margin="2">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition Width="40"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Slider x:Name="slider_GpuLayerCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding GpuLayerCount,Converter={StaticResource GpuLayerCount}}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                                        <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_GpuLayerCount,Converter={StaticResource GpuLayerText}}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                                    </Grid>
-                                </GroupBox>
-                                <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
-                                    <GroupBox.Header>
-                                        <TextBlock Text="ContextSize" Foreground="White" FontSize="10"/>
-                                    </GroupBox.Header>
-                                    <Grid Margin="2">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition Width="40"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Slider x:Name="slider_ContextSize" Grid.Column="0" Margin="0,0,10,0" Maximum="16348" Minimum="0" Value="{Binding ContextSize}" Ticks="512 1024 2048 3072 4096 5120 6144 7168 8192 9216 10240 11264 12288 13312 14336 15360 16384" IsSnapToTickEnabled="True" TickFrequency="16" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                                        <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_ContextSize}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                                    </Grid>
-                                </GroupBox>
-                            </Grid>
-                            <Grid Margin="0,10,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <Button Style="{StaticResource ViewButton}" Grid.Column="1" Width="100" Height="25" Content="加载模型"/>
-                                <CheckBox Grid.Column="2" Content="启动自加载" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="White" IsChecked="{Binding AutoLoadModel}"/>
-                                <!--<control:ToggleButton Grid.Column="2" HorizontalAlignment="Left" OnText="启动自加载" OffText="手动加载" IsChecked="{Binding AutoLoadModel}"/>-->
-                            </Grid>
+             Height="Auto" d:DesignWidth="600" Background="#FF191D25" Loaded="UserControl_Loaded">
+    <!--<UserControl.DataContext>
+        <vm:ViewModel/>
+    </UserControl.DataContext>-->
+    <Grid Margin="5">
+        <StackPanel>
+            <StackPanel x:Name="gb_main"  Margin="0,0,0,10" Visibility="{calc:Binding 'Height!=0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                <GroupBox  BorderThickness="0.1" BorderBrush="White">
+                    <GroupBox.Header>
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                            <control:ToggleButton Width="38" Height="14" FontSize="8" Margin="5,0,0,0" OnText="外置" OffText="内置"  IsEnabled="{calc:Binding !ModelLoaded and !ModelLoading}" IsChecked="{Binding IsOpenAILoader}" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked"/>
                         </StackPanel>
+                    </GroupBox.Header>
+                    <StackPanel Margin="5">
+                        <control:SizeAnimationGrid x:Name="gd_OpenAI" Height="30" IsEnabled="{Binding IsOpenAILoader}" Visibility="{calc:Binding '!(Opacity == 0)',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <control:ToggleButton Margin="0,0,5,0" Width="60" OnText="远程" OffText="本地" IsChecked="{Binding IsRomatePlatform}"/>
+                                    <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !IsRomatePlatform ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
+                                        <TextBox Name="tb_romateURL" Text="{Binding ServerURL}" Foreground="White" IsEnabled="{calc:Binding IsRomatePlatform}" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                                    </Border>
+                                </Grid>
+                            </StackPanel>
+                        </control:SizeAnimationGrid>
+                        <control:SizeAnimationGrid x:Name="gd_LLama" Height="115" IsEnabled="{calc:Binding !IsOpenAILoader}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                            <StackPanel>
+                                <StackPanel Margin="2,0">
+                                    <Grid Height="30">
+                                        <control:ViewButton x:Name="btn_SelectModel" Height="30" Content="{Binding ModelPath,Converter={StaticResource ModelName}}" IsHitTestVisible="{calc:Binding !ModelLoaded and !ModelLoading}" Click="Button_Select_Click"/>
+                                        <ProgressBar Height="3" BorderThickness="0" VerticalAlignment="Bottom" Maximum="100" Minimum="0" Foreground="MediumPurple" Background="Transparent" Value="{Binding ModelLoadProgress}" Visibility="{calc:Binding ModelLoading or ModelLoaded,FalseToVisibility=Hidden}"/>
+                                    </Grid>
+                                    <control:SizeAnimationGrid Height="50" IsEnabled="{calc:Binding !ModelLoaded and !ModelLoading}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
+                                            <GroupBox.Header>
+                                                <TextBlock Text="GpuLayerCount" Foreground="White" FontSize="10"/>
+                                            </GroupBox.Header>
+                                            <Grid Margin="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="40"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Slider x:Name="slider_GpuLayerCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding GpuLayerCount,Converter={StaticResource GpuLayerCount}}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                                <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_GpuLayerCount,Converter={StaticResource GpuLayerText}}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                            </Grid>
+                                        </GroupBox>
+                                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
+                                            <GroupBox.Header>
+                                                <TextBlock Text="ContextSize" Foreground="White" FontSize="10"/>
+                                            </GroupBox.Header>
+                                            <Grid Margin="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="40"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Slider x:Name="slider_ContextSize" Grid.Column="0" Margin="0,0,10,0" Maximum="16348" Minimum="0" Value="{Binding ContextSize}" Ticks="512 1024 2048 3072 4096 5120 6144 7168 8192 9216 10240 11264 12288 13312 14336 15360 16384" IsSnapToTickEnabled="True" TickFrequency="16" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                                <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_ContextSize}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                            </Grid>
+                                        </GroupBox>
+                                    </control:SizeAnimationGrid>
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click">
+                                            <Button.Content>
+                                                <MultiBinding Converter="{StaticResource LoadModelButtonText}" ConverterParameter="卸载模型 加载模型 取消加载">
+                                                    <Binding Path="ModelLoaded"/>
+                                                    <Binding Path="ModelLoading"/>
+                                                </MultiBinding>
+                                            </Button.Content>
+                                        </control:ViewButton>
 
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                            <control:ToggleButton Margin="5,0" Width="80" OnText="自动加载" OffText="手动加载" HorizontalAlignment="Left" IsChecked="{Binding AutoLoadModel}"/>
+                                            <TextBlock VerticalAlignment="Center" Foreground="White" Text="[?]" Cursor="Help" ToolTip="是否在程序启动时自动加载模型"/>
+                                        </StackPanel>
+                                        <!--<control:ToggleButton Grid.Column="2" HorizontalAlignment="Left" OnText="启动自加载" OffText="手动加载" IsChecked="{Binding AutoLoadModel}"/>-->
+                                    </Grid>
+                                </StackPanel>
+
+                            </StackPanel>
+                        </control:SizeAnimationGrid>
+                        <Border x:Name="tb_error" Visibility="{calc:Binding SetViewError,FalseToVisibility=Collapsed}"  Margin="5,5,5,0" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
+                            <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SetViewErrorMessage}"/>
+                        </Border>
                     </StackPanel>
-                </StackPanel>
-            </GroupBox>
-            <!--<Button Margin="5,0" Style="{StaticResource ViewButton}" Height="25" Click="Button_OK_Click">
-                <Button.Content>
-                    <MultiBinding Converter="{StaticResource LoadModelButtonText}" ConverterParameter="应用 加载模型 卸载模型">
+                </GroupBox>
+                <control:ViewButton Margin="0,5,0,0" Height="25" Width="120" Content="保存配置" HorizontalAlignment="Right" Click="Button_Save_Click"/>
+            </StackPanel>
+            <CheckBox x:Name="cb_CfgVisible" Margin="-5" Height="24" Style="{StaticResource CheckButton}" Checked="cb_CfgVisible_Checked" Unchecked="cb_CfgVisible_Unchecked">
+                <CheckBox.Content>
+                    <MultiBinding Converter="{StaticResource CommunicatorType}" ConverterParameter="正在使用外置模型加载器 未加载模型 加载模型中... 已加载模型">
                         <Binding Path="IsOpenAILoader"/>
                         <Binding Path="ModelLoaded"/>
+                        <Binding Path="ModelLoading"/>
+                        <Binding Path="ModelLoadProgress"/>
+                        <Binding ElementName="btn_SelectModel" Path="Content"/>
                     </MultiBinding>
-                </Button.Content>
-            </Button>-->
+                </CheckBox.Content>
+            </CheckBox>
         </StackPanel>
     </Grid>
 </UserControl>

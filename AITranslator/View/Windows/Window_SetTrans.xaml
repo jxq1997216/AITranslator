@@ -68,7 +68,7 @@
                         <Border Visibility="{calc:Binding SetViewError,FalseToVisibility=Collapsed}"  Margin="5,0,5,5" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
                             <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SetViewErrorMessage}"/>
                         </Border>
-                        <Button Margin="5,0" Style="{StaticResource ViewButton}" Content="确认" Height="25" Click="Button_OK_Click"/>
+                        <control:ViewButton Margin="5,0" Content="确认" Height="25" Click="Button_OK_Click"/>
                     </StackPanel>
                 </Grid>
             </Grid>

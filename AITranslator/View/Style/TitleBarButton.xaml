@@ -34,7 +34,6 @@
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
                         </Trigger>
-
                         <Trigger Property="IsEnabled" Value="True">
                             <Trigger.EnterActions>
                                 <BeginStoryboard>

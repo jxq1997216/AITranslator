@@ -1,0 +1,17 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:converter="clr-namespace:AITranslator.View.Converter"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <converter:AnimProgressToColorConver x:Key="AnimProgressToColor"/>
+    <converter:HeightToMarginConverter x:Key="HeightToMargin"/>
+    <converter:StartButtonTextConverter x:Key="StartButtonText"/>
+    <converter:CollectionCountToStrConverter x:Key="CollectionCountToStr"/>
+    <converter:TaskbarIconToolTipTextConverter x:Key="TaskbarIconToolTipText"/>
+    <converter:LoadModelButtonTextConverter x:Key="LoadModelButtonText"/>
+    <converter:GpuLayerCountConverter x:Key="GpuLayerCount"/>
+    <converter:GpuLayerTextConverter x:Key="GpuLayerText"/>
+    <converter:BoolToTextConverter x:Key="BoolToText"/>
+    <converter:ModelNameConverter x:Key="ModelName"/>
+    <converter:CommunicatorTypeConverter x:Key="CommunicatorType"/>
+
+</ResourceDictionary>
