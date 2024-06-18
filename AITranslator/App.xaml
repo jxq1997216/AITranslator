@@ -14,6 +14,7 @@
                 <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ViewButton.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/CheckButton.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ToggleButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/SidebarRadioButton.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

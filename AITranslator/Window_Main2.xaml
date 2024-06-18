@@ -94,11 +94,6 @@
                         <TextBlock Margin="3,0,0,0" Text="Beta" Visibility="{calc:Binding IsBeta,FalseToVisibility=Collapsed}" FontFamily="{StaticResource English}" FontSize="12" Foreground="#FFD2D9DC" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Margin="5,0,2,0" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
-                        <Button Margin="0,0,3,0" Style="{StaticResource TitleBarButton}" IsEnabled="{calc:Binding 'IsOpenAILoader ? !IsTranslating : (ModelLoaded and !IsTranslating)'}" ToolTip="手动翻译" Click="Button_ManualTranslate_Click">
-                            <Viewbox Margin="0,3,0,0">
-                                <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M890.88 981.333333H132.693333C106.581333 981.333333 85.333333 960.384 85.333333 934.570667c0-25.813333 21.205333-46.762667 47.36-46.762667h758.186667c26.197333 0 47.402667 20.906667 47.402667 46.762667 0 25.813333-21.205333 46.762667-47.36 46.762666zM369.706667 833.28H180.053333c-26.154667 0-47.36-20.906667-47.36-46.762667v-186.965333c0-12.373333 4.992-24.32 13.866667-33.066667L620.458667 99.029333a47.829333 47.829333 0 0 1 66.986666 0l189.568 186.965334a46.293333 46.293333 0 0 1 0 66.133333L403.2 819.584c-8.874667 8.789333-20.906667 13.653333-33.493333 13.696z m-142.165334-93.482667h122.538667L776.533333 319.061333l-122.538666-120.917333-426.496 420.736v120.917333z"/>
-                            </Viewbox>
-                        </Button>
                         <Button Style="{StaticResource TitleBarButton}" ToolTip="软件声明" Click="Button_Declare_Click" Cursor="Hand">
                             <Button.Content>
                                 <Viewbox Margin="0,4,0,0">
@@ -115,53 +110,70 @@
                     </StackPanel>
                 </Grid>
                 <!--主体-->
-                <DockPanel Grid.Row="1">
-                    <!--模型加载区-->
-                    <uc:UserControl_ModelLoader DockPanel.Dock="Top" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
-                    <Border DockPanel.Dock="Left" BorderThickness="0,0,1,0"  BorderBrush="Black">
-                        <StackPanel Width="50">
-                            <RadioButton x:Name="rb_TranslatingView" Content="翻译中" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}"/>
-                            <RadioButton x:Name="rb_TranslatedView" Content="翻译完成" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}"/>
-                            <RadioButton x:Name="rb_ManualTranslate" Content="手动翻译" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}"/>
-                            <RadioButton x:Name="rb_LogView" Content="日志" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}"/>
-                        </StackPanel>
-                    </Border>
+                <Grid  Grid.Row="1">
+                    <DockPanel>
+                        <!--模型加载区-->
+                        <Border DockPanel.Dock="Left" BorderThickness="0,0,1,0"  BorderBrush="Black">
+                            <StackPanel Width="50">
+                                <controls:SidebarRadioButton x:Name="rb_TranslatingView" ToolTip="翻译中" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
+                                    <Viewbox Margin="8,8,12,12">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M512 141.211a370.789 370.789 0 1 1 0 741.578 370.789 370.789 0 0 1 0-741.578z m-185.394 324.44a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z m185.394 0a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z m185.394 0a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z"/>
+                                    </Viewbox>
+                                </controls:SidebarRadioButton>
+                                <controls:SidebarRadioButton x:Name="rb_TranslatedView" ToolTip="翻译完成" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
+                                    <Viewbox Margin="12">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M512.54272 72.54016c-242.0736 0-438.30272 196.89984-438.30272 439.79776s196.22912 439.79776 438.30272 439.79776c242.06336 0 438.30272-196.89984 438.30272-439.79776S754.6112 72.54016 512.54272 72.54016zM706.65216 433.42336l-208.61952 209.85344 0-0.02048c-6.30784 6.3488-14.98624 10.25024-24.6272 10.25024-9.6 0-18.31424-3.9424-24.60672-10.25024L310.1952 503.66976c-6.28736-6.2976-10.16832-15.0016-10.16832-24.62208 0-19.3024 15.5904-34.91328 34.76992-34.91328 9.62048 0 18.31936 3.92192 24.6272 10.25024l113.98144 114.81088 184.01792-185.088c6.29248-6.3232 15.0272-10.21952 24.62208-10.21952 19.18464 0 34.75456 15.616 34.75456 34.87232C716.8 418.39616 712.91904 427.11552 706.65216 433.42336z"/>
+                                    </Viewbox>
+                                </controls:SidebarRadioButton>
+                                <controls:SidebarRadioButton x:Name="rb_ManualTranslate" ToolTip="手动翻译" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
+                                    <Viewbox Margin="12">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M890.88 981.333333H132.693333C106.581333 981.333333 85.333333 960.384 85.333333 934.570667c0-25.813333 21.205333-46.762667 47.36-46.762667h758.186667c26.197333 0 47.402667 20.906667 47.402667 46.762667 0 25.813333-21.205333 46.762667-47.36 46.762666zM369.706667 833.28H180.053333c-26.154667 0-47.36-20.906667-47.36-46.762667v-186.965333c0-12.373333 4.992-24.32 13.866667-33.066667L620.458667 99.029333a47.829333 47.829333 0 0 1 66.986666 0l189.568 186.965334a46.293333 46.293333 0 0 1 0 66.133333L403.2 819.584c-8.874667 8.789333-20.906667 13.653333-33.493333 13.696z m-142.165334-93.482667h122.538667L776.533333 319.061333l-122.538666-120.917333-426.496 420.736v120.917333z"/>
+                                    </Viewbox>
+                                </controls:SidebarRadioButton>
+                                <controls:SidebarRadioButton x:Name="rb_LogView" ToolTip="日志" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
+                                    <Viewbox Margin="10,10,13,13">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M410.3 187.1h209.4c18.5 0 33.4-14.4 33.4-32.1v-53.9c0-17.7-15-32.1-33.4-32.1H410.3c-18.5 0-33.4 14.4-33.4 32.1V155c0 17.7 15 32.1 33.4 32.1zM787.7 132.8H680.8v35.8c0 22-18.5 39.8-41.4 39.8H390.7c-22.9 0-41.4-17.8-41.4-39.8v-35.8H242.4c-58.7 0-106.2 45.7-106.2 102v610.6c0 56.3 47.6 102 106.2 102h545.2c58.7 0 106.2-45.7 106.2-102V234.8c0.1-56.3-47.5-102-106.1-102z m-27.5 592.3H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z m0-168.6H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z m0-168.6H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z"/>
+                                    </Viewbox>
+                                </controls:SidebarRadioButton>
+                            </StackPanel>
+                        </Border>
 
+                        <Grid DockPanel.Dock="Right">
+                            <Grid Background="Yellow" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}">
 
-                    <Grid DockPanel.Dock="Right">
-                        <Grid Background="Yellow" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}">
+                            </Grid>
+                            <Grid Background="Aqua" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatedView,FalseToVisibility=Collapsed}">
 
+                            </Grid>
+                            <Grid Background="Red" Visibility="{calc:Binding IsChecked,ElementName=rb_ManualTranslate,FalseToVisibility=Collapsed}">
+
+                            </Grid>
+                            <Grid Background="Black" Visibility="{calc:Binding IsChecked,ElementName=rb_LogView,FalseToVisibility=Collapsed}">
+                                <ListBox x:Name="list_Logs" Background="Transparent" BorderThickness="0" ItemsSource="{Binding Consoles}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Width="{calc:Binding '(ActualWidth - 5) less 0 ? 0 : (ActualWidth - 5)',ElementName=list_Consoles}" Text="{Binding}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
                         </Grid>
-                        <Grid Background="Aqua" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatedView,FalseToVisibility=Collapsed}">
-
-                        </Grid>
-                        <Grid Background="Red" Visibility="{calc:Binding IsChecked,ElementName=rb_ManualTranslate,FalseToVisibility=Collapsed}">
-
-                        </Grid>
-                        <Grid Background="Black" Visibility="{calc:Binding IsChecked,ElementName=rb_LogView,FalseToVisibility=Collapsed}">
-                            <ListBox x:Name="list_Logs" Background="Transparent" BorderThickness="0" ItemsSource="{Binding Consoles}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                                <ListBox.ItemContainerStyle>
-                                    <Style TargetType="ListBoxItem">
-                                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListBox.ItemContainerStyle>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Width="{calc:Binding '(ActualWidth - 5) less 0 ? 0 : (ActualWidth - 5)',ElementName=list_Consoles}" Text="{Binding}"/>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </Grid>
-                    </Grid>
-                </DockPanel>
+                    </DockPanel>
+                    <uc:UserControl_ModelLoader VerticalAlignment="Bottom" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
+                </Grid>
             </Grid>
         </Grid>
     </Border>

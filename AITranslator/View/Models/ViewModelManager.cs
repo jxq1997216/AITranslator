@@ -17,7 +17,7 @@ namespace AITranslator.View.Models
     public static class ViewModelManager
     {
         static bool _setted = false;
-        public static ViewModel ViewModel { get; private set; }
+        public static ViewModel ViewModel { get; private set; } = new ViewModel();
         public static void SetViewModel(ViewModel vm)
         {
             if (_setted)

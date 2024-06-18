@@ -2,7 +2,8 @@
                     xmlns:converter="clr-namespace:AITranslator.View.Converter"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     
-    <converter:AnimProgressToColorConver x:Key="AnimProgressToColor"/>
+    <converter:AnimProgressTo2ColorConver x:Key="AnimProgressTo2Color"/>
+    <converter:AnimProgressTo3ColorConver x:Key="AnimProgressTo3Color"/>
     <converter:HeightToMarginConverter x:Key="HeightToMargin"/>
     <converter:StartButtonTextConverter x:Key="StartButtonText"/>
     <converter:CollectionCountToStrConverter x:Key="CollectionCountToStr"/>

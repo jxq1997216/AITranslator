@@ -20,7 +20,7 @@
                         <Border.Background>
                             <SolidColorBrush>
                                 <SolidColorBrush.Color>
-                                    <MultiBinding Converter="{StaticResource AnimProgressToColor}">
+                                    <MultiBinding Converter="{StaticResource AnimProgressTo2Color}">
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="AnimProgress"/>
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="OffBackground"/>
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="OnBackground"/>
@@ -33,7 +33,7 @@
                                 <Ellipse.Fill>
                                     <SolidColorBrush>
                                         <SolidColorBrush.Color>
-                                            <MultiBinding Converter="{StaticResource AnimProgressToColor}">
+                                            <MultiBinding Converter="{StaticResource AnimProgressTo2Color}">
                                                 <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="AnimProgress"/>
                                                 <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="OffForeground"/>
                                                 <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="OnForeground"/>

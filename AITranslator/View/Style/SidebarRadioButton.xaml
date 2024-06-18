@@ -2,28 +2,34 @@
                     xmlns:control="clr-namespace:AITranslator.View.Controls"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Style TargetType="{x:Type control:ViewButton}">
+    <Style TargetType="{x:Type control:SidebarRadioButton}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Foreground" Value="#FFD2D9DC"/>
-        <Setter Property="LeaveBackground" Value="#1FFFFFFF"/>
-        <Setter Property="EnterBackground" Value="#1F1A1A1A"/>
+        <Setter Property="LeaveBackground" Value="#FF2A2A3A"/>
+        <Setter Property="EnterBackground" Value="#FF4F4F6F"/>
+        <Setter Property="CheckedBackground" Value="#FF514DA7"/>
         <Setter Property="BorderBrush" Value="#1FFFFFFF"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="CornerRadius" Value="2"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="EnableAnimation" Value="Vertical"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="Width" Value="50"/>
+        
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type control:ViewButton}">
+                <ControlTemplate TargetType="{x:Type control:SidebarRadioButton}">
                     <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
                         <Border.Background>
                             <SolidColorBrush>
                                 <SolidColorBrush.Color>
-                                    <MultiBinding Converter="{StaticResource AnimProgressTo2Color}">
+                                    <MultiBinding Converter="{StaticResource AnimProgressTo3Color}">
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="AnimProgress"/>
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="LeaveBackground"/>
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="EnterBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="CheckedBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="IsChecked"/>
                                     </MultiBinding>
                                 </SolidColorBrush.Color>
                             </SolidColorBrush>
@@ -52,16 +58,5 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
-
-    <Style x:Key="TaskbarButton" TargetType="{x:Type control:ViewButton}" BasedOn="{StaticResource {x:Type control:ViewButton}}">
-        <Setter Property="LeaveBackground" Value="#1F1A1A1A"/>
-        <Setter Property="EnterBackground" Value="#1FFFFFFF"/>
-        <Setter Property="EnableAnimation" Value="Vertical"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="CornerRadius" Value="0"/>
-        <Setter Property="Height" Value="25"/>
-        <Setter Property="Padding" Value="10,0,0,0"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
     </Style>
 </ResourceDictionary>
