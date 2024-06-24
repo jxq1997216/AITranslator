@@ -17,10 +17,6 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public bool IsEnglish { get; set; }
         /// <summary>
-        /// 是否是1B8模型
-        /// </summary>
-        public bool IsModel1B8 { get; set; }
-        /// <summary>
         /// 上下文记忆数量
         /// </summary>
         public uint HistoryCount { get; set; }

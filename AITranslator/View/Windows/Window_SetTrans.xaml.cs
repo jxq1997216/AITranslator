@@ -51,7 +51,7 @@ namespace AITranslator.View.Windows
                 temp_vm.ServerURL = "http://127.0.0.1:5000";
 
             //校验配置参数有没有错误
-            if (!temp_vm.ValidateSetViewError())
+            if (!temp_vm.ValidateError())
                 return;
 
             //复制临时创建的ViewModel到主界面的ViewModel中

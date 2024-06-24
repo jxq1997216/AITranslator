@@ -37,66 +37,31 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private ObservableQueue<string> consoles = new ObservableQueue<string>(100);
-
         /// <summary>
-        /// 文本替换列表
+        /// 未完成任务
         /// </summary>
         [ObservableProperty]
-        private ObservableCollection<KeyValueStr> replaces = new ObservableCollection<KeyValueStr>();
+        private ObservableCollection<TranslationTask> unfinishedTasks = new ObservableCollection<TranslationTask>();
+        /// <summary>
+        /// 已完成任务
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<TranslationTask> completedTasks = new ObservableCollection<TranslationTask>();
         /// <summary>
         /// 模型加载进度
         /// </summary>
         [ObservableProperty]
         private double modelLoadProgress;
-
         /// <summary>
         /// 模型正在加载
         /// </summary>
         [ObservableProperty]
         private bool modelLoading;
         /// <summary>
-        /// 是否为中断的翻译
-        /// </summary>
-        [ObservableProperty]
-        private bool isBreaked;
-
-        /// <summary>
-        /// 当前是否正在翻译
-        /// </summary>
-        [ObservableProperty]
-        private bool isTranslating;
-
-        /// <summary>
-        /// 是否是英语翻译
-        /// </summary>
-        [ObservableProperty]
-        private bool isEnglish;
-
-
-        /// <summary>
         /// 是否为1B8模型
         /// </summary>
         [ObservableProperty]
         private bool isModel1B8;
-
-        /// <summary>
-        /// 上下文记忆数量
-        /// </summary>
-        [Range(typeof(uint), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
-        [ObservableProperty]
-        private uint historyCount = 5;
-
-        /// <summary>
-        /// 翻译类型
-        /// </summary>
-        [ObservableProperty]
-        public TranslateDataType translateType;
-
-        /// <summary>
-        /// 翻译进度
-        /// </summary>
-        [ObservableProperty]
-        private double progress;
         /// <summary>
         /// 是否使用OpenAI接口的第三方加载库
         /// </summary>
@@ -143,13 +108,13 @@ namespace AITranslator.View.Models
         /// 设置界面的错误信息
         /// </summary>
         [ObservableProperty]
-        private string setViewErrorMessage;
+        private string errorMessage;
 
         /// <summary>
         /// 设置界面是否存在错误
         /// </summary>
         [ObservableProperty]
-        private bool setViewError;
+        private bool error;
 
         //UI线程
         internal Dispatcher Dispatcher;
@@ -176,17 +141,16 @@ namespace AITranslator.View.Models
         /// 主动校验设置界面是否存在错误
         /// </summary>
         /// <returns></returns>
-        public bool ValidateSetViewError()
+        public bool ValidateError()
         {
             ICollection<ValidationResult> results = new List<ValidationResult>();
 
             bool b = Validator.TryValidateObject(this, new ValidationContext(this), results, true);
-            List<string> checkProperty = new List<string>
-            {
-                nameof(HistoryCount),
-            };
+            List<string> checkProperty = new List<string>();
             if (IsRomatePlatform)
                 checkProperty.Add(nameof(ServerURL));
+            else
+                return true;
 
             List<ValidationResult> setError = results.Where(s =>
             {
@@ -197,8 +161,8 @@ namespace AITranslator.View.Models
                 }
                 return false;
             }).ToList();
-            SetViewError = setError.Count != 0;
-            SetViewErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
+            Error = setError.Count != 0;
+            ErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
             return b;
         }
 
@@ -208,10 +172,10 @@ namespace AITranslator.View.Models
         /// <param name="target"></param>
         public void CopyConfigTo(ViewModel target)
         {
-            target.IsEnglish = IsEnglish;
+            //target.IsEnglish = IsEnglish;
             target.IsModel1B8 = IsModel1B8;
-            target.TranslateType = TranslateType;
-            target.HistoryCount = HistoryCount;
+            //target.TranslateType = TranslateType;
+            //target.HistoryCount = HistoryCount;
         }
     }
 }

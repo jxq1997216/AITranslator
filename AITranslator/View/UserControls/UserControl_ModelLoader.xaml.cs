@@ -109,7 +109,7 @@ namespace AITranslator.View.UserControls
                     ViewModelManager.ViewModel.ServerURL = "http://127.0.0.1:5000";
 
                 //校验配置参数有没有错误
-                if (!ViewModelManager.ViewModel.ValidateSetViewError())
+                if (!ViewModelManager.ViewModel.ValidateError())
                 {
                     Task.Run(() =>
                     {

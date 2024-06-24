@@ -44,16 +44,15 @@ namespace AITranslator.View.Models
         //    SaveModelLoadConfig();
         //}
 
-        public static void SaveTranslateConfig()
+        public static void SaveTranslateConfig(TranslationTask task)
         {
             Directory.CreateDirectory(PublicParams.TranslatedDataDic);
 
             ConfigSave_Translate save = new ConfigSave_Translate()
             {
-                IsEnglish = ViewModel.IsEnglish,
-                IsModel1B8 = ViewModel.IsModel1B8,
-                HistoryCount = ViewModel.HistoryCount,
-                TranslateType = ViewModel.TranslateType,
+                IsEnglish = task.IsEnglish,
+                HistoryCount = task.HistoryCount,
+                TranslateType = task.TranslateType,
             };
             JsonPersister.Save(save, PublicParams.ConfigPath_Translate, true);
         }
@@ -64,6 +63,7 @@ namespace AITranslator.View.Models
                 IsOpenAILoader = ViewModel.IsOpenAILoader,
                 IsRomatePlatform = ViewModel.IsRomatePlatform,
                 ServerURL = ViewModel.ServerURL,
+                IsModel1B8 = ViewModel.IsModel1B8,
                 ModelPath = ViewModel.ModelPath,
                 GpuLayerCount = ViewModel.GpuLayerCount,
                 ContextSize = ViewModel.ContextSize,
@@ -81,18 +81,19 @@ namespace AITranslator.View.Models
             return LoadTranslateConfig();
         }
 
-        static bool LoadTranslateConfig()
+        static TranslationTask? LoadTranslateConfig()
         {
+            TranslationTask task;
             if (File.Exists(PublicParams.ConfigPath_Translate))
             {
+                task = new TranslationTask();
                 ConfigSave_Translate save = JsonPersister.Load<ConfigSave_Translate>(PublicParams.ConfigPath_Translate);
-                ViewModel.IsEnglish = save.IsEnglish;
-                ViewModel.IsModel1B8 = save.IsModel1B8;
-                ViewModel.HistoryCount = save.HistoryCount;
-                ViewModel.TranslateType = save.TranslateType;
-                return true;
+                task.IsEnglish = save.IsEnglish;
+                task.HistoryCount = save.HistoryCount;
+                task.TranslateType = save.TranslateType;
+                return task;
             }
-            return false;
+            return null;
         }
 
         static void LoadModelLoadConfig()

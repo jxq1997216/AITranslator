@@ -45,5 +45,9 @@ namespace AITranslator.Translator.Models
         /// 启动自动加载模型
         /// </summary>
         public bool AutoLoadModel { get; set; }
+        /// <summary>
+        /// 是否是1B8模型
+        /// </summary>
+        public bool IsModel1B8 { get; set; }
     }
 }

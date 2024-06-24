@@ -140,7 +140,26 @@
 
                         <Grid DockPanel.Dock="Right">
                             <Grid Background="Yellow" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}">
-
+                                <ListBox x:Name="list_UnfinishedTasks" Background="Transparent" BorderThickness="0" ItemsSource="{Binding Consoles}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Width="{calc:Binding '(ActualWidth - 5) less 0 ? 0 : (ActualWidth - 5)',ElementName=list_Consoles}" Text="{Binding}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                             </Grid>
                             <Grid Background="Aqua" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatedView,FalseToVisibility=Collapsed}">
 
