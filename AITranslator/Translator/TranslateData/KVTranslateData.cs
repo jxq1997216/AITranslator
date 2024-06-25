@@ -12,7 +12,8 @@ namespace AITranslator.Translator.TranslateData
 {
     public class KVTranslateData : ITranslateData
     {
-        public TranslateDataType Type => TranslateDataType.KV;
+        static TranslateDataType type = TranslateDataType.Txt;
+        public TranslateDataType Type => type;
         public string DicName { get; set; }
 
         /// <summary>
@@ -75,6 +76,38 @@ namespace AITranslator.Translator.TranslateData
                 if (Dic_Failed.ContainsKey(key))
                     continue;
                 Dic_NotTranslated[key] = Dic_Source[key];
+            }
+        }
+
+        public static (bool complated, double progress) GetProgress(string dicName)
+        {
+            string cleanedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned);
+            if (!File.Exists(cleanedFile))
+                return (false, 0);
+            else
+            {
+                Dictionary<string, string> successfulDic;
+                Dictionary<string, string> failedDic;
+                Dictionary<string, string> cleanedList = JsonPersister.Load<Dictionary<string, string>>(cleanedFile);
+                string successfulFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Successful);
+                if (File.Exists(successfulFile))
+                    successfulDic = JsonPersister.Load<Dictionary<string, string>>(successfulFile);
+                else
+                    successfulDic = new Dictionary<string, string>();
+
+                string failedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Failed);
+                if (File.Exists(failedFile))
+                    failedDic = JsonPersister.Load<Dictionary<string, string>>(failedFile);
+                else
+                    failedDic = new Dictionary<string, string>();
+
+                double progress;
+                bool complated = successfulDic.Count + failedDic.Count == cleanedList.Count;
+                if (complated)
+                    progress = 100;
+                else
+                    progress = (successfulDic.Count + failedDic.Count) / (double)cleanedList.Count * 100;
+                return (complated, progress);
             }
         }
     }

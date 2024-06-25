@@ -120,22 +120,22 @@ namespace AITranslator.View.Models
             switch (file.Extension)
             {
                 case ".json":
-                    translateType = TranslateDataType.KV;
+                    TranslateType = TranslateDataType.KV;
                     Dictionary<string, string> kvSource = JsonPersister.Load<Dictionary<string, string>>(file.FullName);
                     _dicName = CreateRandomDic();
-                    JsonPersister.Save(kvSource, PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Source));
+                    JsonPersister.Save(kvSource, PublicParams.GetFileName(_dicName, TranslateType, GenerateFileType.Source));
                     break;
                 case ".srt":
-                    translateType = TranslateDataType.Srt;
+                    TranslateType = TranslateDataType.Srt;
                     Dictionary<int, SrtData> srtSource = SrtPersister.Load(file.FullName);
                     _dicName = CreateRandomDic();
-                    SrtPersister.Save(srtSource, PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Source));
+                    SrtPersister.Save(srtSource, PublicParams.GetFileName(_dicName, TranslateType, GenerateFileType.Source));
                     break;
                 case ".txt":
-                    translateType = TranslateDataType.Txt;
+                    TranslateType = TranslateDataType.Txt;
                     List<string> txtSource = TxtPersister.Load(file.FullName);
                     _dicName = CreateRandomDic();
-                    TxtPersister.Save(txtSource, PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Source));
+                    TxtPersister.Save(txtSource, PublicParams.GetFileName(_dicName, TranslateType, GenerateFileType.Source));
                     break;
                 default:
                     throw new KnownException("不支持的翻译文件类型");
@@ -149,35 +149,34 @@ namespace AITranslator.View.Models
                 TranslateType = TranslateType,
                 Replaces = replaces.ToReplaceDictionary()
             };
-            JsonPersister.Save(config, PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Config), true);
+            JsonPersister.Save(config, PublicParams.GetFileName(_dicName, TranslateType, GenerateFileType.Config), true);
         }
 
         public TranslationTask(DirectoryInfo dic)
         {
             _dicName = dic.Name;
             //读取配置文件
-            ConfigSave_Translate config = JsonPersister.Load<ConfigSave_Translate>(PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Config));
+            ConfigSave_Translate config = JsonPersister.Load<ConfigSave_Translate>(PublicParams.GetFileName(_dicName, TranslateType, GenerateFileType.Config));
             IsEnglish = config.IsEnglish;
             HistoryCount = config.HistoryCount;
             TranslateType = config.TranslateType;
             replaces = config.Replaces.ToReplaceCollection();
 
-            switch (TranslateType)
+            (bool complated, double progress) progressInfo = TranslateType switch
             {
-                case TranslateDataType.KV:
-                    break;
-                case TranslateDataType.Srt:
-                    break;
-                case TranslateDataType.Txt:
-                    break;
-                default:
-                    throw new KnownException("不支持的翻译文件类型");
-            }
-
+                TranslateDataType.KV => TxtTranslateData.GetProgress(_dicName),
+                TranslateDataType.Srt => TxtTranslateData.GetProgress(_dicName),
+                TranslateDataType.Txt => TxtTranslateData.GetProgress(_dicName),
+                _ => throw new KnownException("不支持的翻译文件类型"),
+            };
         }
 
         public void Start()
         {
+            if (!File.Exists(PublicParams.GetFileName(_dicName, TranslateType, GenerateFileType.Cleaned)))
+            {
+
+            }
             //读取翻译文件并创建翻译器
             ITranslateData _translateData;
             switch (translateType)

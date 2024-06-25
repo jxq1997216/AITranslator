@@ -41,7 +41,8 @@ namespace AITranslator.Translator.TranslateData
     }
     public class SrtTranslateData : ITranslateData
     {
-        public TranslateDataType Type => TranslateDataType.Srt;
+        static TranslateDataType type = TranslateDataType.Srt;
+        public TranslateDataType Type => type;
 
         public string DicName { get; set; }
         /// <summary>
@@ -106,5 +107,38 @@ namespace AITranslator.Translator.TranslateData
                 Dic_NotTranslated[key] = Dic_Source[key];
             }
         }
+
+        public static (bool complated, double progress) GetProgress(string dicName)
+        {
+            string cleanedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned);
+            if (!File.Exists(cleanedFile))
+                return (false, 0);
+            else
+            {
+                Dictionary<int, SrtData> successfulDic;
+                Dictionary<int, SrtData> failedDic;
+                Dictionary<int, SrtData> cleanedList = SrtPersister.Load(cleanedFile);
+                string successfulFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Successful);
+                if (File.Exists(successfulFile))
+                    successfulDic = SrtPersister.Load(successfulFile);
+                else
+                    successfulDic = new Dictionary<int, SrtData>();
+
+                string failedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Failed);
+                if (File.Exists(failedFile))
+                    failedDic = SrtPersister.Load(failedFile);
+                else
+                    failedDic = new Dictionary<int, SrtData>();
+
+                double progress;
+                bool complated = successfulDic.Count + failedDic.Count == cleanedList.Count;
+                if (complated)
+                    progress = 100;
+                else
+                    progress = (successfulDic.Count + failedDic.Count) / (double)cleanedList.Count * 100;
+                return (complated, progress);
+            }
+        }
+
     }
 }

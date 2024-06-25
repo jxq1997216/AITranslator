@@ -22,6 +22,6 @@ namespace AITranslator.Translator.TranslateData
 
         public void GetNotTranslatedData();
 
-        public static double GetProgress();
+        public abstract static (bool complated, double progress) GetProgress(string dicName);
     }
 }
