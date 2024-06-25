@@ -1,13 +1,20 @@
-﻿using AITranslator.Translator.Models;
+﻿using AITranslator.Exceptions;
+using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
+using AITranslator.Translator.Pretreatment;
 using AITranslator.Translator.Translation;
+using AITranslator.View.Models;
+using AITranslator.View.Windows;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Resources;
 
 namespace AITranslator.Translator.TranslateData
 {
@@ -48,7 +55,7 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 原始翻译数据
         /// </summary>
-        public Dictionary<int, SrtData>? Dic_Source;
+        public Dictionary<int, SrtData>? Dic_Cleaned;
         /// <summary>
         /// 翻译成功的数据
         /// </summary>
@@ -62,34 +69,27 @@ namespace AITranslator.Translator.TranslateData
         /// </summary>
         public Dictionary<int, SrtData> Dic_NotTranslated = new Dictionary<int, SrtData>();
 
-        public SrtTranslateData(Dictionary<int, SrtData>? sourceDic = null)
+        public SrtTranslateData(string dicName)
         {
-            Dictionary<int, SrtData> successfulDic;
-            Dictionary<int, SrtData> failedDic;
-            if (sourceDic is null)
-            {
-                sourceDic = SrtPersister.Load(PublicParams.SourcePath + DicName);
+            DicName = dicName;
 
-                if (File.Exists(PublicParams.SuccessfulPath + DicName))
-                    successfulDic = SrtPersister.Load(PublicParams.SuccessfulPath + DicName);
-                else
-                    successfulDic = new Dictionary<int, SrtData>();
-
-                if (File.Exists(PublicParams.FailedPath + DicName))
-                    failedDic = SrtPersister.Load(PublicParams.FailedPath + DicName);
-                else
-                    failedDic = new Dictionary<int, SrtData>();
-            }
+            string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
+            if (File.Exists(cleanedFile))
+                Dic_Cleaned = SrtPersister.Load(cleanedFile);
             else
-            {
-                Dic_Source = sourceDic;
-                successfulDic = new Dictionary<int, SrtData>();
-                failedDic = new Dictionary<int, SrtData>();
-            }
+                throw new KnownException("不存在清理后的文件！");
 
-            Dic_Source = sourceDic;
-            Dic_Successful = successfulDic;
-            Dic_Failed = failedDic;
+            string successfulFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Successful);
+            if (File.Exists(successfulFile))
+                Dic_Successful = SrtPersister.Load(successfulFile);
+            else
+                Dic_Successful = new Dictionary<int, SrtData>();
+
+            string failedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Failed);
+            if (File.Exists(successfulFile))
+                Dic_Failed = SrtPersister.Load(successfulFile);
+            else
+                Dic_Failed = new Dictionary<int, SrtData>();
         }
 
         /// <summary>
@@ -98,47 +98,38 @@ namespace AITranslator.Translator.TranslateData
         public void GetNotTranslatedData()
         {
             Dic_NotTranslated.Clear();
-            foreach (var key in Dic_Source.Keys)
+            foreach (var key in Dic_Cleaned.Keys)
             {
                 if (Dic_Successful.ContainsKey(key))
                     continue;
                 if (Dic_Failed.ContainsKey(key))
                     continue;
-                Dic_NotTranslated[key] = Dic_Source[key];
+                Dic_NotTranslated[key] = Dic_Cleaned[key];
             }
         }
 
-        public static (bool complated, double progress) GetProgress(string dicName)
+        public double GetProgress()
         {
-            string cleanedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned);
-            if (!File.Exists(cleanedFile))
-                return (false, 0);
-            else
-            {
-                Dictionary<int, SrtData> successfulDic;
-                Dictionary<int, SrtData> failedDic;
-                Dictionary<int, SrtData> cleanedList = SrtPersister.Load(cleanedFile);
-                string successfulFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Successful);
-                if (File.Exists(successfulFile))
-                    successfulDic = SrtPersister.Load(successfulFile);
-                else
-                    successfulDic = new Dictionary<int, SrtData>();
-
-                string failedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Failed);
-                if (File.Exists(failedFile))
-                    failedDic = SrtPersister.Load(failedFile);
-                else
-                    failedDic = new Dictionary<int, SrtData>();
-
-                double progress;
-                bool complated = successfulDic.Count + failedDic.Count == cleanedList.Count;
-                if (complated)
-                    progress = 100;
-                else
-                    progress = (successfulDic.Count + failedDic.Count) / (double)cleanedList.Count * 100;
-                return (complated, progress);
-            }
+            return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;
         }
 
+        public static void ReplaceAndClear(string dicName, Dictionary<string, string> replaces)
+        {
+            Dictionary<int, SrtData> dic_Source;
+            string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
+            if (File.Exists(sourceFile))
+                dic_Source = SrtPersister.Load(sourceFile);
+            else
+                throw new KnownException("不存在原始数据文件！");
+
+            //替换名词
+            foreach (var source in dic_Source)
+            {
+                foreach (var replace in replaces)
+                    source.Value.Text = source.Value.Text.Replace(replace.Key, replace.Value);
+            }
+
+            SrtPersister.Save(dic_Source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
+        }
     }
 }

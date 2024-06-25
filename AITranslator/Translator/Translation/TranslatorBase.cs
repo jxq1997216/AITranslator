@@ -16,6 +16,7 @@ using AITranslator.Translator.TranslateData;
 using AITranslator.Translator.Communicator;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Diagnostics;
+using System.Windows.Markup;
 
 namespace AITranslator.Translator.Translation
 {
@@ -46,7 +47,7 @@ namespace AITranslator.Translator.Translation
         /// <summary>
         /// 翻译数据
         /// </summary>
-        internal abstract ITranslateData TranslateData { get; }
+        internal ITranslateData TranslateData { get; }
         /// <summary>
         /// 翻译停止事件，用于通讯UI
         /// </summary>
@@ -65,6 +66,7 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         Task _translateTask;
 
+        internal TranslationTask _translationTask;
 
         /// <summary>
         /// 历史上下文
@@ -84,6 +86,31 @@ namespace AITranslator.Translator.Translation
         }
 
         Stopwatch sw = new Stopwatch();
+
+        public TranslatorBase(TranslationTask task)
+        {
+            _translationTask = task;
+            //创建Data
+            TranslateData = Type switch
+            {
+                TranslateDataType.KV => new KVTranslateData(task.DicName),
+                TranslateDataType.Srt => new SrtTranslateData(task.DicName),
+                TranslateDataType.Txt => new TxtTranslateData(task.DicName),
+                _ => throw new KnownException("不支持的翻译文件类型"),
+            };
+
+            //计算当前进度
+            CalculateProgress();
+        }
+
+
+        /// <summary>
+        /// 计算当前翻译进度
+        /// </summary>
+        internal void CalculateProgress()
+        {
+            _translationTask.Progress = TranslateData.GetProgress();
+        }
 
         /// <summary>
         /// 启动翻译

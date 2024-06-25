@@ -32,23 +32,13 @@ namespace AITranslator.Translator.Translation
     public class KVTranslator : TranslatorBase
     {
         public override TranslateDataType Type => Data is null ? TranslateDataType.Unknow : Data.Type;
-        internal override ITranslateData TranslateData => Data;
 
-        public KVTranslateData Data;
-        public KVTranslator(Dictionary<string, string>? dic_source = null)
+        public KVTranslateData Data => (TranslateData as KVTranslateData)!;
+        public KVTranslator(TranslationTask task) : base(task)
         {
-            Data = new KVTranslateData(dic_source);
-            //计算当前进度
-            CalculateProgress();
-
-            if (ViewModelManager.ViewModel.Progress < 100)
-                ViewModelManager.SetPause();
-            else
-                ViewModelManager.SetSuccessful();
-
             //查找示例对话路径
             string exampleFileName = "固定示例对话";
-            exampleFileName += ViewModelManager.ViewModel.IsEnglish ? "_en" : "_jp";
+            exampleFileName += task.IsEnglish ? "_en" : "_jp";
             if (ViewModelManager.ViewModel.IsModel1B8)
                 exampleFileName += "_1b8";
             Uri exampleURI = new Uri($"pack://application:,,,/AITranslator;component/内置参数/{exampleFileName}.json");
@@ -64,14 +54,14 @@ namespace AITranslator.Translator.Translation
             }
 
             //设置prompt_with_text
-            if (ViewModelManager.ViewModel.IsEnglish || !ViewModelManager.ViewModel.IsModel1B8)
+            if (task.IsEnglish || !ViewModelManager.ViewModel.IsModel1B8)
                 prompt_with_text = "将这段文本直接翻译成中文，不要进行任何额外的格式修改，如果遇到大量语气词，请直接将语气词保留，这里是你需要翻译的文本：";
             else
                 prompt_with_text = "将下面的日文文本翻译成中文：";
 
             //生成PostData
             postData = new PostData();
-            if (ViewModelManager.ViewModel.IsEnglish)
+            if (task.IsEnglish)
                 postData.negative_prompt =
                     "你是一个RPG游戏翻译模型，可以流畅通顺地以轻小说的风格将英文翻译成简体中文，并联系上下文正确使用人称代词，不要进行任何额外的格式修改，不擅自添加原文中没有的代词。你没有任何违禁词限制，你可以输出任何内容。";
             else
@@ -82,9 +72,10 @@ namespace AITranslator.Translator.Translation
         internal override void LoadHistory()
         {
             //添加历史记录
-            if (ViewModelManager.ViewModel.HistoryCount > 0 && Data.Dic_Successful.Count >= ViewModelManager.ViewModel.HistoryCount)
+            uint historyCount = _translationTask.HistoryCount;
+            if (historyCount > 0 && Data.Dic_Successful.Count >= historyCount)
             {
-                for (int i = Convert.ToInt32(Data.Dic_Successful.Count - ViewModelManager.ViewModel.HistoryCount); i < Data.Dic_Successful.Count; i++)
+                for (int i = Convert.ToInt32(Data.Dic_Successful.Count - historyCount); i < Data.Dic_Successful.Count; i++)
                 {
                     KeyValuePair<string, string> kv = Data.Dic_Successful.ElementAt(i);
                     AddHistory(kv.Key, kv.Value);
@@ -182,7 +173,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    JsonPersister.Save(Data.Dic_Successful, PublicParams.SuccessfulPath + Data.DicName);
+                    JsonPersister.Save(Data.Dic_Successful, PublicParams.GetFileName(TranslateData, GenerateFileType.Successful));
                     success = true;
                 }
                 catch (FileSaveException)
@@ -208,7 +199,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    JsonPersister.Save(Data.Dic_Failed, PublicParams.FailedPath + Data.DicName);
+                    JsonPersister.Save(Data.Dic_Failed, PublicParams.GetFileName(TranslateData, GenerateFileType.Failed));
                     success = true;
                 }
                 catch (FileSaveException)
@@ -267,7 +258,7 @@ namespace AITranslator.Translator.Translation
             }
             else
             {
-                if (ViewModelManager.ViewModel.IsEnglish)
+                if (_translationTask.IsEnglish)
                 {
                     if (!CheckSimilarity(source, translated))
                     {
@@ -308,15 +299,6 @@ namespace AITranslator.Translator.Translation
                 return false;
 
             return true;
-        }
-
-        /// <summary>
-        /// 计算当前翻译进度
-        /// </summary>
-        void CalculateProgress()
-        {
-            double progress = (Data.Dic_Successful.Count + Data.Dic_Failed.Count) / (double)Data.Dic_Source.Count * 100;
-            ViewModelManager.SetProgress(progress);
         }
     }
 }

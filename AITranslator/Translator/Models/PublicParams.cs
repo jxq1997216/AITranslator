@@ -61,6 +61,10 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public const string BlockPath = $"{ParamsDataDic}/屏蔽列表.json";
 
+        public static string GetFileName(ITranslateData data, GenerateFileType FileType)
+        {
+            return GetFileName(data.DicName, data.Type, FileType);
+        }
         public static string GetFileName(string dicName, TranslateDataType dataType, GenerateFileType FileType)
         {
             if (FileType == GenerateFileType.Config)

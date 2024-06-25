@@ -36,26 +36,8 @@ namespace AITranslator.View.Models
         }
 
         /// <summary>
-        /// 保存需要持久化的配置信息
+        /// 保存配置信息
         /// </summary>
-        //public static void Save()
-        //{
-        //    SaveTranslateConfig();
-        //    SaveModelLoadConfig();
-        //}
-
-        public static void SaveTranslateConfig(TranslationTask task)
-        {
-            Directory.CreateDirectory(PublicParams.TranslatedDataDic);
-
-            ConfigSave_Translate save = new ConfigSave_Translate()
-            {
-                IsEnglish = task.IsEnglish,
-                HistoryCount = task.HistoryCount,
-                TranslateType = task.TranslateType,
-            };
-            JsonPersister.Save(save, PublicParams.ConfigPath_Translate, true);
-        }
         public static void SaveModelLoadConfig()
         {
             ConfigSave_LoadModel save = new ConfigSave_LoadModel()
@@ -75,28 +57,7 @@ namespace AITranslator.View.Models
         /// <summary>
         /// 加载配置信息
         /// </summary>
-        public static bool Load()
-        {
-            LoadModelLoadConfig();
-            return LoadTranslateConfig();
-        }
-
-        static TranslationTask? LoadTranslateConfig()
-        {
-            TranslationTask task;
-            if (File.Exists(PublicParams.ConfigPath_Translate))
-            {
-                task = new TranslationTask();
-                ConfigSave_Translate save = JsonPersister.Load<ConfigSave_Translate>(PublicParams.ConfigPath_Translate);
-                task.IsEnglish = save.IsEnglish;
-                task.HistoryCount = save.HistoryCount;
-                task.TranslateType = save.TranslateType;
-                return task;
-            }
-            return null;
-        }
-
-        static void LoadModelLoadConfig()
+        public static void LoadModelLoadConfig()
         {
             if (File.Exists(PublicParams.ConfigPath_LoadModel))
             {
@@ -111,47 +72,6 @@ namespace AITranslator.View.Models
             }
             else
                 SaveModelLoadConfig();
-        }
-        public static void SetNotStarted()
-        {
-            ViewModel.Progress = 0;
-            ViewModel.IsBreaked = false;
-            ViewModel.IsTranslating = false;
-        }
-
-        public static void SetPause()
-        {
-            //设置翻译中为False
-            ViewModel.IsTranslating = false;
-            //设置翻译暂停为True
-            ViewModel.IsBreaked = true;
-        }
-        public static void SetPause(double progress)
-        {
-            SetPause();
-            SetProgress(progress);
-        }
-
-        public static void SetStart()
-        {
-            //设置翻译中为False
-            ViewModel.IsTranslating = false;
-            //设置翻译暂停为True
-            ViewModel.IsBreaked = true;
-        }
-
-        public static void SetSuccessful()
-        {
-            ViewModel.IsBreaked = false;
-            ViewModel.IsTranslating = false;
-            ViewModel.Progress = 100;
-        }
-
-        public static void SetProgress(double progress)
-        {
-            if (progress > 100)
-                progress = 100;
-            ViewModel.Progress = progress;
         }
 
         public static bool ShowDialogMessage(string title, string message, bool isSingleBtn = true, Window? owner = null)

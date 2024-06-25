@@ -1,4 +1,6 @@
 ﻿using AITranslator.Translator.TranslateData;
+using AITranslator.View.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +27,16 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public TranslateDataType TranslateType { get; set; }
         /// <summary>
+        /// 进度
+        /// </summary>
+        public double Progress { get; set; }
+        /// <summary>
         /// 替换文本
         /// </summary>
         public Dictionary<string,string> Replaces { get; set; }
+        /// <summary>
+        /// 当前任务状态
+        /// </summary>
+        public TaskState State { get; set; }
     }
 }

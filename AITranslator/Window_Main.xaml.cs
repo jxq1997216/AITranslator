@@ -71,7 +71,7 @@ namespace AITranslator
             try
             {
                 //加载配置信息,检查是否存在中断的翻译
-                if (ViewModelManager.Load())
+                if (ViewModelManager.LoadModelLoadConfig())
                 {
                     _translator = ViewModelManager.ViewModel.TranslateType switch
                     {

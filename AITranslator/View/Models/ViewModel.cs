@@ -165,17 +165,5 @@ namespace AITranslator.View.Models
             ErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
             return b;
         }
-
-        /// <summary>
-        /// 复制配置参数
-        /// </summary>
-        /// <param name="target"></param>
-        public void CopyConfigTo(ViewModel target)
-        {
-            //target.IsEnglish = IsEnglish;
-            target.IsModel1B8 = IsModel1B8;
-            //target.TranslateType = TranslateType;
-            //target.HistoryCount = HistoryCount;
-        }
     }
 }

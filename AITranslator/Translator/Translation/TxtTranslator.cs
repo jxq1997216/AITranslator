@@ -23,22 +23,11 @@ namespace AITranslator.Translator.Translation
     {
         public override TranslateDataType Type => Data is null ? TranslateDataType.Unknow : Data.Type;
 
-        internal override ITranslateData TranslateData => Data;
-
-        public TxtTranslateData Data;
+        public TxtTranslateData Data => (TranslateData as TxtTranslateData)!;
 
         string tempFileExtension = ".json";
-        public TxtTranslator(List<string>? dic_source = null)
+        public TxtTranslator(TranslationTask task) : base(task)
         {
-            Data = new TxtTranslateData(dic_source);
-
-            //计算当前进度
-            CalculateProgress();
-
-            if (ViewModelManager.ViewModel.Progress < 100)
-                ViewModelManager.SetPause();
-            else
-                ViewModelManager.SetSuccessful();
             //生成PostData
             postData = new PostData();
 
@@ -79,7 +68,7 @@ namespace AITranslator.Translator.Translation
                 for (int i = Convert.ToInt32(Data.Dic_Successful.Count - ViewModelManager.ViewModel.HistoryCount); i < Data.Dic_Successful.Count; i++)
                 {
                     KeyValuePair<int, string> str_Translated = Data.Dic_Successful.ElementAt(i);
-                    string str_source = Data.List_Source[str_Translated.Key];
+                    string str_source = Data.List_Cleaned[str_Translated.Key];
                     AddHistory(str_source, str_Translated.Value);
                 }
             }
@@ -194,7 +183,7 @@ namespace AITranslator.Translator.Translation
             }
 
             List<string> str = new List<string>();
-            for (int i = 0; i < Data.List_Source.Count; i++)
+            for (int i = 0; i < Data.List_Cleaned.Count; i++)
             {
                 if (Data.Dic_Successful.ContainsKey(i))
                     str.Add(Data.Dic_Successful[i]);
@@ -253,24 +242,6 @@ namespace AITranslator.Translator.Translation
                     Thread.Sleep(500);
                 }
             }
-        }
-
-        /// <summary>
-        /// 计算当前翻译进度
-        /// </summary>
-        void CalculateProgress()
-        {
-            double progress;
-            if (File.Exists(PublicParams.MergePath + Data.DicName))
-                progress = 100;
-            else
-            {
-                progress = (Data.Dic_Successful.Count + Data.Dic_Failed.Count) / (double)Data.List_Source.Count * 100 - 0.01;
-                if (progress < 0)
-                    progress = 0;
-            }
-
-            ViewModelManager.SetProgress(progress);
         }
     }
 }

@@ -20,26 +20,16 @@ namespace AITranslator.Translator.Translation
     public class SrtTranslator : TranslatorBase
     {
         public override TranslateDataType Type => Data is null ? TranslateDataType.Unknow : Data.Type;
-        internal override ITranslateData TranslateData => Data;
 
-        public SrtTranslateData Data;
+        public SrtTranslateData Data => (TranslateData as SrtTranslateData)!;
 
-        public SrtTranslator(Dictionary<int, SrtData>? dic_source = null)
+        public SrtTranslator(TranslationTask task) : base(task)
         {
-            Data = new SrtTranslateData(dic_source);
-
-            //计算当前进度
-            CalculateProgress();
-            if (ViewModelManager.ViewModel.Progress < 100)
-                ViewModelManager.SetPause();
-            else
-                ViewModelManager.SetSuccessful();
-
             //生成PostData
             postData = new PostData();
 
             //设置示例对话,negative_prompt和prompt_with_text
-            if (ViewModelManager.ViewModel.IsEnglish)
+            if (task.IsEnglish)
             {
                 _example = new ExampleDialogue[]
                 {
@@ -73,7 +63,7 @@ namespace AITranslator.Translator.Translation
                 for (int i = Convert.ToInt32(Data.Dic_Successful.Count - ViewModelManager.ViewModel.HistoryCount); i < Data.Dic_Successful.Count; i++)
                 {
                     KeyValuePair<int, SrtData> kv_Translated = Data.Dic_Successful.ElementAt(i);
-                    SrtData source = Data.Dic_Source[kv_Translated.Key];
+                    SrtData source = Data.Dic_Cleaned[kv_Translated.Key];
                     AddHistory(source.Text, kv_Translated.Value.Text);
                 }
             }
@@ -135,7 +125,7 @@ namespace AITranslator.Translator.Translation
             }
 
             Dictionary<int, SrtData> dic_Merge = new Dictionary<int, SrtData>();
-            foreach (var key in Data.Dic_Source.Keys)
+            foreach (var key in Data.Dic_Cleaned.Keys)
             {
                 if (Data.Dic_Successful.ContainsKey(key))
                     dic_Merge[key] = Data.Dic_Successful[key];
@@ -195,24 +185,6 @@ namespace AITranslator.Translator.Translation
                     Thread.Sleep(500);
                 }
             }
-        }
-
-        /// <summary>
-        /// 计算当前翻译进度
-        /// </summary>
-        void CalculateProgress()
-        {
-            double progress;
-            if (File.Exists(PublicParams.MergePath + Data.DicName))
-                progress = 100;
-            else
-            {
-                progress = (Data.Dic_Successful.Count + Data.Dic_Failed.Count) / (double)Data.Dic_Source.Count * 100 - 0.01;
-                if (progress < 0)
-                    progress = 0;
-            }
-
-            ViewModelManager.SetProgress(progress);
         }
     }
 }

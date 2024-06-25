@@ -22,6 +22,11 @@ namespace AITranslator.Translator.TranslateData
 
         public void GetNotTranslatedData();
 
-        public abstract static (bool complated, double progress) GetProgress(string dicName);
+        public double GetProgress();
+        /// <summary>
+        /// 替换和清理原始数据
+        /// </summary>
+        /// <param name="dicName"></param>
+        public abstract static void ReplaceAndClear(string dicName,Dictionary<string,string> replaces);
     }
 }
