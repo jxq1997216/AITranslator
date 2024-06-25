@@ -123,8 +123,8 @@ namespace AITranslator.Translator.Translation
             if (Data.Dic_Failed.Count != 0)
             {
                 bool result = ViewModelManager.ShowDialogMessage("提示", "当前翻译存在翻译失败内容\r\n" +
-                    $"[点击确认]:继续合并，把[翻译失败{Data.Extension}]中的内容合并到结果中\r\n" +
-                    $"[点击取消]:暂停合并，手动翻译[翻译失败{Data.Extension}]中的内容", false);
+                    $"[点击确认]:继续合并，把[翻译失败{Data.DicName}]中的内容合并到结果中\r\n" +
+                    $"[点击取消]:暂停合并，手动翻译[翻译失败{Data.DicName}]中的内容", false);
 
                 if (!result)
                 {
@@ -145,7 +145,7 @@ namespace AITranslator.Translator.Translation
                     throw new KnownException("合并文件错误,存在未翻译的字幕,请检查文件是否被修改");
             }
 
-            SrtPersister.Save(dic_Merge, PublicParams.MergePath + Data.Extension);
+            SrtPersister.Save(dic_Merge, PublicParams.MergePath + Data.DicName);
             CalculateProgress();
             base.TranslateEnd();
         }
@@ -158,7 +158,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    SrtPersister.Save(Data.Dic_Failed, PublicParams.FailedPath + Data.Extension);
+                    SrtPersister.Save(Data.Dic_Failed, PublicParams.FailedPath + Data.DicName);
                     success = true;
                 }
                 catch (FileSaveException)
@@ -167,8 +167,8 @@ namespace AITranslator.Translator.Translation
                     if (count >= 3)
                         throw;
 
-                    Debug.WriteLine($"记录[翻译失败{Data.Extension}]失败{count + 1}");
-                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译失败{Data.Extension}]失败,将进行第{count + 1}次尝试");
+                    Debug.WriteLine($"记录[翻译失败{Data.DicName}]失败{count + 1}");
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译失败{Data.DicName}]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }
             }
@@ -182,7 +182,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    SrtPersister.Save(Data.Dic_Successful, PublicParams.SuccessfulPath + Data.Extension);
+                    SrtPersister.Save(Data.Dic_Successful, PublicParams.SuccessfulPath + Data.DicName);
                     success = true;
                 }
                 catch (FileSaveException)
@@ -190,8 +190,8 @@ namespace AITranslator.Translator.Translation
                     count++;
                     if (count >= 3)
                         throw;
-                    Debug.WriteLine($"记录[翻译成功{Data.Extension}]失败{count + 1}");
-                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译成功{Data.Extension}]失败,将进行第{count + 1}次尝试");
+                    Debug.WriteLine($"记录[翻译成功{Data.DicName}]失败{count + 1}");
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译成功{Data.DicName}]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }
             }
@@ -203,7 +203,7 @@ namespace AITranslator.Translator.Translation
         void CalculateProgress()
         {
             double progress;
-            if (File.Exists(PublicParams.MergePath + Data.Extension))
+            if (File.Exists(PublicParams.MergePath + Data.DicName))
                 progress = 100;
             else
             {

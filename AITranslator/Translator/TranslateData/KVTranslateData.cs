@@ -13,7 +13,7 @@ namespace AITranslator.Translator.TranslateData
     public class KVTranslateData : ITranslateData
     {
         public TranslateDataType Type => TranslateDataType.KV;
-        public string Extension => ".json";
+        public string DicName { get; set; }
 
         /// <summary>
         /// 原始翻译数据
@@ -37,16 +37,16 @@ namespace AITranslator.Translator.TranslateData
             Dictionary<string, string> failedDic;
             if (sourceDic is null)
             {
-                sourceDic = JsonPersister.Load<Dictionary<string, string>>(PublicParams.SourcePath + Extension);
+                sourceDic = JsonPersister.Load<Dictionary<string, string>>(PublicParams.SourcePath + DicName);
                 
 
-                if (File.Exists(PublicParams.SuccessfulPath + Extension))
-                    successfulDic = JsonPersister.Load<Dictionary<string, string>>(PublicParams.SuccessfulPath + Extension);
+                if (File.Exists(PublicParams.SuccessfulPath + DicName))
+                    successfulDic = JsonPersister.Load<Dictionary<string, string>>(PublicParams.SuccessfulPath + DicName);
                 else
                     successfulDic = new Dictionary<string, string>();
 
-                if (File.Exists(PublicParams.FailedPath + Extension))
-                    failedDic = JsonPersister.Load<Dictionary<string, string>>(PublicParams.FailedPath + Extension);
+                if (File.Exists(PublicParams.FailedPath + DicName))
+                    failedDic = JsonPersister.Load<Dictionary<string, string>>(PublicParams.FailedPath + DicName);
                 else
                     failedDic = new Dictionary<string, string>();
             }

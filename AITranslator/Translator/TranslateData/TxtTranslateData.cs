@@ -14,11 +14,10 @@ namespace AITranslator.Translator.TranslateData
 {
     public class TxtTranslateData : ITranslateData
     {
-        public TranslateDataType Type => TranslateDataType.Txt;
+        static TranslateDataType type = TranslateDataType.Txt;
+        public TranslateDataType Type => type;
 
-        public string Extension => ".txt";
-
-        string tempFileExtension = ".json";
+        public string DicName { get; set; }
 
         /// <summary>
         /// 原始翻译数据
@@ -37,32 +36,33 @@ namespace AITranslator.Translator.TranslateData
         /// </summary>
         public Dictionary<int, string> Dic_NotTranslated = new Dictionary<int, string>();
 
-        public TxtTranslateData(List<string>? sourceDic = null)
+
+        public TxtTranslateData(string dicName)
         {
+            DicName = dicName;
+            List<string> cleanedList;
             Dictionary<int, string> successfulDic;
             Dictionary<int, string> failedDic;
-            if (sourceDic is null)
-            {
-                sourceDic = TxtPersister.Load(PublicParams.SourcePath + Extension);
 
-                if (File.Exists(PublicParams.SuccessfulPath + tempFileExtension))
-                    successfulDic = JsonPersister.Load<Dictionary<int, string>>(PublicParams.SuccessfulPath + tempFileExtension);
-                else
-                    successfulDic = new Dictionary<int, string>();
-
-                if (File.Exists(PublicParams.FailedPath + tempFileExtension))
-                    failedDic = JsonPersister.Load<Dictionary<int, string>>(PublicParams.FailedPath + tempFileExtension);
-                else
-                    failedDic = new Dictionary<int, string>();
-            }
+            string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
+            if (File.Exists(cleanedFile))
+                cleanedList = TxtPersister.Load(cleanedFile);
             else
-            {
-                List_Source = sourceDic;
-                successfulDic = new Dictionary<int, string>();
-                failedDic = new Dictionary<int, string>();
-            }
+                cleanedList = new List<string>();
 
-            List_Source = sourceDic;
+            string successfulFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Successful);
+            if (File.Exists(successfulFile))
+                successfulDic = JsonPersister.Load<Dictionary<int, string>>(successfulFile);
+            else
+                successfulDic = new Dictionary<int, string>();
+
+            string failedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Failed);
+            if (File.Exists(failedFile))
+                failedDic = JsonPersister.Load<Dictionary<int, string>>(failedFile);
+            else
+                failedDic = new Dictionary<int, string>();
+
+            List_Source = cleanedList;
             Dic_Successful = successfulDic;
             Dic_Failed = failedDic;
         }
@@ -80,6 +80,38 @@ namespace AITranslator.Translator.TranslateData
                 if (Dic_Failed.ContainsKey(i))
                     continue;
                 Dic_NotTranslated[i] = List_Source[i];
+            }
+        }
+
+        public static (bool complated, double progress) GetProgress(string dicName)
+        {
+            string cleanedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned);
+            if (!File.Exists(cleanedFile))
+                return (false, 0);
+            else
+            {
+                Dictionary<int, string> successfulDic;
+                Dictionary<int, string> failedDic;
+                List<string> cleanedList = TxtPersister.Load(cleanedFile);
+                string successfulFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Successful);
+                if (File.Exists(successfulFile))
+                    successfulDic = JsonPersister.Load<Dictionary<int, string>>(successfulFile);
+                else
+                    successfulDic = new Dictionary<int, string>();
+
+                string failedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Failed);
+                if (File.Exists(failedFile))
+                    failedDic = JsonPersister.Load<Dictionary<int, string>>(failedFile);
+                else
+                    failedDic = new Dictionary<int, string>();
+
+                double progress;
+                bool complated = successfulDic.Count + failedDic.Count == cleanedList.Count;
+                if (complated)
+                    progress = 100;
+                else
+                    progress = (successfulDic.Count + failedDic.Count) / (double)cleanedList.Count * 100;
+                return (complated, progress);
             }
         }
     }

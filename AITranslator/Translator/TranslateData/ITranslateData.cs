@@ -18,8 +18,10 @@ namespace AITranslator.Translator.TranslateData
     public interface ITranslateData
     {
         public TranslateDataType Type { get; }
-        public string Extension { get; }
+        public string DicName { get; set; }
 
         public void GetNotTranslatedData();
+
+        public static double GetProgress();
     }
 }

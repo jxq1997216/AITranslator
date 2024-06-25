@@ -24,7 +24,7 @@ namespace AITranslator.Translator.Models
             "\n###",
             "\n\n",
             "[PAD151645]",
-            "<|im_"
+            "<|im_end>"
         };
     }
 }

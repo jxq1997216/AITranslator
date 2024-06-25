@@ -182,7 +182,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    JsonPersister.Save(Data.Dic_Successful, PublicParams.SuccessfulPath + Data.Extension);
+                    JsonPersister.Save(Data.Dic_Successful, PublicParams.SuccessfulPath + Data.DicName);
                     success = true;
                 }
                 catch (FileSaveException)
@@ -190,8 +190,8 @@ namespace AITranslator.Translator.Translation
                     count++;
                     if (count >= 3)
                         throw;
-                    Debug.WriteLine($"记录[翻译成功{Data.Extension}]失败{count + 1}");
-                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译成功{Data.Extension}]失败,将进行第{count + 1}次尝试");
+                    Debug.WriteLine($"记录[翻译成功{Data.DicName}]失败{count + 1}");
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译成功{Data.DicName}]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }
             }
@@ -208,7 +208,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    JsonPersister.Save(Data.Dic_Failed, PublicParams.FailedPath + Data.Extension);
+                    JsonPersister.Save(Data.Dic_Failed, PublicParams.FailedPath + Data.DicName);
                     success = true;
                 }
                 catch (FileSaveException)
@@ -217,8 +217,8 @@ namespace AITranslator.Translator.Translation
                     if (count >= 3)
                         throw;
 
-                    Debug.WriteLine($"记录[翻译失败{Data.Extension}]失败{count + 1}");
-                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译失败{Data.Extension}]失败,将进行第{count + 1}次尝试");
+                    Debug.WriteLine($"记录[翻译失败{Data.DicName}]失败{count + 1}");
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译失败{Data.DicName}]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }
             }

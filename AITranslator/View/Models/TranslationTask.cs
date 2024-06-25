@@ -1,9 +1,15 @@
-﻿using AITranslator.Translator.TranslateData;
+﻿using AITranslator.Exceptions;
+using AITranslator.Translator.Models;
+using AITranslator.Translator.Persistent;
+using AITranslator.Translator.Tools;
+using AITranslator.Translator.TranslateData;
+using AITranslator.Translator.Translation;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,16 +19,23 @@ namespace AITranslator.View.Models
     public partial class TranslationTask : ObservableValidator
     {
         /// <summary>
+        /// 翻译执行器
+        /// </summary>
+        TranslatorBase _translator;
+        /// <summary>
+        /// 文件夹名词
+        /// </summary>
+        string _dicName;
+        /// <summary>
         /// 文本替换列表
         /// </summary>
         [ObservableProperty]
         private ObservableCollection<KeyValueStr> replaces = new ObservableCollection<KeyValueStr>();
         /// <summary>
-        /// 是否为中断的翻译
+        /// 是否为完成的翻译
         /// </summary>
         [ObservableProperty]
-        private bool isBreaked;
-
+        private bool isCompleted;
         /// <summary>
         /// 当前是否正在翻译
         /// </summary>
@@ -95,5 +108,106 @@ namespace AITranslator.View.Models
             return b;
         }
 
+        static string CreateRandomDic()
+        {
+            string dicName = Path.GetRandomFileName();
+            Directory.CreateDirectory(PublicParams.GetDicName(dicName));
+            return dicName;
+        }
+        public TranslationTask(FileInfo file)
+        {
+            Path.GetRandomFileName();
+            switch (file.Extension)
+            {
+                case ".json":
+                    translateType = TranslateDataType.KV;
+                    Dictionary<string, string> kvSource = JsonPersister.Load<Dictionary<string, string>>(file.FullName);
+                    _dicName = CreateRandomDic();
+                    JsonPersister.Save(kvSource, PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Source));
+                    break;
+                case ".srt":
+                    translateType = TranslateDataType.Srt;
+                    Dictionary<int, SrtData> srtSource = SrtPersister.Load(file.FullName);
+                    _dicName = CreateRandomDic();
+                    SrtPersister.Save(srtSource, PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Source));
+                    break;
+                case ".txt":
+                    translateType = TranslateDataType.Txt;
+                    List<string> txtSource = TxtPersister.Load(file.FullName);
+                    _dicName = CreateRandomDic();
+                    TxtPersister.Save(txtSource, PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Source));
+                    break;
+                default:
+                    throw new KnownException("不支持的翻译文件类型");
+            }
+
+            //创建配置文件
+            ConfigSave_Translate config = new ConfigSave_Translate()
+            {
+                IsEnglish = IsEnglish,
+                HistoryCount = HistoryCount,
+                TranslateType = TranslateType,
+                Replaces = replaces.ToReplaceDictionary()
+            };
+            JsonPersister.Save(config, PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Config), true);
+        }
+
+        public TranslationTask(DirectoryInfo dic)
+        {
+            _dicName = dic.Name;
+            //读取配置文件
+            ConfigSave_Translate config = JsonPersister.Load<ConfigSave_Translate>(PublicParams.GetFileName(_dicName, translateType, GenerateFileType.Config));
+            IsEnglish = config.IsEnglish;
+            HistoryCount = config.HistoryCount;
+            TranslateType = config.TranslateType;
+            replaces = config.Replaces.ToReplaceCollection();
+
+            switch (TranslateType)
+            {
+                case TranslateDataType.KV:
+                    break;
+                case TranslateDataType.Srt:
+                    break;
+                case TranslateDataType.Txt:
+                    break;
+                default:
+                    throw new KnownException("不支持的翻译文件类型");
+            }
+
+        }
+
+        public void Start()
+        {
+            //读取翻译文件并创建翻译器
+            ITranslateData _translateData;
+            switch (translateType)
+            {
+                case TranslateDataType.KV:
+                    _translateData = new KVTranslateData();
+                    _translator = new KVTranslator();
+                    break;
+                case TranslateDataType.Srt:
+                    _translateData = new SrtTranslateData();
+                    _translator = new SrtTranslator();
+                    break;
+                case TranslateDataType.Txt:
+                    _translateData = new TxtTranslateData(_dicName);
+                    _translator = new TxtTranslator();
+                    break;
+                default:
+                    throw new KnownException("不支持的翻译文件类型");
+            };
+
+
+            //启动翻译
+            _translator.Start();
+        }
+
+        public void Pause()
+        {
+            //停止翻译
+            _translator.Pause();
+            _translator = null;
+        }
     }
 }

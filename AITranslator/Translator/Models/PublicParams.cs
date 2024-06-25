@@ -1,11 +1,44 @@
-﻿using System;
+﻿using AITranslator.Exceptions;
+using AITranslator.Translator.TranslateData;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AITranslator.Translator.Models
 {
+    /// <summary>
+    /// 生成文件类型，用于获取文件名
+    /// </summary>
+    public enum GenerateFileType
+    {
+        /// <summary>
+        /// 原始数据
+        /// </summary>
+        Source,
+        /// <summary>
+        /// 清理后的数据
+        /// </summary>
+        Cleaned,
+        /// <summary>
+        /// 翻译成功的数据
+        /// </summary>
+        Successful,
+        /// <summary>
+        /// 翻译失败的数据
+        /// </summary>
+        Failed,
+        /// <summary>
+        /// 合并后的数据
+        /// </summary>
+        Merged,
+        /// <summary>
+        /// 翻译配置文件
+        /// </summary>
+        Config,
+    }
     /// <summary>
     /// 一些公用的数据
     /// </summary>
@@ -20,32 +53,56 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public const string ParamsDataDic = "内置参数";
         /// <summary>
-        /// 清理后的数据文件保存的位置
-        /// </summary>
-        public const string SourcePath = $"{TranslatedDataDic}/清理后的数据";
-        /// <summary>
-        /// 翻译成功文件保存的位置
-        /// </summary>
-        public const string SuccessfulPath = $"{TranslatedDataDic}/翻译成功";
-        /// <summary>
-        /// 翻译失败文件保存的位置
-        /// </summary>
-        public const string FailedPath = $"{TranslatedDataDic}/翻译失败";
-        /// <summary>
-        /// 合并结果文件保存的位置
-        /// </summary>
-        public const string MergePath = $"{TranslatedDataDic}/合并结果";
-        /// <summary>
         /// 基础配置文件保存的位置
         /// </summary>
         public const string ConfigPath_LoadModel = $"Config.json";
         /// <summary>
-        /// 翻译配置文件保存的位置
-        /// </summary>
-        public const string ConfigPath_Translate = $"{TranslatedDataDic}/配置文件.json";
-        /// <summary>
         /// 屏蔽数据所在的位置
         /// </summary>
         public const string BlockPath = $"{ParamsDataDic}/屏蔽列表.json";
+
+        public static string GetFileName(string dicName, TranslateDataType dataType, GenerateFileType FileType)
+        {
+            if (FileType == GenerateFileType.Config)
+                return $"{TranslatedDataDic}/{dicName}/配置文件.json";
+
+            switch (dataType)
+            {
+                case TranslateDataType.KV:
+                    return FileType switch
+                    {
+                        GenerateFileType.Source => $"{TranslatedDataDic}/{dicName}/原始数据.json",
+                        GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.json",
+                        GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.json",
+                        GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.json",
+                        _ => throw new KnownException("游戏文本翻译不需要合并文件")
+                    };
+                case TranslateDataType.Srt:
+                    return FileType switch
+                    {
+                        GenerateFileType.Source => $"{TranslatedDataDic}/{dicName}/原始数据.srt",
+                        GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.srt",
+                        GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.srt",
+                        GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.srt",
+                        _ => throw new KnownException("字幕翻译不需要合并文件")
+                    };
+                case TranslateDataType.Txt:
+                    return FileType switch
+                    {
+                        GenerateFileType.Source => $"{TranslatedDataDic}/{dicName}/原始数据.txt",
+                        GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.txt",
+                        GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.json",
+                        GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.json",
+                        GenerateFileType.Merged => $"{TranslatedDataDic}/{dicName}/合并结果.txt",
+                    };
+                default:
+                    throw new KnownException("不支持的翻译文件类型");
+            }
+        }
+
+        public static string GetDicName(string dicName)
+        {
+            return $"{TranslatedDataDic}/{dicName}";
+        }
     }
 }

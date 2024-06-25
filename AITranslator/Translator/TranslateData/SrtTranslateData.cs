@@ -43,8 +43,7 @@ namespace AITranslator.Translator.TranslateData
     {
         public TranslateDataType Type => TranslateDataType.Srt;
 
-        public string Extension => ".srt";
-
+        public string DicName { get; set; }
         /// <summary>
         /// 原始翻译数据
         /// </summary>
@@ -68,15 +67,15 @@ namespace AITranslator.Translator.TranslateData
             Dictionary<int, SrtData> failedDic;
             if (sourceDic is null)
             {
-                sourceDic = SrtPersister.Load(PublicParams.SourcePath + Extension);
+                sourceDic = SrtPersister.Load(PublicParams.SourcePath + DicName);
 
-                if (File.Exists(PublicParams.SuccessfulPath + Extension))
-                    successfulDic = SrtPersister.Load(PublicParams.SuccessfulPath + Extension);
+                if (File.Exists(PublicParams.SuccessfulPath + DicName))
+                    successfulDic = SrtPersister.Load(PublicParams.SuccessfulPath + DicName);
                 else
                     successfulDic = new Dictionary<int, SrtData>();
 
-                if (File.Exists(PublicParams.FailedPath + Extension))
-                    failedDic = SrtPersister.Load(PublicParams.FailedPath + Extension);
+                if (File.Exists(PublicParams.FailedPath + DicName))
+                    failedDic = SrtPersister.Load(PublicParams.FailedPath + DicName);
                 else
                     failedDic = new Dictionary<int, SrtData>();
             }

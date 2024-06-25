@@ -1,5 +1,7 @@
-﻿using System;
+﻿using AITranslator.View.Models;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -58,6 +60,33 @@ namespace AITranslator.Translator.Tools
 
             double similarity = (1 - (double)distance / Math.Max(str1.Length, str2.Length)) * 100;
             return similarity;
+        }
+
+
+        public static Dictionary<string, string> ToReplaceDictionary(this ObservableCollection<KeyValueStr> kvs)
+        {
+            Dictionary<string, string> Replaces = new Dictionary<string, string>();
+            foreach (var item in kvs)
+            {
+                string key = item.Key;
+                string value = item.Value;
+                if (!string.IsNullOrWhiteSpace(key))
+                    Replaces[key] = value;
+            }
+            return Replaces;
+        }
+
+        public static ObservableCollection<KeyValueStr> ToReplaceCollection(this Dictionary<string, string> kvs)
+        {
+            ObservableCollection<KeyValueStr> result = new ObservableCollection<KeyValueStr>();
+            foreach (var item in kvs)
+            {
+               
+                string key = item.Key;
+                string value = item.Value;
+                result.Add(new KeyValueStr(key, value));
+            }
+            return result;
         }
     }
 }

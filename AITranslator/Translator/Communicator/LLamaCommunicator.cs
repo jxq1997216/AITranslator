@@ -89,8 +89,8 @@ namespace AITranslator.Translator.Communicator
             {
                 var parameters = new ModelParams(modelPath)
                 {
-                    ContextSize = contextSize, // The longest length of chat as memory.
-                    GpuLayerCount = gpuLayerCount // How many layers to offload to GPU. Please adjust it according to your GPU memory.
+                    ContextSize = contextSize,
+                    GpuLayerCount = gpuLayerCount
                 };
                 model = await LLamaWeights.LoadFromFileAsync(parameters, ctk, progressReporter);
                 Executor = new StatelessExecutor(model, parameters);

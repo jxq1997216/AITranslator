@@ -23,6 +23,10 @@ namespace AITranslator.Translator.Models
         /// <summary>
         /// 翻译类型
         /// </summary>
-        public TranslateDataType TranslateType;
+        public TranslateDataType TranslateType { get; set; }
+        /// <summary>
+        /// 替换文本
+        /// </summary>
+        public Dictionary<string,string> Replaces { get; set; }
     }
 }

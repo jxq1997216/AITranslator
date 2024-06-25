@@ -204,7 +204,7 @@ namespace AITranslator.Translator.Translation
                     throw new KnownException("合并文件错误,存在未翻译的段落,请检查文件是否被修改");
             }
 
-            TxtPersister.Save(str, PublicParams.MergePath + Data.Extension);
+            TxtPersister.Save(str, PublicParams.MergePath + Data.DicName);
             CalculateProgress();
             base.TranslateEnd();
         }
@@ -261,7 +261,7 @@ namespace AITranslator.Translator.Translation
         void CalculateProgress()
         {
             double progress;
-            if (File.Exists(PublicParams.MergePath + Data.Extension))
+            if (File.Exists(PublicParams.MergePath + Data.DicName))
                 progress = 100;
             else
             {
