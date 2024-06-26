@@ -36,7 +36,11 @@ namespace AITranslator.View.Models
         /// 控制台输出内容
         /// </summary>
         [ObservableProperty]
-        private ObservableQueue<string> consoles = new ObservableQueue<string>(100);
+        private ObservableQueue<string> consoles = new ObservableQueue<string>(200);
+        /// <summary>
+        /// 当前任务
+        /// </summary>
+        public TranslationTask AcitveTask { get; set; }
         /// <summary>
         /// 未完成任务
         /// </summary>
@@ -147,10 +151,14 @@ namespace AITranslator.View.Models
 
             bool b = Validator.TryValidateObject(this, new ValidationContext(this), results, true);
             List<string> checkProperty = new List<string>();
-            if (IsRomatePlatform)
+            if (isOpenAILoader && IsRomatePlatform)
                 checkProperty.Add(nameof(ServerURL));
             else
+            {
+                Error = false;
+                ErrorMessage = string.Empty;
                 return true;
+            }
 
             List<ValidationResult> setError = results.Where(s =>
             {
@@ -164,6 +172,12 @@ namespace AITranslator.View.Models
             Error = setError.Count != 0;
             ErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
             return b;
+        }
+
+        public void ClearError()
+        {
+            Error = false;
+            ErrorMessage = string.Empty;
         }
     }
 }

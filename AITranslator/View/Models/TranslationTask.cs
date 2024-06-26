@@ -27,6 +27,10 @@ namespace AITranslator.View.Models
         /// </summary>
         Cleaning,
         /// <summary>
+        /// 等待翻译
+        /// </summary>
+        WaitTranslate,
+        /// <summary>
         /// 翻译中
         /// </summary>
         Translating,
@@ -53,6 +57,11 @@ namespace AITranslator.View.Models
         /// 翻译执行器
         /// </summary>
         TranslatorBase _translator;
+        /// <summary>
+        /// 文件夹名称
+        /// </summary>
+        [ObservableProperty]
+        private string fileName;
         /// <summary>
         /// 文件夹名称
         /// </summary>
@@ -171,6 +180,7 @@ namespace AITranslator.View.Models
                     throw new KnownException("不支持的翻译文件类型");
             }
 
+            FileName = file.Name;
             State = TaskState.Initialized;
             //创建配置文件
             SaveConfig();
@@ -228,6 +238,7 @@ namespace AITranslator.View.Models
             //创建配置文件
             ConfigSave_Translate config = new ConfigSave_Translate()
             {
+                FileName = FileName,
                 IsEnglish = IsEnglish,
                 HistoryCount = HistoryCount,
                 TranslateType = TranslateType,
@@ -247,12 +258,14 @@ namespace AITranslator.View.Models
         {
             //读取配置文件
             ConfigSave_Translate config = JsonPersister.Load<ConfigSave_Translate>(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Config));
+            FileName = config.FileName;
             IsEnglish = config.IsEnglish;
             HistoryCount = config.HistoryCount;
             TranslateType = config.TranslateType;
             Replaces = config.Replaces.ToReplaceCollection();
             Progress = config.Progress;
             State = config.State;
+
         }
     }
 }

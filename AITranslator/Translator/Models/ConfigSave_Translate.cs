@@ -13,7 +13,11 @@ namespace AITranslator.Translator.Models
     /// 用于保存配置到本地的类
     /// </summary>
     public class ConfigSave_Translate
-    {
+    {       
+        /// <summary>
+        /// 文件名称
+        /// </summary>
+        public string FileName { get; set; }
         /// <summary>
         /// 日语/英语
         /// </summary>

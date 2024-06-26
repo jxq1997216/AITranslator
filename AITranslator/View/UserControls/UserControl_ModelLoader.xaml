@@ -110,8 +110,8 @@
 
                             </StackPanel>
                         </control:SizeAnimationGrid>
-                        <Border x:Name="tb_error" Visibility="{calc:Binding SetViewError,FalseToVisibility=Collapsed}"  Margin="5,5,5,0" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
-                            <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SetViewErrorMessage}"/>
+                        <Border x:Name="tb_error" Visibility="{calc:Binding Error,FalseToVisibility=Collapsed}"  Margin="5,5,5,0" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
+                            <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding ErrorMessage}"/>
                         </Border>
                     </StackPanel>
                 </GroupBox>

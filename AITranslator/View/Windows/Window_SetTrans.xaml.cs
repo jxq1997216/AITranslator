@@ -28,7 +28,7 @@ namespace AITranslator.View.Windows
 
             //创建一个临时ViewModel
             temp_vm = new ViewModel();
-            ViewModelManager.ViewModel.CopyConfigTo(temp_vm);
+            //ViewModelManager.ViewModel.CopyConfigTo(temp_vm);
 
             DataContext = temp_vm;
         }
@@ -55,7 +55,7 @@ namespace AITranslator.View.Windows
                 return;
 
             //复制临时创建的ViewModel到主界面的ViewModel中
-            temp_vm.CopyConfigTo(ViewModelManager.ViewModel);
+            //temp_vm.CopyConfigTo(ViewModelManager.ViewModel);
 
             //保存配置参数到本地
             DialogResult = true;

@@ -30,6 +30,7 @@ namespace AITranslator.View.UserControls
         double llamaHeight;
         double openAIHeight;
         double llamaUnLoadHeightAdd = 50;
+        double animOffset = 65;
 
         public UserControl_ModelLoader()
         {
@@ -40,8 +41,8 @@ namespace AITranslator.View.UserControls
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             gb_main.Height = 0;
-            llamaHeight = gd_LLama.Height + 65;
-            openAIHeight = gd_OpenAI.Height + 65;
+            llamaHeight = gd_LLama.Height + animOffset;
+            openAIHeight = gd_OpenAI.Height + animOffset;
             if (!ViewModelManager.ViewModel.IsOpenAILoader && ViewModelManager.ViewModel.AutoLoadModel)
             {
                 llamaHeight -= llamaUnLoadHeightAdd;
@@ -73,7 +74,7 @@ namespace AITranslator.View.UserControls
                 LLamaLoader.Unload();
                 ViewModelManager.ViewModel.ModelLoaded = false;
                 llamaHeight += llamaUnLoadHeightAdd;
-                AnimateLLamaViewHeight(llamaHeight - 65 + tb_error.ActualHeight);
+                AnimateLLamaViewHeight(llamaHeight - animOffset + tb_error.ActualHeight);
                 AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
                 Window_Message.ShowDialog("提示", "卸载模型成功");
             }
@@ -84,7 +85,7 @@ namespace AITranslator.View.UserControls
                 else
                 {
                     AnimateMainHeight(llamaHeight + tb_error.ActualHeight - llamaUnLoadHeightAdd);
-                    AnimateLLamaViewHeight(llamaHeight - 65 - llamaUnLoadHeightAdd);
+                    AnimateLLamaViewHeight(llamaHeight - animOffset - llamaUnLoadHeightAdd);
                     llamaHeight -= llamaUnLoadHeightAdd;
                     string result = await LLamaLoader.LoadModel();
                     if (string.IsNullOrWhiteSpace(result))
@@ -92,7 +93,7 @@ namespace AITranslator.View.UserControls
                     else
                     {
                         llamaHeight += llamaUnLoadHeightAdd;
-                        AnimateLLamaViewHeight(llamaHeight - 65 + tb_error.ActualHeight);
+                        AnimateLLamaViewHeight(llamaHeight - animOffset + tb_error.ActualHeight);
                         AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
                         Window_Message.ShowDialog("错误", result);
                     }

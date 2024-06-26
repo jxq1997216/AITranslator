@@ -24,12 +24,12 @@ namespace AITranslator.View.Windows
     /// </summary>
     public partial class Window_Replace : Window
     {
-        ViewModel _vm;
+        TranslationTask _vm;
         public Dictionary<string, string> Replaces = new Dictionary<string, string>();
-        public Window_Replace()
+        public Window_Replace(TranslationTask task)
         {
             InitializeComponent();
-            _vm = ViewModelManager.ViewModel;
+            _vm = task;
             DataContext = _vm;
         }
 

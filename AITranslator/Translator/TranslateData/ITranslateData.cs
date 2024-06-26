@@ -23,6 +23,8 @@ namespace AITranslator.Translator.TranslateData
         public void GetNotTranslatedData();
 
         public double GetProgress();
+
+        public void ReloadData();
         /// <summary>
         /// 替换和清理原始数据
         /// </summary>

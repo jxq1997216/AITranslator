@@ -52,10 +52,12 @@ namespace AITranslator
             vm.Consoles.CollectionChanged += Consoles_CollectionChanged;
             ViewModelManager.SetViewModel(vm);
 
+        }
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             //读取初始化配置
             InitState();
         }
-
         private void App_OtherProgressSend(object? sender, byte[] e)
         {
             if (e.Length == 1 && e[0] == 1)
@@ -76,18 +78,17 @@ namespace AITranslator
             try
             {
                 //加载配置信息,检查是否存在中断的翻译
-                if (ViewModelManager.LoadModelLoadConfig())
+                ViewModelManager.LoadModelLoadConfig();
+
+                foreach (var dicPath in Directory.GetDirectories(PublicParams.TranslatedDataDic))
                 {
-                    _translator = ViewModelManager.ViewModel.TranslateType switch
-                    {
-                        TranslateDataType.KV => new KVTranslator(),
-                        TranslateDataType.Srt => new SrtTranslator(),
-                        TranslateDataType.Txt => new TxtTranslator(),
-                        _ => throw new ArgumentException("配置文件参数存在错误")
-                    };
+                    TranslationTask task = new TranslationTask(new DirectoryInfo(dicPath));
+                    if (task.State == TaskState.Completed)
+                        ViewModelManager.ViewModel.CompletedTasks.Add(task);
+                    else
+                        ViewModelManager.ViewModel.UnfinishedTasks.Add(task);
                 }
-                else
-                    ViewModelManager.SetNotStarted();
+               
             }
             catch (Exception err)
             {
@@ -171,6 +172,49 @@ namespace AITranslator
         private void Button_Declare_Click(object sender, RoutedEventArgs e)
         {
             Window_Message.ShowDialog("软件声明", "软件只提供AI翻译服务，仅作学习交流使用\r\n所有由本软件制成的翻译内容，与软件制作人无关，请各位遵守法律，合法翻译。");
+        }
+
+        private void Button_AddTask_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog()
+                {
+                    Title = "请选择待翻译的文本文件",
+                    Multiselect = false,
+                    FileName = "Select a file",
+                    Filter = "待翻译文件(*.json;*.txt;*.srt)|*.json;*.txt;*.srt",
+                };
+
+                if (!openFileDialog.ShowDialog()!.Value)
+                    return;
+
+                FileInfo file = new FileInfo(openFileDialog.FileName);
+
+                TranslationTask task = new TranslationTask(file);
+
+                ViewModelManager.ViewModel.UnfinishedTasks.Add(task);
+            }
+            catch (KnownException err)
+            {
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{err.Message}");
+                Window_Message.ShowDialog("错误", err.Message);
+                return;
+            }
+            catch (FileNotFoundException err)
+            {
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{err.Message}");
+                Window_Message.ShowDialog("错误", err.Message);
+                return;
+            }
+            catch (Exception err)
+            {
+                string error = $"意料外的错误:{err}";
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}");
+                Window_Message.ShowDialog("错误", "发生意料外的错误，详情请看日志输出");
+                return;
+            }
+
         }
     }
 }

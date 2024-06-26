@@ -73,6 +73,10 @@ namespace AITranslator.Translator.TranslateData
         {
             DicName = dicName;
 
+            ReloadData();
+        }
+        public void ReloadData()
+        {
             string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
             if (File.Exists(cleanedFile))
                 Dic_Cleaned = SrtPersister.Load(cleanedFile);

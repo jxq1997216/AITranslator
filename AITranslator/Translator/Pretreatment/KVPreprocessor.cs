@@ -95,14 +95,6 @@ namespace AITranslator.Translator.Pretreatment
                         return false;
                 }
                 return true;
-
-                ////方法1
-                //Regex regex = new Regex(@"^(?![\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]).*$");
-                //return regex.IsMatch(string);
-
-                ////方法2
-                //Regex regex = new Regex(@"[\u3040-\u3096\u30A0-\u30FF\u4E00-\u9FFF\u31F0-\u31FF]+");
-                //return !regex.IsMatch(string);
             }
         }
         public static Dictionary<string, string> Pretreatment(this Dictionary<string, string> input, bool isEnglish, Dictionary<string, string> dic_replace, Dictionary<string, object?> dic_block)

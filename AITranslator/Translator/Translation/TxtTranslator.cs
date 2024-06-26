@@ -32,7 +32,7 @@ namespace AITranslator.Translator.Translation
             postData = new PostData();
 
             //设置示例对话,negative_prompt和prompt_with_text
-            if (ViewModelManager.ViewModel.IsEnglish)
+            if (_translationTask.IsEnglish)
             {
                 _example = new ExampleDialogue[]
                 {
@@ -63,9 +63,10 @@ namespace AITranslator.Translator.Translation
         internal override void LoadHistory()
         {
             //添加历史记录
-            if (ViewModelManager.ViewModel.HistoryCount > 0 && Data.Dic_Successful.Count >= ViewModelManager.ViewModel.HistoryCount)
+            uint historyCount = _translationTask.HistoryCount;
+            if (historyCount > 0 && Data.Dic_Successful.Count >= historyCount)
             {
-                for (int i = Convert.ToInt32(Data.Dic_Successful.Count - ViewModelManager.ViewModel.HistoryCount); i < Data.Dic_Successful.Count; i++)
+                for (int i = Convert.ToInt32(Data.Dic_Successful.Count - historyCount); i < Data.Dic_Successful.Count; i++)
                 {
                     KeyValuePair<int, string> str_Translated = Data.Dic_Successful.ElementAt(i);
                     string str_source = Data.List_Cleaned[str_Translated.Key];
@@ -166,8 +167,10 @@ namespace AITranslator.Translator.Translation
         internal override void TranslateEnd()
         {
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
-            Data = new TxtTranslateData();
-            CalculateProgress();
+            Data.ReloadData();
+
+            _translationTask.State = TaskState.WaitMerge;
+            _translationTask.SaveConfig();
             if (Data.Dic_Failed.Count != 0)
             {
                 bool result = ViewModelManager.ShowDialogMessage("提示", "当前翻译存在翻译失败内容\r\n" +
@@ -177,11 +180,11 @@ namespace AITranslator.Translator.Translation
                 if (!result)
                 {
                     Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
-                    ViewModelManager.ViewModel.IsBreaked = true;
                     return;
                 }
             }
 
+            _translationTask.State = TaskState.Merging;
             List<string> str = new List<string>();
             for (int i = 0; i < Data.List_Cleaned.Count; i++)
             {
@@ -192,9 +195,7 @@ namespace AITranslator.Translator.Translation
                 else
                     throw new KnownException("合并文件错误,存在未翻译的段落,请检查文件是否被修改");
             }
-
-            TxtPersister.Save(str, PublicParams.MergePath + Data.DicName);
-            CalculateProgress();
+            TxtPersister.Save(str, PublicParams.GetFileName(Data, GenerateFileType.Merged));
             base.TranslateEnd();
         }
         internal override void SaveFailedFile()
@@ -205,7 +206,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    JsonPersister.Save(Data.Dic_Failed, PublicParams.FailedPath + tempFileExtension);
+                    JsonPersister.Save(Data.Dic_Failed, PublicParams.GetFileName(Data, GenerateFileType.Failed));
                     success = true;
                 }
                 catch (FileSaveException)
@@ -229,7 +230,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    JsonPersister.Save(Data.Dic_Successful, PublicParams.SuccessfulPath + tempFileExtension);
+                    JsonPersister.Save(Data.Dic_Successful, PublicParams.GetFileName(Data, GenerateFileType.Successful));
                     success = true;
                 }
                 catch (FileSaveException)

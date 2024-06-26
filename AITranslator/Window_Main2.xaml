@@ -9,7 +9,7 @@
         xmlns:vm="clr-namespace:AITranslator.View.Models" 
         xmlns:uc="clr-namespace:AITranslator.View.UserControls" xmlns:converter="clr-namespace:AITranslator.View.Converter" xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
-        Title="AI Translator" Height="600" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Closing="window_main_Closing">
+        Title="AI Translator" Height="600" Width="500" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Loaded="Window_Loaded" Closing="window_main_Closing">
     <Window.RenderTransform>
         <TransformGroup>
             <ScaleTransform CenterX="{calc:Binding ActualWidth/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" CenterY="{calc:Binding ActualHeight/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" x:Name="window_scale"/>
@@ -30,7 +30,7 @@
     <Window.DataContext>
         <vm:ViewModel/>
     </Window.DataContext>
-    <Border x:Name="border_Main" CornerRadius="10" BorderThickness="0">
+    <Border x:Name="border_Main" CornerRadius="0" BorderThickness="0">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                 <GradientStop Offset="1" Color="#FF21252D"/>
@@ -44,9 +44,9 @@
             </LinearGradientBrush>
         </Border.BorderBrush>
         <Grid>
-            <Grid.Clip>
-                <RectangleGeometry Rect="0 0 400 1000" RadiusX="9" RadiusY="9"/>
-            </Grid.Clip>
+            <!--<Grid.Clip>
+                <RectangleGeometry Rect="0 0 800 600" RadiusX="9" RadiusY="9"/>
+            </Grid.Clip>-->
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
@@ -54,14 +54,14 @@
                 </Grid.RowDefinitions>
                 <!--托盘图标-->
                 <tb:TaskbarIcon x:Name="tbIcon" PopupPlacement="MousePoint" Visibility="Collapsed" PopupActivation="RightClick" IconSource="pack://application:,,,/AITranslator;component/View/Resources/Icon/Icon.ico" TrayLeftMouseDown="tbIcon_TrayLeftMouseDoubleClick">
-                    <tb:TaskbarIcon.ToolTipText>
+                    <!--<tb:TaskbarIcon.ToolTipText>
                         <MultiBinding Converter="{StaticResource TaskbarIconToolTipText}">
                             <Binding Path="IsTranslating"/>
                             <Binding Path="IsBreaked"/>
                             <Binding Path="Progress"/>
                         </MultiBinding>
-                    </tb:TaskbarIcon.ToolTipText>
-                    <tb:TaskbarIcon.TrayPopup>
+                    </tb:TaskbarIcon.ToolTipText>-->
+                    <!--<tb:TaskbarIcon.TrayPopup>
                         <Border Padding="5,8" CornerRadius="5" Width="120">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -84,7 +84,7 @@
                                 <controls:ViewButton Height="25" Style="{StaticResource TaskbarButton}" Content="退出" Click="Button_Close_Taskbar_Click"/>
                             </StackPanel>
                         </Border>
-                    </tb:TaskbarIcon.TrayPopup>
+                    </tb:TaskbarIcon.TrayPopup>-->
                 </tb:TaskbarIcon>
                 <!--标题栏-->
                 <Grid Background="#FF312D87" MouseLeftButtonDown="Header_MouseLeftButtonDown">
@@ -108,10 +108,11 @@
                             <Label Content="×" Margin="-5" Foreground="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18"/>
                         </Button>
                     </StackPanel>
+                    <Rectangle VerticalAlignment="Bottom" Height="1" Fill="#1FFFFFFF"/>
                 </Grid>
                 <!--主体-->
-                <Grid  Grid.Row="1">
-                    <DockPanel>
+                <Grid Grid.Row="1">
+                    <DockPanel Margin="0,0,0,24">
                         <!--模型加载区-->
                         <Border DockPanel.Dock="Left" BorderThickness="0,0,1,0"  BorderBrush="Black">
                             <StackPanel Width="50">
@@ -138,13 +139,41 @@
                             </StackPanel>
                         </Border>
 
-                        <Grid DockPanel.Dock="Right">
-                            <Grid Background="Yellow" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}">
-                                <ListBox x:Name="list_UnfinishedTasks" Background="Transparent" BorderThickness="0" ItemsSource="{Binding Consoles}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <Grid Background="#40000000" DockPanel.Dock="Top" Height="48">
+                            <TextBlock  Text="翻译中" Margin="6,0,0,0" Foreground="White" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+
+                            <StackPanel Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="▶" ToolTip="全部开始"/>
+                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="‖" ToolTip="全部暂停"/>
+                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="新建任务" Click="Button_AddTask_Click">
+                                    <controls:ViewButton.Content>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock VerticalAlignment="Center" Margin="0,0,5,2" FontSize="18" Text="+"/>
+                                            <TextBlock VerticalAlignment="Center" Text="新建"/>
+                                        </StackPanel>
+                                    </controls:ViewButton.Content>
+                                </controls:ViewButton>
+                            </StackPanel>
+
+                            <StackPanel Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatedView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="清空">
+                                    <controls:ViewButton.Content>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock VerticalAlignment="Center" Margin="0,0,5,2" FontSize="18" Text="×"/>
+                                            <TextBlock VerticalAlignment="Center" Text="清空"/>
+                                        </StackPanel>
+                                    </controls:ViewButton.Content>
+                                </controls:ViewButton>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid DockPanel.Dock="Bottom">
+                            <Grid Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}">
+                                <ListBox x:Name="list_UnfinishedTasks"  Background="Transparent" BorderThickness="0" ItemsSource="{Binding UnfinishedTasks}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem">
                                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                                            <Setter Property="IsEnabled" Value="False"/>
+                                            <Setter Property="IsEnabled" Value="True"/>
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
@@ -156,19 +185,41 @@
                                     </ListBox.ItemContainerStyle>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Width="{calc:Binding '(ActualWidth - 5) less 0 ? 0 : (ActualWidth - 5)',ElementName=list_Consoles}" Text="{Binding}"/>
+                                            <Border Padding="5" BorderBrush="Gray" BorderThickness="1" CornerRadius="3" Height="52" Width="{calc:Binding '(ActualWidth - 10) less 0 ? 0 : (ActualWidth - 10)',ElementName=list_UnfinishedTasks}">
+                                                <DockPanel>
+                                                    <Grid VerticalAlignment="Bottom" Height="4" DockPanel.Dock="Bottom">
+                                                        <ProgressBar Foreground="MediumPurple" BorderThickness="0" Value="{Binding Progress}" Maximum="100" Background="#1CFFFFFF"/>
+                                                    </Grid>
+                                                    
+                                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                                                        <!--<controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="M" ToolTip="合并"/>-->
+                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="R" ToolTip="设置名词替换"/>
+                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="S" ToolTip="设置翻译参数"/>
+                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="▶" ToolTip="开始"/>
+                                                        <controls:ViewButton Width="24" Height="24" FontSize="16" Content="×" ToolTip="删除"/>
+                                                    </StackPanel>
+
+                                                    <TextBlock x:Name="tb_title" DockPanel.Dock="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Text="{Binding FileName}"/>
+                                                    <Rectangle DockPanel.Dock="Top" Margin="0,2" HorizontalAlignment="Left" Width="{Binding ActualWidth, ElementName=tb_title}" Fill="#3CFFFFFF" Height="1"/>
+                                                    <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Width="48" Foreground="Gray" Text="{Binding Progress,StringFormat={}{0:0.00}%}"/>
+
+                                                    <TextBlock HorizontalAlignment="Left" Foreground="Gray" Text="{Binding State}"/>
+
+                                                </DockPanel>
+
+                                            </Border>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
                             </Grid>
-                            <Grid Background="Aqua" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatedView,FalseToVisibility=Collapsed}">
+                            <Grid Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatedView,FalseToVisibility=Collapsed}">
 
                             </Grid>
                             <Grid Background="Red" Visibility="{calc:Binding IsChecked,ElementName=rb_ManualTranslate,FalseToVisibility=Collapsed}">
 
                             </Grid>
-                            <Grid Background="Black" Visibility="{calc:Binding IsChecked,ElementName=rb_LogView,FalseToVisibility=Collapsed}">
-                                <ListBox x:Name="list_Logs" Background="Transparent" BorderThickness="0" ItemsSource="{Binding Consoles}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                            <Grid Background="#BB000000" Visibility="{calc:Binding IsChecked,ElementName=rb_LogView,FalseToVisibility=Collapsed}">
+                                <ListBox x:Name="list_Logs" Background="Transparent" BorderThickness="0" ItemsSource="{Binding Consoles}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem">
                                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -184,14 +235,17 @@
                                     </ListBox.ItemContainerStyle>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Width="{calc:Binding '(ActualWidth - 5) less 0 ? 0 : (ActualWidth - 5)',ElementName=list_Consoles}" Text="{Binding}"/>
+                                            <TextBlock TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Width="{calc:Binding '(ActualWidth - 5) less 0 ? 0 : (ActualWidth - 5)',ElementName=list_Logs}" Text="{Binding}"/>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
                             </Grid>
                         </Grid>
+
+
                     </DockPanel>
                     <uc:UserControl_ModelLoader VerticalAlignment="Bottom" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
+
                 </Grid>
             </Grid>
         </Grid>

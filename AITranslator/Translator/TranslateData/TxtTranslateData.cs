@@ -43,6 +43,11 @@ namespace AITranslator.Translator.TranslateData
         {
             DicName = dicName;
 
+            ReloadData();
+        }
+
+        public void ReloadData()
+        {
             string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
             if (File.Exists(cleanedFile))
                 List_Cleaned = TxtPersister.Load(cleanedFile);
@@ -61,6 +66,7 @@ namespace AITranslator.Translator.TranslateData
             else
                 Dic_Failed = new Dictionary<int, string>();
         }
+
 
         /// <summary>
         /// 获取未翻译的内容

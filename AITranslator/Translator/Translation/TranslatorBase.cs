@@ -64,7 +64,7 @@ namespace AITranslator.Translator.Translation
         /// <summary>
         /// 翻译线程
         /// </summary>
-        Task _translateTask;
+        Task _task;
 
         internal TranslationTask _translationTask;
 
@@ -118,7 +118,7 @@ namespace AITranslator.Translator.Translation
         public void Start()
         {
             sw.Restart();
-            _translateTask = Task.Factory.StartNew(() =>
+            _task = Task.Factory.StartNew(() =>
             {
                 try
                 {
@@ -179,9 +179,9 @@ namespace AITranslator.Translator.Translation
             //通知停止线程
             _communicator.Cancel();
             //等待线程停止
-            _translateTask.Wait();
+            _task.Wait();
             //设置界面暂停
-            ViewModelManager.SetPause();
+            _translationTask.State = TaskState.Pause;
         }
 
         /// <summary>
@@ -192,7 +192,11 @@ namespace AITranslator.Translator.Translation
         /// <summary>
         /// 翻译结束虚方法，子类继承后实现附加的翻译结束处理流程
         /// </summary>
-        internal virtual void TranslateEnd() { }
+        internal virtual void TranslateEnd() 
+        {
+            _translationTask.State = TaskState.Completed;
+            _translationTask.SaveConfig();
+        }
 
         /// <summary>
         /// 完成翻译后保存文件并销毁Http连接
@@ -203,8 +207,8 @@ namespace AITranslator.Translator.Translation
             SaveFiles();
 
             _communicator.Dispose();
-            _translateTask = null;
-            ViewModelManager.SetSuccessful();
+            _task = null;
+            _translationTask.State= TaskState.Completed;
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
             TrigerStopedEvent(TranslateStopEventArgs.CreateSucess());
 
@@ -219,8 +223,8 @@ namespace AITranslator.Translator.Translation
 
             _communicator.Dispose();
 
-            _translateTask = null;
-            ViewModelManager.SetPause();
+            _task = null;
+            _translationTask.State = TaskState.Pause;
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error} 翻译暂停");
             if (isKnownError)
                 TrigerStopedEvent(TranslateStopEventArgs.CreatePause($"{error} 翻译暂停"));
@@ -247,9 +251,9 @@ namespace AITranslator.Translator.Translation
         /// <param name="translated">翻译后数据</param>
         internal void AddHistory(string source, string translated)
         {
-            if (ViewModelManager.ViewModel.HistoryCount > 0)
+            if (_translationTask.HistoryCount > 0)
             {
-                if (_history.Count >= ViewModelManager.ViewModel.HistoryCount * 2)
+                if (_history.Count >= _translationTask.HistoryCount * 2)
                 {
                     _history.Dequeue();
                     _history.Dequeue();
