@@ -91,7 +91,7 @@
                                             <ColumnDefinition Width="120"/>
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
-                                        <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click">
+                                        <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'AcitveTask == null'}">
                                             <Button.Content>
                                                 <MultiBinding Converter="{StaticResource LoadModelButtonText}" ConverterParameter="卸载模型 加载模型 取消加载">
                                                     <Binding Path="ModelLoaded"/>

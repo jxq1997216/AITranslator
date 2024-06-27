@@ -91,7 +91,7 @@ namespace AITranslator.Translator.Translation
         {
             _translationTask = task;
             //创建Data
-            TranslateData = Type switch
+            TranslateData = task.TranslateType switch
             {
                 TranslateDataType.KV => new KVTranslateData(task.DicName),
                 TranslateDataType.Srt => new SrtTranslateData(task.DicName),
@@ -110,6 +110,7 @@ namespace AITranslator.Translator.Translation
         internal void CalculateProgress()
         {
             _translationTask.Progress = TranslateData.GetProgress();
+            _translationTask.SaveConfig(TaskState.Pause);
         }
 
         /// <summary>
@@ -122,6 +123,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
                     //创建连接客户端，设置超时时间10分钟
                     if (ViewModelManager.ViewModel.IsOpenAILoader)
                         _communicator = new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.ServerURL + "/v1/chat/completions"));
@@ -176,12 +178,12 @@ namespace AITranslator.Translator.Translation
         /// <returns>暂停翻译线程</returns>
         public void Pause()
         {
+
             //通知停止线程
             _communicator.Cancel();
             //等待线程停止
-            _task.Wait();
-            //设置界面暂停
-            _translationTask.State = TaskState.Pause;
+            _task?.Wait();
+
         }
 
         /// <summary>
@@ -190,9 +192,14 @@ namespace AITranslator.Translator.Translation
         internal abstract void Translate();
 
         /// <summary>
+        /// 合并翻译文件抽象方法，子类继承并实现合并流程
+        /// </summary>
+        public abstract void MergeData();
+
+        /// <summary>
         /// 翻译结束虚方法，子类继承后实现附加的翻译结束处理流程
         /// </summary>
-        internal virtual void TranslateEnd() 
+        internal virtual void TranslateEnd()
         {
             _translationTask.State = TaskState.Completed;
             _translationTask.SaveConfig();
@@ -208,7 +215,7 @@ namespace AITranslator.Translator.Translation
 
             _communicator.Dispose();
             _task = null;
-            _translationTask.State= TaskState.Completed;
+            _translationTask.State = TaskState.Completed;
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
             TrigerStopedEvent(TranslateStopEventArgs.CreateSucess());
 

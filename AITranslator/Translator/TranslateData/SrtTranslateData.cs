@@ -91,7 +91,7 @@ namespace AITranslator.Translator.TranslateData
 
             string failedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Failed);
             if (File.Exists(successfulFile))
-                Dic_Failed = SrtPersister.Load(successfulFile);
+                Dic_Failed = SrtPersister.Load(failedFile);
             else
                 Dic_Failed = new Dictionary<int, SrtData>();
         }

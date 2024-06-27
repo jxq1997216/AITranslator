@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AITranslator.View.Models;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -8,29 +9,30 @@ using System.Windows.Data;
 
 namespace AITranslator.View.Converter
 {
-    public class StartButtonTextConverter : IMultiValueConverter
+    public class StartButtonTextConverter : IValueConverter
     {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string[] strs = parameter.ToString().Split(' ');
-            if (strs.Length != 4)
-                throw new ArgumentException("无效的参数！");
+            bool isTooltip = System.Convert.ToBoolean(parameter);
+            TaskState state = (TaskState)value;
+            if (isTooltip)
+            {
+                if (state == TaskState.WaitTranslate || state == TaskState.Translating || state == TaskState.WaitPause)
+                    return "暂停";
+                else
+                    return "开始";
+            }
+            else
+            {
+                if (state == TaskState.WaitTranslate || state == TaskState.Translating || state == TaskState.WaitPause)
+                    return "‖";
+                else
+                    return "▶";
+            }
 
-            bool isTranslating = (bool)values[0];
-            bool isBreaked = (bool)values[1];
-            double progress = (double)values[2];
-
-            if (isTranslating)
-                return strs[0];
-
-            if (progress >= 100)
-                return strs[3];
-
-            return isBreaked ? strs[1] : strs[2];
         }
 
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

@@ -162,6 +162,39 @@ namespace AITranslator.Translator.Translation
             }
         }
 
+        public override void MergeData()
+        {
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
+
+            Data.ReloadData();
+            _translationTask.State = TaskState.Merging;
+            Dictionary<string, string> dic_Merge = new Dictionary<string, string>();
+            foreach (var key in Data.Dic_Cleaned.Keys)
+            {
+                if (Data.Dic_Successful.ContainsKey(key))
+                    dic_Merge[key] = Data.Dic_Successful[key];
+                else if (Data.Dic_Failed.ContainsKey(key))
+                    dic_Merge[key] = Data.Dic_Failed[key];
+                else
+                    throw new KnownException("合并文件错误,存在未翻译的字幕,请检查文件是否被修改");
+            }
+            JsonPersister.Save(dic_Merge, PublicParams.GetFileName(Data, GenerateFileType.Merged));
+
+            base.TranslateEnd();
+        }
+
+        internal override void TranslateEnd()
+        {
+            if (Data.Dic_Failed.Count != 0)
+            {
+                _translationTask.State = TaskState.WaitMerge;
+                _translationTask.SaveConfig();
+                return;
+            }
+
+            base.TranslateEnd();
+        }
+
         /// <summary>
         /// 保存翻译成功记录文件
         /// </summary>

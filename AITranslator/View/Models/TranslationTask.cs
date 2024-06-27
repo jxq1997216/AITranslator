@@ -6,6 +6,7 @@ using AITranslator.Translator.TranslateData;
 using AITranslator.Translator.Translation;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
@@ -34,6 +35,10 @@ namespace AITranslator.View.Models
         /// 翻译中
         /// </summary>
         Translating,
+        /// <summary>
+        /// 正在暂停
+        /// </summary>
+        WaitPause,
         /// <summary>
         /// 暂停
         /// </summary>
@@ -195,6 +200,14 @@ namespace AITranslator.View.Models
 
         public void Start()
         {
+            if (ViewModelManager.ViewModel.AcitveTask is not null)
+            {
+                if (State == TaskState.Initialized || State == TaskState.Pause)
+                    State = TaskState.WaitTranslate;
+                return;
+            }
+
+            ViewModelManager.ViewModel.AcitveTask = this;
             //如果不存在清理后文件，执行清理流程
             if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
             {
@@ -223,14 +236,41 @@ namespace AITranslator.View.Models
             };
 
             //启动翻译
+            State = TaskState.Translating;
+            _translator.Stoped += _translator_Stoped;
             _translator.Start();
         }
 
-        public void Pause()
+        private void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
+        {
+            _translator.Stoped -= _translator_Stoped;
+            if (ViewModelManager.ViewModel.AcitveTask == this)
+                ViewModelManager.ViewModel.AcitveTask = null;
+            ViewModelManager.ViewModel.UnfinishedTasks.FirstOrDefault(s => s.State == TaskState.WaitTranslate)?.Start();
+            if (!e.IsPause)
+            {
+                ViewModelManager.ViewModel.UnfinishedTasks.Remove(this);
+                ViewModelManager.ViewModel.CompletedTasks.Add(this);
+            }
+        }
+
+        public Task Pause()
         {
             //停止翻译
-            _translator.Pause();
-            _translator = null;
+            return Task.Run(() =>
+             {
+                 //设置界面暂停中
+                 if (State == TaskState.WaitTranslate || State == TaskState.Translating)
+                 {
+                     State = TaskState.WaitPause;
+                     _translator?.Pause();
+                     //设置界面暂停
+                     State = TaskState.Pause;
+                 }
+
+                 _translator = null;
+             });
+
         }
 
         public void SaveConfig(TaskState state)
@@ -265,7 +305,6 @@ namespace AITranslator.View.Models
             Replaces = config.Replaces.ToReplaceCollection();
             Progress = config.Progress;
             State = config.State;
-
         }
     }
 }

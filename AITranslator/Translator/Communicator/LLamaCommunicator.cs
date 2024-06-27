@@ -142,24 +142,32 @@ namespace AITranslator.Translator.Communicator
                 AntiPrompts = postData.stop,
             };
 
-            Task<string> translateTask;
-            try
-            {
-                translateTask = Task.Run(() => string.Join("", LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token)));
+            string str = string.Join("", LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
+            if (_cts.Token.IsCancellationRequested)
+                throw new KnownException("按下暂停按钮");
+            //Task<string> translateTask;
+            //try
+            //{
 
-                while (!translateTask.IsCompleted)
-                {
-                    if (_cts.Token.IsCancellationRequested)
-                        throw new KnownException("按下暂停按钮");
+            //    translateTask = Task.Run(() => string.Join("", LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token)));
 
-                    Thread.Sleep(100);
-                }
-            }
-            catch (ObjectDisposedException err)
-            {
-                return string.Empty;
-            }
-            string str = translateTask.Result;
+            //    while (!translateTask.IsCompleted)
+            //    {
+            //        if (_cts.Token.IsCancellationRequested)
+            //            throw new KnownException("按下暂停按钮");
+
+            //        Thread.Sleep(100);
+            //    }
+            //}
+            //catch (TaskCanceledException)
+            //{
+            //    return string.Empty;
+            //}
+            //catch (ObjectDisposedException)
+            //{
+            //    return string.Empty;
+            //}
+            //string str = translateTask.Result;
 
             foreach (var stop in postData.stop)
             {

@@ -79,7 +79,8 @@ namespace AITranslator.Translator.Models
                         GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.json",
                         GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.json",
                         GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.json",
-                        _ => throw new KnownException("游戏文本翻译不需要合并文件")
+                        GenerateFileType.Merged => $"{TranslatedDataDic}/{dicName}/合并结果.json",
+                        _ => throw new KnownException("无效的存储文件类型")
                     };
                 case TranslateDataType.Srt:
                     return FileType switch
@@ -88,7 +89,8 @@ namespace AITranslator.Translator.Models
                         GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.srt",
                         GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.srt",
                         GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.srt",
-                        _ => throw new KnownException("字幕翻译不需要合并文件")
+                        GenerateFileType.Merged => $"{TranslatedDataDic}/{dicName}/合并结果.srt",
+                        _=> throw new KnownException("无效的存储文件类型")
                     };
                 case TranslateDataType.Txt:
                     return FileType switch
@@ -98,6 +100,7 @@ namespace AITranslator.Translator.Models
                         GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.json",
                         GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.json",
                         GenerateFileType.Merged => $"{TranslatedDataDic}/{dicName}/合并结果.txt",
+                        _ => throw new KnownException("无效的存储文件类型")
                     };
                 default:
                     throw new KnownException("不支持的翻译文件类型");

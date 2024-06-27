@@ -9,7 +9,7 @@
         xmlns:vm="clr-namespace:AITranslator.View.Models" 
         xmlns:uc="clr-namespace:AITranslator.View.UserControls" xmlns:converter="clr-namespace:AITranslator.View.Converter" xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
-        Title="AI Translator" Height="600" Width="500" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Loaded="Window_Loaded" Closing="window_main_Closing">
+        Title="AI Translator" Height="600" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Loaded="Window_Loaded" Closing="window_main_Closing">
     <Window.RenderTransform>
         <TransformGroup>
             <ScaleTransform CenterX="{calc:Binding ActualWidth/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" CenterY="{calc:Binding ActualHeight/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" x:Name="window_scale"/>
@@ -61,7 +61,7 @@
                             <Binding Path="Progress"/>
                         </MultiBinding>
                     </tb:TaskbarIcon.ToolTipText>-->
-                    <!--<tb:TaskbarIcon.TrayPopup>
+                    <tb:TaskbarIcon.TrayPopup>
                         <Border Padding="5,8" CornerRadius="5" Width="120">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -71,7 +71,7 @@
                             </Border.Background>
 
                             <StackPanel Grid.Row="0">
-                                <controls:ViewButton  Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource TaskbarButton}" Click="Button_Start_Taskbar_Click">
+                                <!--<controls:ViewButton  Height="25" IsEnabled="True" Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Style="{StaticResource TaskbarButton}" Click="Button_Start_Taskbar_Click">
                                     <controls:ViewButton.Content>
                                         <MultiBinding Converter="{StaticResource StartButtonText}" ConverterParameter="暂停 继续 开始 查看">
                                             <Binding Path="IsTranslating"/>
@@ -80,11 +80,11 @@
                                         </MultiBinding>
                                     </controls:ViewButton.Content>
                                 </controls:ViewButton>
-                                <controls:ViewButton IsEnabled="{calc:Binding 'Progress >= 100 or (IsBreaked and !IsTranslating)'}"  Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Height="25" Style="{StaticResource TaskbarButton}" Content="清除当前进度" Click="Button_Clear_Taskbar_Click"/>
+                                <controls:ViewButton IsEnabled="{calc:Binding 'Progress >= 100 or (IsBreaked and !IsTranslating)'}"  Visibility="{calc:Binding 'Height != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Height="25" Style="{StaticResource TaskbarButton}" Content="清除当前进度" Click="Button_Clear_Taskbar_Click"/>-->
                                 <controls:ViewButton Height="25" Style="{StaticResource TaskbarButton}" Content="退出" Click="Button_Close_Taskbar_Click"/>
                             </StackPanel>
                         </Border>
-                    </tb:TaskbarIcon.TrayPopup>-->
+                    </tb:TaskbarIcon.TrayPopup>
                 </tb:TaskbarIcon>
                 <!--标题栏-->
                 <Grid Background="#FF312D87" MouseLeftButtonDown="Header_MouseLeftButtonDown">
@@ -116,12 +116,12 @@
                         <!--模型加载区-->
                         <Border DockPanel.Dock="Left" BorderThickness="0,0,1,0"  BorderBrush="Black">
                             <StackPanel Width="50">
-                                <controls:SidebarRadioButton x:Name="rb_TranslatingView" ToolTip="翻译中" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
+                                <controls:SidebarRadioButton x:Name="rb_TranslatingView" ToolTip="未完成" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
                                     <Viewbox Margin="8,8,12,12">
                                         <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M512 141.211a370.789 370.789 0 1 1 0 741.578 370.789 370.789 0 0 1 0-741.578z m-185.394 324.44a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z m185.394 0a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z m185.394 0a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z"/>
                                     </Viewbox>
                                 </controls:SidebarRadioButton>
-                                <controls:SidebarRadioButton x:Name="rb_TranslatedView" ToolTip="翻译完成" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
+                                <controls:SidebarRadioButton x:Name="rb_TranslatedView" ToolTip="已完成" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
                                     <Viewbox Margin="12">
                                         <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M512.54272 72.54016c-242.0736 0-438.30272 196.89984-438.30272 439.79776s196.22912 439.79776 438.30272 439.79776c242.06336 0 438.30272-196.89984 438.30272-439.79776S754.6112 72.54016 512.54272 72.54016zM706.65216 433.42336l-208.61952 209.85344 0-0.02048c-6.30784 6.3488-14.98624 10.25024-24.6272 10.25024-9.6 0-18.31424-3.9424-24.60672-10.25024L310.1952 503.66976c-6.28736-6.2976-10.16832-15.0016-10.16832-24.62208 0-19.3024 15.5904-34.91328 34.76992-34.91328 9.62048 0 18.31936 3.92192 24.6272 10.25024l113.98144 114.81088 184.01792-185.088c6.29248-6.3232 15.0272-10.21952 24.62208-10.21952 19.18464 0 34.75456 15.616 34.75456 34.87232C716.8 418.39616 712.91904 427.11552 706.65216 433.42336z"/>
                                     </Viewbox>
@@ -140,11 +140,11 @@
                         </Border>
 
                         <Grid Background="#40000000" DockPanel.Dock="Top" Height="48">
-                            <TextBlock  Text="翻译中" Margin="6,0,0,0" Foreground="White" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <TextBlock  Text="未完成" Margin="6,0,0,0" Foreground="White" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Left"/>
 
                             <StackPanel Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="▶" ToolTip="全部开始"/>
-                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="‖" ToolTip="全部暂停"/>
+                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="▶" ToolTip="全部开始" Click="Button_StartAll_Click"/>
+                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="‖" ToolTip="全部暂停" Click="Button_PauseAll_Click"/>
                                 <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="新建任务" Click="Button_AddTask_Click">
                                     <controls:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -193,15 +193,16 @@
                                                     
                                                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
                                                         <!--<controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="M" ToolTip="合并"/>-->
-                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="R" ToolTip="设置名词替换"/>
-                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="S" ToolTip="设置翻译参数"/>
-                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="▶" ToolTip="开始"/>
-                                                        <controls:ViewButton Width="24" Height="24" FontSize="16" Content="×" ToolTip="删除"/>
+                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="R" EnableAnimation="Horizontal" IsEnabled="{calc:Binding 'State != vm:TaskState.WaitTranslate and State != vm:TaskState.Translating and State != vm:TaskState.WaitPause'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" ToolTip="设置名词替换"/>
+                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="S" EnableAnimation="Horizontal" IsEnabled="{calc:Binding 'State != vm:TaskState.WaitTranslate and State != vm:TaskState.Translating and State != vm:TaskState.WaitPause'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" ToolTip="设置翻译参数"/>
+                                                        <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="M" EnableAnimation="Horizontal" IsEnabled="{calc:Binding 'State == vm:TaskState.WaitMerge'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" ToolTip="合并" Click="Button_Merge_Click"/>
+                                                        <controls:ViewButton x:Name="btn_StartOrPause" Margin="0,0,2,0" Width="24" Height="24" Content="{Binding State,Converter={StaticResource StartButtonText},ConverterParameter=False}" ToolTip="{Binding State,Converter={StaticResource StartButtonText},ConverterParameter=True}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" IsEnabled="{calc:Binding 'State != vm:TaskState.WaitMerge'}" Click="Button_StartOrPause_Click"/>
+                                                        <controls:ViewButton Width="24" Height="24" FontSize="16" Content="×" ToolTip="删除" Click="Button_Remove_Click"/>
                                                     </StackPanel>
 
                                                     <TextBlock x:Name="tb_title" DockPanel.Dock="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Text="{Binding FileName}"/>
                                                     <Rectangle DockPanel.Dock="Top" Margin="0,2" HorizontalAlignment="Left" Width="{Binding ActualWidth, ElementName=tb_title}" Fill="#3CFFFFFF" Height="1"/>
-                                                    <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Width="48" Foreground="Gray" Text="{Binding Progress,StringFormat={}{0:0.00}%}"/>
+                                                    <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Width="58" Foreground="Gray" Text="{Binding Progress,StringFormat={}{0:0.00}%}"/>
 
                                                     <TextBlock HorizontalAlignment="Left" Foreground="Gray" Text="{Binding State}"/>
 

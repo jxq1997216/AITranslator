@@ -164,26 +164,11 @@ namespace AITranslator.Translator.Translation
             }
         }
 
-        internal override void TranslateEnd()
+        public override void MergeData()
         {
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
+
             Data.ReloadData();
-
-            _translationTask.State = TaskState.WaitMerge;
-            _translationTask.SaveConfig();
-            if (Data.Dic_Failed.Count != 0)
-            {
-                bool result = ViewModelManager.ShowDialogMessage("提示", "当前翻译存在翻译失败内容\r\n" +
-                    $"[点击确认]:继续合并，把[翻译失败{tempFileExtension}]中的内容合并到结果中\r\n" +
-                    $"[点击取消]:暂停合并，手动翻译[翻译失败{tempFileExtension}]中的内容", false);
-
-                if (!result)
-                {
-                    Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
-                    return;
-                }
-            }
-
             _translationTask.State = TaskState.Merging;
             List<string> str = new List<string>();
             for (int i = 0; i < Data.List_Cleaned.Count; i++)
@@ -196,6 +181,19 @@ namespace AITranslator.Translator.Translation
                     throw new KnownException("合并文件错误,存在未翻译的段落,请检查文件是否被修改");
             }
             TxtPersister.Save(str, PublicParams.GetFileName(Data, GenerateFileType.Merged));
+
+            base.TranslateEnd();
+        }
+
+        internal override void TranslateEnd()
+        {
+            if (Data.Dic_Failed.Count != 0)
+            {
+                _translationTask.State = TaskState.WaitMerge;
+                _translationTask.SaveConfig();
+                return;
+            }
+
             base.TranslateEnd();
         }
         internal override void SaveFailedFile()

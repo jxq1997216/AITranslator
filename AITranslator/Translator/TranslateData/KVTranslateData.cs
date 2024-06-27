@@ -19,7 +19,7 @@ namespace AITranslator.Translator.TranslateData
 {
     public class KVTranslateData : ITranslateData
     {
-        static TranslateDataType type = TranslateDataType.Txt;
+        static TranslateDataType type = TranslateDataType.KV;
         public TranslateDataType Type => type;
         public string DicName { get; set; }
 

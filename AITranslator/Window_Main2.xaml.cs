@@ -88,7 +88,7 @@ namespace AITranslator
                     else
                         ViewModelManager.ViewModel.UnfinishedTasks.Add(task);
                 }
-               
+
             }
             catch (Exception err)
             {
@@ -215,6 +215,95 @@ namespace AITranslator
                 return;
             }
 
+        }
+
+
+        private void Button_StartAll_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = ViewModelManager.ViewModel;
+            if (!vm.IsOpenAILoader && !vm.ModelLoaded)
+            {
+                Window_Message.ShowDialog("提示", "请先加载模型！");
+                return;
+            }
+
+            for (int i = 0; i < vm.UnfinishedTasks.Count; i++)
+            {
+                TranslationTask _task = vm.UnfinishedTasks[i];
+                _task.Start();
+            }
+        }
+
+        private void Button_PauseAll_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = ViewModelManager.ViewModel;
+            for (int i = 0; i < vm.UnfinishedTasks.Count; i++)
+            {
+                TranslationTask _task = vm.UnfinishedTasks[i];
+                _task.Pause();
+            }
+        }
+
+        private async void Button_Remove_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is TranslationTask task)
+            {
+                Window_ConfirmClear window_ConfirmClear = new Window_ConfirmClear();
+                window_ConfirmClear.Owner = this;
+                if (!window_ConfirmClear.ShowDialog()!.Value)
+                    return;
+
+                try
+                {
+                    if (task.State == TaskState.Translating)
+                        await task.Pause();
+
+                    ViewModelManager.ViewModel.UnfinishedTasks.Remove(task);
+                    Directory.Delete(PublicParams.GetDicName(task.DicName), true);
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]已删除任务[{task.FileName}]");
+                }
+                catch (Exception err)
+                {
+                    string error = $"清除任务[{task.FileName}]失败:{err}";
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}");
+                    Window_Message.ShowDialog("错误", "清除任务失败，详情请看日志输出");
+                }
+            }
+        }
+
+        private void Button_StartOrPause_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is TranslationTask task)
+            {
+                if (btn.ToolTip.ToString() == "暂停")
+                    task.Pause();
+                else
+                {
+                    ViewModel vm = ViewModelManager.ViewModel;
+                    if (!vm.IsOpenAILoader && !vm.ModelLoaded)
+                    {
+                        Window_Message.ShowDialog("提示", "请先加载模型！");
+                        return;
+                    }
+                    task.Start();
+                }
+            }
+        }
+
+        private void Button_Merge_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.DataContext is TranslationTask task)
+            {
+                bool result = ViewModelManager.ShowDialogMessage("提示", "当前翻译存在翻译失败内容\r\n" +
+    $"[点击确认]:继续合并，把[翻译失败]中的内容合并到结果中\r\n" +
+    $"[点击取消]:暂停合并，手动翻译[翻译失败]中的内容", false);
+
+                if (!result)
+                {
+                    Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
+                    return;
+                }
+            }
         }
     }
 }

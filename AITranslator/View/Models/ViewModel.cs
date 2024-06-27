@@ -40,7 +40,8 @@ namespace AITranslator.View.Models
         /// <summary>
         /// 当前任务
         /// </summary>
-        public TranslationTask AcitveTask { get; set; }
+        [ObservableProperty]
+        private TranslationTask acitveTask;
         /// <summary>
         /// 未完成任务
         /// </summary>

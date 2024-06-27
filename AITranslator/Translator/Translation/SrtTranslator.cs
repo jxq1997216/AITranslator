@@ -106,25 +106,11 @@ namespace AITranslator.Translator.Translation
             }
         }
 
-        internal override void TranslateEnd()
+        public override void MergeData()
         {
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
+
             Data.ReloadData();
-
-            _translationTask.State = TaskState.WaitMerge;
-            if (Data.Dic_Failed.Count != 0)
-            {
-                bool result = ViewModelManager.ShowDialogMessage("提示", "当前翻译存在翻译失败内容\r\n" +
-                    $"[点击确认]:继续合并，把[翻译失败{Data.DicName}]中的内容合并到结果中\r\n" +
-                    $"[点击取消]:暂停合并，手动翻译[翻译失败{Data.DicName}]中的内容", false);
-
-                if (!result)
-                {
-                    Process.Start("explorer.exe", PublicParams.TranslatedDataDic);
-                    return;
-                }
-            }
-
             _translationTask.State = TaskState.Merging;
             Dictionary<int, SrtData> dic_Merge = new Dictionary<int, SrtData>();
             foreach (var key in Data.Dic_Cleaned.Keys)
@@ -137,7 +123,19 @@ namespace AITranslator.Translator.Translation
                     throw new KnownException("合并文件错误,存在未翻译的字幕,请检查文件是否被修改");
             }
 
-            SrtPersister.Save(dic_Merge, PublicParams.GetFileName(Data,GenerateFileType.Merged));
+            SrtPersister.Save(dic_Merge, PublicParams.GetFileName(Data, GenerateFileType.Merged));
+            base.TranslateEnd();
+        }
+
+        internal override void TranslateEnd()
+        {
+            if (Data.Dic_Failed.Count != 0)
+            {
+                _translationTask.State = TaskState.WaitMerge;
+                _translationTask.SaveConfig();
+                return;
+            }
+             
             base.TranslateEnd();
         }
 
@@ -187,5 +185,7 @@ namespace AITranslator.Translator.Translation
                 }
             }
         }
+
+
     }
 }
