@@ -41,6 +41,10 @@ namespace AITranslator.Translator.Translation
     public abstract class TranslatorBase
     {
         /// <summary>
+        /// 翻译失败的数据数量
+        /// </summary>
+        internal abstract int FailedDataCount { get; }
+        /// <summary>
         /// 翻译类型
         /// </summary>
         public abstract TranslateDataType Type { get; }
@@ -74,6 +78,11 @@ namespace AITranslator.Translator.Translation
         internal Queue<ExampleDialogue> _history = new Queue<ExampleDialogue>();
 
         /// <summary>
+        /// 替换词字典
+        /// </summary>
+        internal Dictionary<string,string> _replaces = new Dictionary<string, string>();
+
+        /// <summary>
         /// 示例对话
         /// </summary>
         internal ExampleDialogue[] _example;
@@ -101,6 +110,9 @@ namespace AITranslator.Translator.Translation
 
             //计算当前进度
             CalculateProgress();
+
+            foreach (var replace in task.Replaces)
+                _replaces[replace.Key] = replace.Value;
         }
 
 
@@ -134,8 +146,13 @@ namespace AITranslator.Translator.Translation
                     _history.Clear();
                     LoadHistory();
                     Translate();
-                    TranslateSuccessful();
-                    TranslateEnd();
+                    //保存文件
+                    SaveFiles();
+
+                    if (TryMergeData())
+                        TranslateSuccessful();
+                    else
+                        TranslateNeedMerge();
                 }
                 catch (FileSaveException err)
                 {
@@ -194,34 +211,48 @@ namespace AITranslator.Translator.Translation
         /// <summary>
         /// 合并翻译文件抽象方法，子类继承并实现合并流程
         /// </summary>
-        public abstract void MergeData();
-
-        /// <summary>
-        /// 翻译结束虚方法，子类继承后实现附加的翻译结束处理流程
-        /// </summary>
-        internal virtual void TranslateEnd()
+        private bool TryMergeData()
         {
-            _translationTask.State = TaskState.Completed;
-            _translationTask.SaveConfig();
+            if (FailedDataCount != 0)
+                return false;
+            MergeData();
+            return true;
         }
+
+        internal abstract void MergeData();
 
         /// <summary>
         /// 完成翻译后保存文件并销毁Http连接
         /// </summary>
         void TranslateSuccessful()
         {
-            //保存文件
-            SaveFiles();
+            _translationTask.State = TaskState.Completed;
+            _translationTask.SaveConfig();
 
             _communicator.Dispose();
             _task = null;
-            _translationTask.State = TaskState.Completed;
-            ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成，但存在翻译失败的文件，请手动翻译后合并");
             TrigerStopedEvent(TranslateStopEventArgs.CreateSucess());
 
             sw.Stop();
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]耗时{sw.ElapsedMilliseconds / 1000d}秒");
         }
+
+        /// <summary>
+        /// 完成翻译后保存文件并销毁Http连接
+        /// </summary>
+        void TranslateNeedMerge()
+        {
+            _translationTask.State = TaskState.WaitMerge;
+            _translationTask.SaveConfig();
+
+            _communicator.Dispose();
+            _task = null;
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
+            sw.Stop();
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]耗时{sw.ElapsedMilliseconds / 1000d}秒");
+        }
+
         void TranslateBreaked(string error, bool save = true, bool isKnownError = true)
         {
             //保存文件
@@ -229,9 +260,8 @@ namespace AITranslator.Translator.Translation
                 SaveFiles();
 
             _communicator.Dispose();
-
             _task = null;
-            _translationTask.State = TaskState.Pause;
+
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error} 翻译暂停");
             if (isKnownError)
                 TrigerStopedEvent(TranslateStopEventArgs.CreatePause($"{error} 翻译暂停"));

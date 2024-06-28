@@ -14,5 +14,6 @@
     <converter:BoolToTextConverter x:Key="BoolToText"/>
     <converter:ModelNameConverter x:Key="ModelName"/>
     <converter:CommunicatorTypeConverter x:Key="CommunicatorType"/>
+    <converter:TaskStateToStringConverter x:Key="TaskStateToString"/>
 
 </ResourceDictionary>

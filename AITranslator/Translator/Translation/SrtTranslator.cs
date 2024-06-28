@@ -23,6 +23,9 @@ namespace AITranslator.Translator.Translation
 
         public SrtTranslateData Data => (TranslateData as SrtTranslateData)!;
 
+        internal override int FailedDataCount => Data.Dic_Failed!.Count;
+
+
         public SrtTranslator(TranslationTask task) : base(task)
         {
             //生成PostData
@@ -106,12 +109,11 @@ namespace AITranslator.Translator.Translation
             }
         }
 
-        public override void MergeData()
+        internal override void MergeData()
         {
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
-
-            Data.ReloadData();
             _translationTask.State = TaskState.Merging;
+            Data.ReloadData();
             Dictionary<int, SrtData> dic_Merge = new Dictionary<int, SrtData>();
             foreach (var key in Data.Dic_Cleaned.Keys)
             {
@@ -124,20 +126,10 @@ namespace AITranslator.Translator.Translation
             }
 
             SrtPersister.Save(dic_Merge, PublicParams.GetFileName(Data, GenerateFileType.Merged));
-            base.TranslateEnd();
+            _translationTask.State = TaskState.Completed;
+            _translationTask.SaveConfig();
         }
 
-        internal override void TranslateEnd()
-        {
-            if (Data.Dic_Failed.Count != 0)
-            {
-                _translationTask.State = TaskState.WaitMerge;
-                _translationTask.SaveConfig();
-                return;
-            }
-             
-            base.TranslateEnd();
-        }
 
         internal override void SaveFailedFile()
         {

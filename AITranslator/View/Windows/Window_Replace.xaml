@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Replace Config" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Window.DataContext>
-        <vm:TranslationTask/>
+        <vm:ViewModel_TaskReplace/>
     </Window.DataContext>
     <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
         <Border.Background>
@@ -42,7 +42,8 @@
                 </Grid>
                 <Grid Margin="5" Grid.Row="1">
                     <StackPanel>
-                        <TextBlock Margin="5" Foreground="White" Text="请添加你要替换的专有名词:"/>
+                        <TextBlock Margin="5,5,5,0" Foreground="White" Text="请添加你要替换的专有名词:"/>
+                        <TextBlock Margin="5,0,5,5" Foreground="White" TextWrapping="Wrap" Text="注意：修改替换词后，已经被翻译的文本仍会保持原来的翻译"/>
                         <ListBox x:Name="view_Replaces" Height="Auto" MaxHeight="200" Background="Transparent"  Grid.Row="2" BorderThickness="0" Margin="5" ItemsSource="{Binding Replaces}" ScrollViewer.CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
@@ -76,7 +77,10 @@
                         <StackPanel Margin="5,0,6,5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <controls:ViewButton  Content="+" Width="20" Height="20" Click="Button_Add_Click"/>
                         </StackPanel>
-                        <Grid Margin="5,5" >
+                        <Border Visibility="{calc:Binding Error,FalseToVisibility=Collapsed}"  Margin="5" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
+                            <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding ErrorMessage}"/>
+                        </Border>
+                        <Grid Margin="5" >
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
@@ -84,7 +88,7 @@
                             <controls:ViewButton Margin="0,0,5,0" Grid.Column="0" Content="导入" Height="25" Click="Button_Import_Click" Cursor=""/>
                             <controls:ViewButton Margin="5,0,0,0"  Grid.Column="1" Content="导出" Height="25" Click="Button_Export_Click" Cursor=""/>
                         </Grid>
-                        <controls:ViewButton Margin="5,0" Content="{Binding Replaces.Count,Converter={StaticResource CollectionCountToStr},ConverterParameter='跳过添加 确认'}" Height="25" Click="Button_OK_Click" Cursor=""/>
+                        <controls:ViewButton Margin="5,0" Content="确认" Height="25" Click="Button_OK_Click" Cursor=""/>
                     </StackPanel>
                 </Grid>
             </Grid>

@@ -48,6 +48,7 @@ namespace AITranslator.View.UserControls
                 llamaHeight -= llamaUnLoadHeightAdd;
                 gd_LLama.Height -= llamaUnLoadHeightAdd;
                 await LLamaLoader.LoadModel();
+                ViewModelManager.ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
             }
         }
         private void Button_Select_Click(object sender, RoutedEventArgs e)
@@ -89,7 +90,10 @@ namespace AITranslator.View.UserControls
                     llamaHeight -= llamaUnLoadHeightAdd;
                     string result = await LLamaLoader.LoadModel();
                     if (string.IsNullOrWhiteSpace(result))
+                    {
+                        ViewModelManager.ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
                         Window_Message.ShowDialog("提示", "加载模型成功");
+                    }
                     else
                     {
                         llamaHeight += llamaUnLoadHeightAdd;

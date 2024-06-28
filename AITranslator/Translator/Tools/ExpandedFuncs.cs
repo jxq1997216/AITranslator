@@ -1,11 +1,15 @@
-﻿using AITranslator.View.Models;
+﻿using AITranslator.Exceptions;
+using AITranslator.View.Models;
+using AITranslator.View.Windows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using FileLoadException = AITranslator.Exceptions.FileLoadException;
 
 namespace AITranslator.Translator.Tools
 {
@@ -81,12 +85,81 @@ namespace AITranslator.Translator.Tools
             ObservableCollection<KeyValueStr> result = new ObservableCollection<KeyValueStr>();
             foreach (var item in kvs)
             {
-               
+
                 string key = item.Key;
                 string value = item.Value;
                 result.Add(new KeyValueStr(key, value));
             }
             return result;
+        }
+
+        static char[] splitechars = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        public static string GetAbsolutePath(this string path)
+        {
+            List<string> tails = path.Split(splitechars).ToList();
+            int t = tails.RemoveAll(p => p == "..");
+            List<string> heads = AppDomain.CurrentDomain.SetupInformation.ApplicationBase.Split(splitechars).ToList();
+            heads.RemoveRange(heads.Count - t - 1, t);
+            return string.Join("/", heads) + string.Join("/", tails);
+        }
+
+        public static string ReplaceSlash(this string path)
+        {
+            return path.Replace('/', '\\');
+        }
+
+        public static bool TryExceptions(Action action, Action<Exception> errorAction = null, bool ShowDialog = true)
+        {
+            try
+            {
+                action.Invoke();
+            }
+            catch (DicNotFoundException err)
+            {
+                errorAction?.Invoke(err);
+                string errMsg = $"未找到文件夹错误:{err.Message}";
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{errMsg}");
+                if (ShowDialog)
+                    Window_Message.ShowDialog("错误", errMsg);
+                return false;
+            }
+            catch (FileLoadException err)
+            {
+                errorAction?.Invoke(err);
+                string errMsg = $"加载文件错误:{err.Message}";
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{errMsg}");
+                if (ShowDialog)
+                    Window_Message.ShowDialog("错误", errMsg);
+                return false;
+            }
+            catch (FileSaveException err)
+            {
+                errorAction?.Invoke(err);
+                string errMsg = $"保存文件错误:{err.Message}";
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{errMsg}");
+                if (ShowDialog)
+                    Window_Message.ShowDialog("错误", errMsg);
+                return false;
+            }
+            catch (KnownException err)
+            {
+                errorAction?.Invoke(err);
+                string errMsg = $"错误:{err.Message}";
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{errMsg}");
+                if (ShowDialog)
+                    Window_Message.ShowDialog("错误", errMsg);
+                return false;
+            }
+            catch (Exception err)
+            {
+                errorAction?.Invoke(err);
+                string errMsg = $"未知错误:{err}";
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{errMsg}");
+                if (ShowDialog)
+                    Window_Message.ShowDialog("错误", errMsg);
+                return false;
+            }
+            return true;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AITranslator.View.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,44 +22,36 @@ namespace AITranslator.View.Windows
     /// </summary>
     public partial class Window_SetTrans : Window
     {
-        ViewModel temp_vm;
-        public Window_SetTrans()
+        TranslationTask _task;
+        ViewModel_TaskConfig _vm;
+        public Window_SetTrans(TranslationTask task)
         {
             InitializeComponent();
 
+            _task = task;
             //创建一个临时ViewModel
-            temp_vm = new ViewModel();
-            //ViewModelManager.ViewModel.CopyConfigTo(temp_vm);
+            _vm = ViewModel_TaskConfig.Create(task);
 
-            DataContext = temp_vm;
+            DataContext = _vm;
         }
 
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
 
-        private void Button_Close_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            Close();
-        }
+        private void Button_Close_Click(object sender, RoutedEventArgs e) => Close();
 
         /// <summary>
         /// 确认按钮
         /// </summary>
         private void Button_OK_Click(object sender, RoutedEventArgs e)
         {
-            //如果不是远程服务器，设置服务地址为本地
-            if (!temp_vm.IsRomatePlatform)
-                temp_vm.ServerURL = "http://127.0.0.1:5000";
-
             //校验配置参数有没有错误
-            if (!temp_vm.ValidateError())
+            if (!_vm.ValidateError())
                 return;
 
-            //复制临时创建的ViewModel到主界面的ViewModel中
-            //temp_vm.CopyConfigTo(ViewModelManager.ViewModel);
+            //复制临时创建的ViewModel到Task的ViewModel中
+            _vm.CopyTo(_task);
+            _task.SaveConfig();
 
-            //保存配置参数到本地
-            DialogResult = true;
             Close();
         }
 

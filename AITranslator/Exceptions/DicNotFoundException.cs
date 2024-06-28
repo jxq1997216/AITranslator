@@ -10,8 +10,8 @@ namespace AITranslator.Exceptions
     /// <summary>
     /// 加载Json文件失败异常
     /// </summary>
-    partial class DicNotFoundException : KnownException
+    partial class FileLoadException : KnownException
     {
-        public DicNotFoundException(string message) : base(message) { }
+        public FileLoadException(string message) : base(message) { }
     }
 }

@@ -7,9 +7,9 @@
         xmlns:control="clr-namespace:AITranslator.View.Controls"
         xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:translatedata="clr-namespace:AITranslator.Translator.TranslateData"
         mc:Ignorable="d"
-        Title="Start Config" SizeToContent="Height" Height="Auto" Width="220" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
+        Title="Start Config" SizeToContent="Height" Height="Auto" Width="200" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Window.DataContext>
-        <vm:ViewModel/>
+        <vm:ViewModel_TaskConfig/>
     </Window.DataContext>
     <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
         <Border.Background>
@@ -63,10 +63,9 @@
 
                         <StackPanel Margin="0,0,0,10" Orientation="Horizontal" HorizontalAlignment="Center">
                             <control:ToggleButton Margin="0,0,5,0" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>
-                            <control:ToggleButton Margin="0,0,5,0" Visibility="{calc:Binding 'TranslateType == translatedata:TranslateDataType.KV',FalseToVisibility=Collapsed}" OnText="1B8" OffText="非1B8" IsChecked="{Binding IsModel1B8}"/>
                         </StackPanel>
-                        <Border Visibility="{calc:Binding SetViewError,FalseToVisibility=Collapsed}"  Margin="5,0,5,5" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
-                            <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding SetViewErrorMessage}"/>
+                        <Border Visibility="{calc:Binding Error,FalseToVisibility=Collapsed}"  Margin="5,0,5,5" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
+                            <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding ErrorMessage}"/>
                         </Border>
                         <control:ViewButton Margin="5,0" Content="确认" Height="25" Click="Button_OK_Click"/>
                     </StackPanel>

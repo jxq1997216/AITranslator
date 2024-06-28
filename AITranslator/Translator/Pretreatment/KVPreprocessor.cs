@@ -97,7 +97,7 @@ namespace AITranslator.Translator.Pretreatment
                 return true;
             }
         }
-        public static Dictionary<string, string> Pretreatment(this Dictionary<string, string> input, bool isEnglish, Dictionary<string, string> dic_replace, Dictionary<string, object?> dic_block)
+        public static Dictionary<string, string> Pretreatment(this Dictionary<string, string> input, bool isEnglish, Dictionary<string, object?> dic_block)
         {
             Dictionary<string, string> output = new Dictionary<string, string>();
             CleanInspector cleaner = new CleanInspector(isEnglish, dic_block);
@@ -107,8 +107,8 @@ namespace AITranslator.Translator.Pretreatment
                 string value = kv.Value;
 
                 value = value.Replace("\r\n", "\n");
-                foreach (var kv_replace in dic_replace)
-                    value = value.Replace(kv_replace.Key, kv_replace.Value);
+                //foreach (var kv_replace in dic_replace)
+                //    value = value.Replace(kv_replace.Key, kv_replace.Value);
 
                 if (cleaner.Inspection(key, dic_block))
                     output[key] = kv.Value.Normalize(NormalizationForm.FormKC);

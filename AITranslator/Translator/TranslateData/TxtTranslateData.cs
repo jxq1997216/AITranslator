@@ -89,7 +89,7 @@ namespace AITranslator.Translator.TranslateData
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)List_Cleaned.Count * 100;
         }
 
-        public static void ReplaceAndClear(string dicName, Dictionary<string, string> replaces)
+        public static void Clear(string dicName)
         {
             List<string> list_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -98,14 +98,23 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            //替换名词
-            for (int i = 0; i < list_source.Count; i++)
-            {
-                foreach (var replace in replaces)
-                    list_source[i] = list_source[i].Replace(replace.Key, replace.Value);
-            }
+            ////替换名词
+            //for (int i = 0; i < list_source.Count; i++)
+            //{
+            //    foreach (var replace in replaces)
+            //        list_source[i] = list_source[i].Replace(replace.Key, replace.Value);
+            //}
 
             TxtPersister.Save(list_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
+        }
+
+        public static bool HasFailedData(string dicName)
+        {
+            string failedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Failed);
+            if (!File.Exists(failedFile))
+                return false;
+            Dictionary<int, string> dic_failed = JsonPersister.Load<Dictionary<int, string>>(failedFile);
+            return dic_failed.Count != 0;
         }
     }
 }

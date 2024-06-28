@@ -87,7 +87,7 @@ namespace AITranslator.Translator.TranslateData
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;
         }
 
-        public static void ReplaceAndClear(string dicName, Dictionary<string, string> replaces)
+        public static void Clear(string dicName)
         {
             Dictionary<string, string> dic_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -113,9 +113,18 @@ namespace AITranslator.Translator.TranslateData
             if (!isEnglish.HasValue)
                 throw new KnownException("清理失败：任务列表中找不到此任务");
 
-            dic_source = dic_source.Pretreatment(isEnglish.Value, replaces, dic_block);
+            dic_source = dic_source.Pretreatment(isEnglish.Value, dic_block);
 
             JsonPersister.Save(dic_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
+        }
+
+        public static bool HasFailedData(string dicName)
+        {
+            string failedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Failed);
+            if (!File.Exists(failedFile))
+                return false;
+            Dictionary<string, string> dic_failed = JsonPersister.Load<Dictionary<string, string>>(failedFile);
+            return dic_failed.Count != 0;
         }
     }
 }

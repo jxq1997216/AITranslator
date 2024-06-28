@@ -29,6 +29,8 @@ namespace AITranslator.Translator.TranslateData
         /// 替换和清理原始数据
         /// </summary>
         /// <param name="dicName"></param>
-        public abstract static void ReplaceAndClear(string dicName,Dictionary<string,string> replaces);
+        public abstract static void Clear(string dicName);
+
+        public abstract static bool HasFailedData(string dicName);
     }
 }

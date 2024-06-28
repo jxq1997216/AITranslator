@@ -24,24 +24,18 @@ namespace AITranslator.View.Windows
     /// </summary>
     public partial class Window_Replace : Window
     {
-        TranslationTask _vm;
-        public Dictionary<string, string> Replaces = new Dictionary<string, string>();
+        TranslationTask _task;
+        ViewModel_TaskReplace _vm;
         public Window_Replace(TranslationTask task)
         {
             InitializeComponent();
-            _vm = task;
+            _task = task;
+            _vm = ViewModel_TaskReplace.Create(_task);
             DataContext = _vm;
         }
 
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
-
-
-        private void Button_Close_Click(object sender, RoutedEventArgs e)
-        {
-            Replaces.Clear();
-            DialogResult = false;
-            Close();
-        }
+        private void Button_Close_Click(object sender, RoutedEventArgs e) => Close();
 
         /// <summary>
         /// 导入
@@ -54,8 +48,6 @@ namespace AITranslator.View.Windows
             {
                 if (!Window_Message.ShowDialog("提示", "当前已存在替换列表，导入新的替换列表将清空当前列表，请确认是否继续", false, this))
                     return;
-
-                _vm.Replaces.Clear();
             }
             OpenFileDialog ofd = new OpenFileDialog()
             {
@@ -67,10 +59,13 @@ namespace AITranslator.View.Windows
 
             if (!ofd.ShowDialog()!.Value)
                 return;
-            Dictionary<string, string> importDic = JsonPersister.Load<Dictionary<string, string>>(ofd.FileName);
+
+
+            _vm.Replaces.Clear();
+            List<(string key, string value)> importDic = JsonPersister.Load<List<(string key, string value)>>(ofd.FileName);
 
             foreach (var item in importDic)
-                _vm.Replaces.Add(new(item.Key, item.Value));
+                _vm.Replaces.Add(new(item.key, item.value));
         }
 
         /// <summary>
@@ -94,13 +89,12 @@ namespace AITranslator.View.Windows
             };
             if (!sfd.ShowDialog()!.Value)
                 return;
-            Dictionary<string, string> exportDic = new Dictionary<string, string>();
+            List<(string, string)> exportDic = new List<(string, string)>();
             foreach (var item in _vm.Replaces)
             {
                 string key = item.Key;
                 string value = item.Value;
-                if (!string.IsNullOrWhiteSpace(key))
-                    exportDic[key] = value;
+                exportDic.Add((key,value));
             }
             JsonPersister.Save(exportDic, sfd.FileName);
         }
@@ -109,16 +103,14 @@ namespace AITranslator.View.Windows
         /// 确认
         /// </summary>
         private void Button_OK_Click(object sender, RoutedEventArgs e)
-        {
+        {          
+            //校验配置参数有没有错误
+            if (!_vm.ValidateError())
+                return;
+
             //将创建的专有名词替换列表保存到字典中
-            foreach (var item in _vm.Replaces)
-            {
-                string key = item.Key;
-                string value = item.Value;
-                if (!string.IsNullOrWhiteSpace(key))
-                    Replaces[key] = value;
-            }
-            DialogResult = true;
+            _vm.CopyTo(_task);
+            _task.SaveConfig();
             Close();
         }
 

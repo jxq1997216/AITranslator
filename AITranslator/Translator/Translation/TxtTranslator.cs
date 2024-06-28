@@ -24,6 +24,7 @@ namespace AITranslator.Translator.Translation
         public override TranslateDataType Type => Data is null ? TranslateDataType.Unknow : Data.Type;
 
         public TxtTranslateData Data => (TranslateData as TxtTranslateData)!;
+        internal override int FailedDataCount => Data.Dic_Failed!.Count;
 
         string tempFileExtension = ".json";
         public TxtTranslator(TranslationTask task) : base(task)
@@ -164,12 +165,11 @@ namespace AITranslator.Translator.Translation
             }
         }
 
-        public override void MergeData()
+        internal override void MergeData()
         {
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
-
-            Data.ReloadData();
             _translationTask.State = TaskState.Merging;
+            Data.ReloadData();
             List<string> str = new List<string>();
             for (int i = 0; i < Data.List_Cleaned.Count; i++)
             {
@@ -181,21 +181,10 @@ namespace AITranslator.Translator.Translation
                     throw new KnownException("合并文件错误,存在未翻译的段落,请检查文件是否被修改");
             }
             TxtPersister.Save(str, PublicParams.GetFileName(Data, GenerateFileType.Merged));
-
-            base.TranslateEnd();
+            _translationTask.State = TaskState.Completed;
+            _translationTask.SaveConfig();
         }
 
-        internal override void TranslateEnd()
-        {
-            if (Data.Dic_Failed.Count != 0)
-            {
-                _translationTask.State = TaskState.WaitMerge;
-                _translationTask.SaveConfig();
-                return;
-            }
-
-            base.TranslateEnd();
-        }
         internal override void SaveFailedFile()
         {
             int count = 0;

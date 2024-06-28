@@ -37,11 +37,13 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <control:ToggleButton Margin="0,0,5,0" Width="60" OnText="远程" OffText="本地" IsChecked="{Binding IsRomatePlatform}"/>
                                     <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !IsRomatePlatform ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
                                         <TextBox Name="tb_romateURL" Text="{Binding ServerURL}" Foreground="White" IsEnabled="{calc:Binding IsRomatePlatform}" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
                                     </Border>
+                                    <control:ToggleButton Grid.Column="2" Margin="0,0,5,0" Width="60" OnText="1B8" OffText="非1B8" IsChecked="{Binding IsModel1B8}"/>
                                 </Grid>
                             </StackPanel>
                         </control:SizeAnimationGrid>
@@ -91,7 +93,7 @@
                                             <ColumnDefinition Width="120"/>
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
-                                        <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'AcitveTask == null'}">
+                                        <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'ActiveTask == null'}">
                                             <Button.Content>
                                                 <MultiBinding Converter="{StaticResource LoadModelButtonText}" ConverterParameter="卸载模型 加载模型 取消加载">
                                                     <Binding Path="ModelLoaded"/>

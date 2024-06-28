@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:AITranslator"
              xmlns:converter="clr-namespace:AITranslator.View.Converter"
-             StartupUri="Window_Main2.xaml">
+             StartupUri="Window_Main.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <FontFamily x:Key="English">pack://application:,,,/AITranslator;component/View/Resources/Font/AGARAMONDPRO-BOLD.OTF#Adobe Garamond Pro Bold</FontFamily>

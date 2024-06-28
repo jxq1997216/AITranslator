@@ -22,6 +22,7 @@ namespace AITranslator.Translator.Communicator
 {
     public static class LLamaLoader
     {
+        public static bool Is1B8 => model is not null && model.ParameterCount <= 2000000000;
         static LLamaWeights model;
         public static StatelessExecutor Executor;
         static LLamaLoader()

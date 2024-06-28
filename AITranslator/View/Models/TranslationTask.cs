@@ -4,16 +4,20 @@ using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Tools;
 using AITranslator.Translator.TranslateData;
 using AITranslator.Translator.Translation;
+using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
+using FileLoadException = AITranslator.Exceptions.FileLoadException;
 
 namespace AITranslator.View.Models
 {
@@ -108,57 +112,49 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         public TranslateDataType translateType;
 
-        /// <summary>
-        /// 设置界面的错误信息
-        /// </summary>
-        [ObservableProperty]
-        private string errorMessage;
+        ///// <summary>
+        ///// 设置界面的错误信息
+        ///// </summary>
+        //[ObservableProperty]
+        //private string errorMessage;
 
-        /// <summary>
-        /// 设置界面是否存在错误
-        /// </summary>
-        [ObservableProperty]
-        private bool error;
+        ///// <summary>
+        ///// 设置界面是否存在错误
+        ///// </summary>
+        //[ObservableProperty]
+        //private bool error;
 
-        /// <summary>
-        /// 主动校验设置界面是否存在错误
-        /// </summary>
-        /// <returns></returns>
-        public bool ValidateError()
-        {
-            ICollection<ValidationResult> results = new List<ValidationResult>();
+        ///// <summary>
+        ///// 主动校验设置界面是否存在错误
+        ///// </summary>
+        ///// <returns></returns>
+        //public bool ValidateError()
+        //{
+        //    ICollection<ValidationResult> results = new List<ValidationResult>();
 
-            bool b = Validator.TryValidateObject(this, new ValidationContext(this), results, true);
-            List<string> checkProperty = new List<string>
-            {
-                nameof(HistoryCount),
-            };
+        //    bool b = Validator.TryValidateObject(this, new ValidationContext(this), results, true);
+        //    List<string> checkProperty = new List<string>
+        //    {
+        //        nameof(HistoryCount),
+        //    };
 
-            List<ValidationResult> setError = results.Where(s =>
-            {
-                foreach (var property in checkProperty)
-                {
-                    if (s.MemberNames.Contains(property))
-                        return true;
-                }
-                return false;
-            }).ToList();
+        //    List<ValidationResult> setError = results.Where(s =>
+        //    {
+        //        foreach (var property in checkProperty)
+        //        {
+        //            if (s.MemberNames.Contains(property))
+        //                return true;
+        //        }
+        //        return false;
+        //    }).ToList();
 
-            Error = setError.Count != 0;
-            ErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
-            return b;
-        }
+        //    Error = setError.Count != 0;
+        //    ErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
+        //    return b;
+        //}
 
-        /// <summary>
-        /// 创建随机名称的文件夹
-        /// </summary>
-        /// <returns></returns>
-        static string CreateRandomDic()
-        {
-            string DicName = Path.GetRandomFileName();
-            Directory.CreateDirectory(PublicParams.GetDicName(DicName));
-            return DicName;
-        }
+        public TranslationTask() { }
+
         public TranslationTask(FileInfo file)
         {
             switch (file.Extension)
@@ -198,60 +194,86 @@ namespace AITranslator.View.Models
             ReadConfig();
         }
 
-        public void Start()
+        /// <summary>
+        /// 创建随机名称的文件夹
+        /// </summary>
+        /// <returns></returns>
+        static string CreateRandomDic()
         {
-            if (ViewModelManager.ViewModel.AcitveTask is not null)
-            {
-                if (State == TaskState.Initialized || State == TaskState.Pause)
-                    State = TaskState.WaitTranslate;
-                return;
-            }
-
-            ViewModelManager.ViewModel.AcitveTask = this;
-            //如果不存在清理后文件，执行清理流程
-            if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
-            {
-                switch (translateType)
-                {
-                    case TranslateDataType.KV:
-                        KVTranslateData.ReplaceAndClear(DicName, Replaces.ToReplaceDictionary());
-                        break;
-                    case TranslateDataType.Srt:
-                        SrtTranslateData.ReplaceAndClear(DicName, Replaces.ToReplaceDictionary());
-                        break;
-                    case TranslateDataType.Txt:
-                        TxtTranslateData.ReplaceAndClear(DicName, Replaces.ToReplaceDictionary());
-                        break;
-                    default:
-                        throw new KnownException("不支持的翻译文件类型");
-                }
-            }
-            //读取翻译文件并创建翻译器
-            _translator = TranslateType switch
-            {
-                TranslateDataType.KV => new KVTranslator(this),
-                TranslateDataType.Srt => new SrtTranslator(this),
-                TranslateDataType.Txt => new TxtTranslator(this),
-                _ => throw new KnownException("不支持的翻译文件类型"),
-            };
-
-            //启动翻译
-            State = TaskState.Translating;
-            _translator.Stoped += _translator_Stoped;
-            _translator.Start();
+            string DicName = Path.GetRandomFileName();
+            Directory.CreateDirectory(PublicParams.GetDicName(DicName));
+            return DicName;
         }
-
         private void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
         {
             _translator.Stoped -= _translator_Stoped;
-            if (ViewModelManager.ViewModel.AcitveTask == this)
-                ViewModelManager.ViewModel.AcitveTask = null;
+            if (ViewModelManager.ViewModel.ActiveTask == this)
+                ViewModelManager.ViewModel.ActiveTask = null;
             ViewModelManager.ViewModel.UnfinishedTasks.FirstOrDefault(s => s.State == TaskState.WaitTranslate)?.Start();
             if (!e.IsPause)
+                ToCompletedTasks();
+            else
+                State = TaskState.Pause;
+        }
+
+        public void Start(bool showErrorMsg = true)
+        {
+            TaskState beforeState = State;
+            ExpandedFuncs.TryExceptions(() =>
             {
-                ViewModelManager.ViewModel.UnfinishedTasks.Remove(this);
-                ViewModelManager.ViewModel.CompletedTasks.Add(this);
-            }
+                string diaName = PublicParams.GetDicName(DicName);
+                if (!Directory.Exists(diaName))
+                    throw new DicNotFoundException($"任务[{fileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
+
+
+                if (ViewModelManager.ViewModel.ActiveTask is not null)
+                {
+                    if (State == TaskState.Initialized || State == TaskState.Pause)
+                        State = TaskState.WaitTranslate;
+                    return;
+                }
+
+                ViewModelManager.ViewModel.ActiveTask = this;
+                //如果不存在清理后文件，执行清理流程
+                if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
+                {
+                    switch (TranslateType)
+                    {
+                        case TranslateDataType.KV:
+                            KVTranslateData.Clear(DicName);
+                            break;
+                        case TranslateDataType.Srt:
+                            SrtTranslateData.Clear(DicName);
+                            break;
+                        case TranslateDataType.Txt:
+                            TxtTranslateData.Clear(DicName);
+                            break;
+                        default:
+                            throw new KnownException("不支持的翻译文件类型");
+                    }
+                }
+                //创建翻译器
+                CreateTranslator();
+
+                //启动翻译
+                State = TaskState.Translating;
+                _translator.Stoped += _translator_Stoped;
+                _translator.Start();
+            },
+            (err) =>
+            {
+                if (err is DicNotFoundException)
+                {
+                    ViewModelManager.ViewModel.RemoveTask(this);
+                    return;
+                }
+                if (ViewModelManager.ViewModel.ActiveTask == this)
+                    ViewModelManager.ViewModel.ActiveTask = null;
+                if (_translator is not null)
+                    _translator = null;
+
+                State = beforeState;
+            }, showErrorMsg);
         }
 
         public Task Pause()
@@ -260,17 +282,62 @@ namespace AITranslator.View.Models
             return Task.Run(() =>
              {
                  //设置界面暂停中
-                 if (State == TaskState.WaitTranslate || State == TaskState.Translating)
+                 if (State == TaskState.Translating)
                  {
                      State = TaskState.WaitPause;
                      _translator?.Pause();
-                     //设置界面暂停
-                     State = TaskState.Pause;
                  }
-
+                 else
+                     State = TaskState.Pause;
                  _translator = null;
              });
 
+        }
+
+        public bool HasFailedData()
+        {
+            return TranslateType switch
+            {
+                TranslateDataType.KV => KVTranslateData.HasFailedData(DicName),
+                TranslateDataType.Srt => SrtTranslateData.HasFailedData(DicName),
+                TranslateDataType.Txt => TxtTranslateData.HasFailedData(DicName),
+                _ => throw new KnownException("不支持的翻译文件类型"),
+            };
+        }
+        public void Merge()
+        {
+            if (_translator is null)
+                CreateTranslator();
+            _translator.MergeData();
+            _translator = null;
+            ToCompletedTasks();
+        }
+
+        public void OpenDic()
+        {
+            string diaName = PublicParams.GetDicName(DicName);
+            if (!Directory.Exists(diaName))
+                throw new DicNotFoundException($"任务[{fileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
+            Process.Start("explorer.exe", diaName.ReplaceSlash());
+        }
+
+        void CreateTranslator()
+        {
+            _translator = TranslateType switch
+            {
+                TranslateDataType.KV => new KVTranslator(this),
+                TranslateDataType.Srt => new SrtTranslator(this),
+                TranslateDataType.Txt => new TxtTranslator(this),
+                _ => throw new KnownException("不支持的翻译文件类型"),
+            };
+        }
+        void ToCompletedTasks()
+        {
+            ViewModelManager.ViewModel.Dispatcher.Invoke(() =>
+            {
+                ViewModelManager.ViewModel.UnfinishedTasks.Remove(this);
+                ViewModelManager.ViewModel.CompletedTasks.Add(this);
+            });
         }
 
         public void SaveConfig(TaskState state)

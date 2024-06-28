@@ -90,7 +90,7 @@ namespace AITranslator.Translator.TranslateData
                 Dic_Successful = new Dictionary<int, SrtData>();
 
             string failedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Failed);
-            if (File.Exists(successfulFile))
+            if (File.Exists(failedFile))
                 Dic_Failed = SrtPersister.Load(failedFile);
             else
                 Dic_Failed = new Dictionary<int, SrtData>();
@@ -117,7 +117,7 @@ namespace AITranslator.Translator.TranslateData
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;
         }
 
-        public static void ReplaceAndClear(string dicName, Dictionary<string, string> replaces)
+        public static void Clear(string dicName)
         {
             Dictionary<int, SrtData> dic_Source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -126,14 +126,23 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            //替换名词
-            foreach (var source in dic_Source)
-            {
-                foreach (var replace in replaces)
-                    source.Value.Text = source.Value.Text.Replace(replace.Key, replace.Value);
-            }
+            ////替换名词
+            //foreach (var source in dic_Source)
+            //{
+            //    foreach (var replace in replaces)
+            //        source.Value.Text = source.Value.Text.Replace(replace.Key, replace.Value);
+            //}
 
             SrtPersister.Save(dic_Source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
+        }
+
+        public static bool HasFailedData(string dicName)
+        {
+            string failedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Failed);
+            if (!File.Exists(failedFile))
+                return false;
+            Dictionary<int, SrtData> dic_failed = SrtPersister.Load(failedFile);
+            return dic_failed.Count != 0;
         }
     }
 }

@@ -4,6 +4,7 @@ using AITranslator.Translator.TranslateData;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -31,7 +32,7 @@ namespace AITranslator.View.Models
         /// 是否为测试版本
         /// </summary>
         [ObservableProperty]
-        private bool isBeta = false;
+        private bool isBeta = true;
         /// <summary>
         /// 控制台输出内容
         /// </summary>
@@ -41,7 +42,7 @@ namespace AITranslator.View.Models
         /// 当前任务
         /// </summary>
         [ObservableProperty]
-        private TranslationTask acitveTask;
+        private TranslationTask activeTask;
         /// <summary>
         /// 未完成任务
         /// </summary>
@@ -123,6 +124,68 @@ namespace AITranslator.View.Models
 
         //UI线程
         internal Dispatcher Dispatcher;
+
+        public void AddTask(TranslationTask task)
+        {
+            if (task.State == TaskState.Completed)
+                CompletedTasks.Add(task);
+            else
+                UnfinishedTasks.Add(task);
+        }
+
+        public void PauseAllTask()
+        {
+            if (ActiveTask is not null)
+            {
+                foreach (var _task in UnfinishedTasks.Where(s => s.State != TaskState.Translating))
+                    _task.Pause().Wait();
+
+                ActiveTask.Pause();
+            }
+            else
+            {
+                foreach (var _task in UnfinishedTasks)
+                    _task.Pause();
+            }
+        }
+
+        public void StartAllTask()
+        {
+            foreach (var _task in UnfinishedTasks)
+                _task.Start(false);
+        }
+
+        public void RemoveAllCompletedTask()
+        {
+            while (CompletedTasks.Count != 0)
+                RemoveTask(CompletedTasks[0], false).Wait();
+        }
+
+        public async Task RemoveTask(TranslationTask task, bool showErrorMsg = true)
+        {
+            try
+            {
+                if (task.State == TaskState.Translating)
+                    await task.Pause();
+
+                string dicName = PublicParams.GetDicName(task.DicName);
+                if (Directory.Exists(dicName))
+                    Directory.Delete(PublicParams.GetDicName(task.DicName), true);
+
+                if (task.State == TaskState.Completed)
+                    ViewModelManager.ViewModel.CompletedTasks.Remove(task);
+                else
+                    ViewModelManager.ViewModel.UnfinishedTasks.Remove(task);
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]已删除任务[{task.FileName}]");
+            }
+            catch (Exception err)
+            {
+                string error = $"清除任务[{task.FileName}]失败:{err}";
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}");
+                if (showErrorMsg)
+                    Window_Message.ShowDialog("错误", "清除任务失败，请尝试手动删除");
+            }
+        }
 
         /// <summary>
         /// 在控制台中打印日志
