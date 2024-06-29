@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
-        xmlns:control="clr-namespace:AITranslator.View.Controls"
+        xmlns:controls="clr-namespace:AITranslator.View.Controls"
         xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:translatedata="clr-namespace:AITranslator.Translator.TranslateData"
         mc:Ignorable="d"
-        Title="Start Config" SizeToContent="Height" Height="Auto" Width="200" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
+        Title="Start Config" SizeToContent="Height" Height="Auto" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Window.DataContext>
-        <vm:ViewModel_TaskConfig/>
+        <vm:ViewModel_TaskConfigView/>
     </Window.DataContext>
     <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
         <Border.Background>
@@ -26,7 +26,7 @@
         </Border.BorderBrush>
         <Grid>
             <Grid.Clip>
-                <RectangleGeometry Rect="0 0 318 1000" RadiusX="9" RadiusY="9"/>
+                <RectangleGeometry Rect="0 0 398 1000" RadiusX="9" RadiusY="9"/>
             </Grid.Clip>
             <Grid>
                 <Grid.RowDefinitions>
@@ -44,30 +44,81 @@
                 <Grid Margin="5" Grid.Row="1">
                     <StackPanel>
                         <TextBlock Margin="5" Foreground="White" Text="请配置你的翻译所用参数:"/>
-                        <GroupBox Margin="5,0,5,10" BorderThickness="0.1" BorderBrush="White">
-                            <GroupBox.Header>
-                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <TextBlock Text="上下文记忆" Foreground="White" FontSize="10"/>
-                                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
-                                </StackPanel>
-                            </GroupBox.Header>
-                            <Grid Margin="2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="40"/>
-                                </Grid.ColumnDefinitions>
-                                <Slider x:Name="slider_HistoryCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding HistoryCount}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                                <TextBox Grid.Column="1" Text="{Binding Value, ElementName=slider_HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                            </Grid>
-                        </GroupBox>
-
-                        <StackPanel Margin="0,0,0,10" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <control:ToggleButton Margin="0,0,5,0" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>
+                        <Grid Margin="5,0,5,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="3.5*"/>
+                            </Grid.ColumnDefinitions>
+                            <GroupBox BorderThickness="0.1" BorderBrush="White"  Foreground="White" FontSize="10" Header="来源语言">
+                                <controls:ToggleButton Margin="5" Width="60" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>
+                            </GroupBox>
+                            <GroupBox Grid.Column="1" Margin="5,0,0,0" BorderThickness="0.1" BorderBrush="White">
+                                <GroupBox.Header>
+                                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Text="上下文记忆" Foreground="White" FontSize="10"/>
+                                        <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <Grid Margin="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="40"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider x:Name="slider_HistoryCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding HistoryCount}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Value, ElementName=slider_HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                        <StackPanel  Margin="5,5,5,0"  Orientation="Horizontal">
+                            <TextBlock Foreground="White" Text="请添加你要替换的专有名词:"/>
+                            <TextBlock Foreground="White" Text="[?]" Cursor="Help" ToolTip="注意：修改替换词后，已经被翻译的文本仍会保持原来的翻译"/>
                         </StackPanel>
+                        <ListBox x:Name="view_Replaces" Height="Auto" MaxHeight="200" Background="Transparent"  Grid.Row="2" BorderThickness="0" Margin="5" ItemsSource="{Binding Replaces}" ScrollViewer.CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Width="{calc:Binding ActualWidth,ElementName=view_Replaces}" Margin="0,5,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="25"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" CaretBrush="White" VerticalAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Key}"/>
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Foreground="White" FocusVisualStyle="{x:Null}" Text="→"/>
+                                        <TextBox Grid.Column="2" VerticalAlignment="Center" CaretBrush="White" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Value}"/>
+                                        <controls:ViewButton Grid.Column="3" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <StackPanel Margin="5,0,6,5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <controls:ViewButton  Content="+" Width="20" Height="20" Click="Button_Add_Click"/>
+                        </StackPanel>
+                        <Grid Margin="5" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <controls:ViewButton Margin="0,0,5,0" Grid.Column="0" Content="导入" Height="25" Click="Button_Import_Click" Cursor=""/>
+                            <controls:ViewButton Margin="5,0,0,0"  Grid.Column="1" Content="导出" Height="25" Click="Button_Export_Click" Cursor=""/>
+                        </Grid>
+
                         <Border Visibility="{calc:Binding Error,FalseToVisibility=Collapsed}"  Margin="5,0,5,5" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
                             <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding ErrorMessage}"/>
                         </Border>
-                        <control:ViewButton Margin="5,0" Content="确认" Height="25" Click="Button_OK_Click"/>
+                        <controls:ViewButton Margin="5,0" Content="确认" Height="25" Click="Button_OK_Click"/>
                     </StackPanel>
                 </Grid>
             </Grid>

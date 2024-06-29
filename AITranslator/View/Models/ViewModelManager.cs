@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -38,9 +39,9 @@ namespace AITranslator.View.Models
         /// <summary>
         /// 保存配置信息
         /// </summary>
-        public static void SaveModelLoadConfig()
+        public static void SaveBaseConfig()
         {
-            ConfigSave_LoadModel save = new ConfigSave_LoadModel()
+            ConfigSave_Base save = new ConfigSave_Base()
             {
                 IsOpenAILoader = ViewModel.IsOpenAILoader,
                 IsRomatePlatform = ViewModel.IsRomatePlatform,
@@ -50,6 +51,12 @@ namespace AITranslator.View.Models
                 GpuLayerCount = ViewModel.GpuLayerCount,
                 ContextSize = ViewModel.ContextSize,
                 AutoLoadModel = ViewModel.AutoLoadModel,
+                EnableEmail = ViewModel.EnableEmail,
+                EmailAddress = ViewModel.EmailAddress,
+                EmailPassword = ViewModel.EmailPassword,
+                SmtpAddress = ViewModel.SmtpAddress,
+                SmtpPort = ViewModel.SmtpPort,
+                SmtpUseSSL = ViewModel.SmtpUseSSL,
             };
             JsonPersister.Save(save, PublicParams.ConfigPath_LoadModel, true);
         }
@@ -57,11 +64,11 @@ namespace AITranslator.View.Models
         /// <summary>
         /// 加载配置信息
         /// </summary>
-        public static void LoadModelLoadConfig()
+        public static void LoadBaseConfig()
         {
             if (File.Exists(PublicParams.ConfigPath_LoadModel))
             {
-                ConfigSave_LoadModel save = JsonPersister.Load<ConfigSave_LoadModel>(PublicParams.ConfigPath_LoadModel);
+                ConfigSave_Base save = JsonPersister.Load<ConfigSave_Base>(PublicParams.ConfigPath_LoadModel);
                 ViewModel.IsOpenAILoader = save.IsOpenAILoader;
                 ViewModel.IsRomatePlatform = save.IsRomatePlatform;
                 ViewModel.ServerURL = save.ServerURL;
@@ -69,9 +76,15 @@ namespace AITranslator.View.Models
                 ViewModel.GpuLayerCount = save.GpuLayerCount;
                 ViewModel.ContextSize = save.ContextSize;
                 ViewModel.AutoLoadModel = save.AutoLoadModel;
+                ViewModel.EnableEmail = save.EnableEmail;
+                ViewModel.EmailAddress = save.EmailAddress;
+                ViewModel.EmailPassword = save.EmailPassword;
+                ViewModel.SmtpAddress = save.SmtpAddress;
+                ViewModel.SmtpPort = save.SmtpPort;
+                ViewModel.SmtpUseSSL = save.SmtpUseSSL;
             }
             else
-                SaveModelLoadConfig();
+                SaveBaseConfig();
         }
 
         public static bool ShowDialogMessage(string title, string message, bool isSingleBtn = true, Window? owner = null)

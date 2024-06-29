@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="AITranslator.View.UserControls.UserControl_TranlatingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AITranslator.View.UserControls"
+             xmlns:controls="clr-namespace:AITranslator.View.Controls"
+             xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+             xmlns:vm="clr-namespace:AITranslator.View.Models" 
+             mc:Ignorable="d" 
+             d:DesignHeight="550" d:DesignWidth="350">
+    <ListBox x:Name="list_UnfinishedTasks" Background="Transparent" BorderThickness="0" ItemsSource="{Binding UnfinishedTasks}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                <Setter Property="IsEnabled" Value="True"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ListBox.ItemContainerStyle>
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <Border Padding="5" BorderBrush="Gray" BorderThickness="1" CornerRadius="3" Height="52" Width="{calc:Binding '(ActualWidth - 10) less 0 ? 0 : (ActualWidth - 10)',ElementName=list_UnfinishedTasks}">
+                    <DockPanel>
+                        <ProgressBar VerticalAlignment="Bottom" Height="4" DockPanel.Dock="Bottom" Foreground="MediumPurple" BorderThickness="0" Value="{Binding Progress}" Maximum="100" Background="#1CFFFFFF"/>
+
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" EnableAnimation="Horizontal" IsEnabled="{calc:Binding 'State != vm:TaskState.WaitTranslate and State != vm:TaskState.Translating and State != vm:TaskState.WaitPause and State != vm:TaskState.WaitMerge and State != vm:TaskState.Merging'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" ToolTip="设置翻译参数" Click="Button_TransConfig_Click">
+                                <Button.Content>
+                                    <Viewbox Margin="4">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M928 800H508c-14.2-55.2-64.3-96-124-96-59.6 0-109.8 40.8-124 96H96c-17.7 0-32 14.3-32 32 0 17.7 14.3 32 32 32h164c14.2 55.2 64.3 96 124 96 59.6 0 109.8-40.8 124-96h420c17.7 0 32-14.3 32-32C960 814.3 945.7 800 928 800zM384 897c-35.9 0-65-29.1-65-65s29.1-65 65-65 65 29.1 65 65S419.9 897 384 897zM928 480H764c-14.2-55.2-64.3-96-124-96s-109.8 40.8-124 96H96c-17.7 0-32 14.3-32 32 0 17.7 14.3 32 32 32h420c14.2 55.2 64.3 96 124 96s109.8-40.8 124-96h164c17.7 0 32-14.3 32-32C960 494.3 945.7 480 928 480zM640 577c-35.9 0-65-29.1-65-65s29.1-65 65-65 65 29.1 65 65S675.9 577 640 577zM96 224h164c14.2 55.2 64.3 96 124 96 59.6 0 109.8-40.8 124-96h420c17.7 0 32-14.3 32-32 0-17.7-14.3-32-32-32H508c-14.2-55.2-64.3-96-124-96-59.6 0-109.8 40.8-124 96H96c-17.7 0-32 14.3-32 32C64 209.7 78.3 224 96 224zM384 127c35.9 0 65 29.1 65 65s-29.1 65-65 65-65-29.1-65-65S348.1 127 384 127z"/>
+                                    </Viewbox>
+                                </Button.Content>
+                            </controls:ViewButton>
+                            <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" EnableAnimation="Horizontal" IsEnabled="{calc:Binding 'State == vm:TaskState.WaitMerge'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" ToolTip="合并" Click="Button_Merge_Click">
+                                <Button.Content>
+                                    <Viewbox Margin="2.5,2.5,4,4">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M589.44 648.32v188.8h268.8V174.4h-268.8v189.76H540.8V128h365.76v757.44H540.8v-237.12zM672 528.32h131.2v-44.8H672v-94.08l-131.2 116.16 131.2 116.48zM432.96 648.32v188.8h-268.8V174.4h268.8v189.76h48.64V128H115.84v757.44h365.76v-237.12zM352 483.52H220.48v44.8H352v93.76l129.92-116.48L352 389.44z"/>
+                                    </Viewbox>
+                                </Button.Content>
+                            </controls:ViewButton>
+                            <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" ToolTip="打开文件夹" Click="Button_OpenDic_Click">
+                                <Button.Content>
+                                    <Viewbox Margin="4">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                    </Viewbox>
+                                </Button.Content>
+                            </controls:ViewButton>
+                            <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="{Binding State,Converter={StaticResource StartButtonText},ConverterParameter=False}" ToolTip="{Binding State,Converter={StaticResource StartButtonText},ConverterParameter=True}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" IsEnabled="{calc:Binding 'State != vm:TaskState.WaitMerge'}" Click="Button_StartOrPause_Click"/>
+                            <controls:ViewButton Width="24" Height="24" FontSize="16" Content="×" ToolTip="删除" Click="Button_Remove_Click"/>
+                        </StackPanel>
+                        <TextBlock x:Name="tb_title" DockPanel.Dock="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Text="{Binding FileName}"/>
+                        <Rectangle DockPanel.Dock="Top" Margin="0,2" HorizontalAlignment="Left" Width="{Binding ActualWidth, ElementName=tb_title}" Fill="#3CFFFFFF" Height="1"/>
+                        <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Width="58" Foreground="Gray" Text="{Binding Progress,StringFormat={}{0:0.00}%}"/>
+                        <TextBlock HorizontalAlignment="Left" Foreground="Gray" Text="{Binding State,Converter={StaticResource TaskStateToString}}"/>
+                    </DockPanel>
+                </Border>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</UserControl>

@@ -14,7 +14,8 @@ namespace AITranslator.View.Controls
     {
         None,
         Horizontal,
-        Vertical
+        Vertical,
+        DisEnable,
     }
     public class ViewButton : Button
     {
@@ -57,8 +58,11 @@ namespace AITranslator.View.Controls
                 default:
                     break;
             }
-            anim.To = isEnable ? 1 : 0;
-            button.BeginAnimation(OpacityProperty, anim);
+            if (button.EnableAnimation != EnableAnimType.DisEnable)
+            {
+                anim.To = isEnable ? 1 : 0;
+                button.BeginAnimation(OpacityProperty, anim);
+            }
         }
 
         public static readonly DependencyProperty EnableAnimationProperty =

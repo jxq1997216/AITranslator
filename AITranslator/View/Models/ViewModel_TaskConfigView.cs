@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AITranslator.View.Models
 {
-    public partial class ViewModel_TaskConfig : ObservableValidator
+    public partial class ViewModel_TaskConfigView : ObservableValidator
     {        /// <summary>
              /// 是否是英语翻译
              /// </summary>
@@ -22,7 +23,12 @@ namespace AITranslator.View.Models
         [Range(typeof(uint), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
         [ObservableProperty]
         private uint historyCount = 5;
-        public ViewModel_TaskConfig() { }
+
+        /// <summary>
+        /// 文本替换列表
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<KeyValueStr> replaces = new ObservableCollection<KeyValueStr>();
 
         /// <summary>
         /// 设置界面的错误信息
@@ -36,6 +42,8 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private bool error;
 
+        public ViewModel_TaskConfigView() { }
+
 
         /// <summary>
         /// 主动校验设置界面是否存在错误
@@ -46,39 +54,51 @@ namespace AITranslator.View.Models
             ICollection<ValidationResult> results = new List<ValidationResult>();
 
             bool b = Validator.TryValidateObject(this, new ValidationContext(this), results, true);
-            List<string> checkProperty = new List<string>
-            {
-                nameof(HistoryCount),
-            };
 
-            List<ValidationResult> setError = results.Where(s =>
+            Dictionary<string, object> keys = new Dictionary<string, object>();
+            foreach (var replace in Replaces)
             {
-                foreach (var property in checkProperty)
+                if (!string.IsNullOrWhiteSpace(replace.Key))
                 {
-                    if (s.MemberNames.Contains(property))
-                        return true;
+                    if (!keys.ContainsKey(replace.Key))
+                        keys[replace.Key] = null;
+                    else
+                    {
+                        results.Add(new ValidationResult("存在重复的被替换字"));
+                        break;
+                    }
                 }
-                return false;
-            }).ToList();
+                else
+                {
+                    results.Add(new ValidationResult("存在空被替换字"));
+                    break;
+                }
+            }
 
-            Error = setError.Count != 0;
-            ErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
+            Error = results.Count != 0;
+            ErrorMessage = string.Join("\r\n", results.Select(s => s.ErrorMessage));
             return b;
         }
 
         public void CopyTo(TranslationTask task)
         {
+            task.Replaces.Clear();
+            foreach (var replace in Replaces)
+                task.Replaces.Add(replace);
             task.HistoryCount = HistoryCount;
             task.IsEnglish = IsEnglish;
         }
 
-        public static ViewModel_TaskConfig Create(TranslationTask task)
+        public static ViewModel_TaskConfigView Create(TranslationTask task)
         {
-            return new ViewModel_TaskConfig()
+            ViewModel_TaskConfigView vm = new ViewModel_TaskConfigView()
             {
                 HistoryCount = task.HistoryCount,
                 IsEnglish = task.IsEnglish
             };
+            foreach (var replace in task.Replaces)
+                vm.Replaces.Add(replace);
+            return vm;
         }
     }
 }

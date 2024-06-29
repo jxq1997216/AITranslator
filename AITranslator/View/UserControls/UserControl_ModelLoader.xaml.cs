@@ -126,7 +126,7 @@ namespace AITranslator.View.UserControls
 
             }
 
-            ViewModelManager.SaveModelLoadConfig();
+            ViewModelManager.SaveBaseConfig();
             AnimateMainHeight(ViewModelManager.ViewModel.IsOpenAILoader ? openAIHeight + tb_error.ActualHeight : llamaHeight + tb_error.ActualHeight);
             Window_Message.ShowDialog("提示", "保存配置成功");
         }

@@ -17,6 +17,7 @@ using AITranslator.Translator.Communicator;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Diagnostics;
 using System.Windows.Markup;
+using AITranslator.Mail;
 
 namespace AITranslator.Translator.Translation
 {
@@ -80,7 +81,7 @@ namespace AITranslator.Translator.Translation
         /// <summary>
         /// 替换词字典
         /// </summary>
-        internal Dictionary<string,string> _replaces = new Dictionary<string, string>();
+        internal Dictionary<string, string> _replaces = new Dictionary<string, string>();
 
         /// <summary>
         /// 示例对话
@@ -93,9 +94,6 @@ namespace AITranslator.Translator.Translation
         {
             Stoped?.Invoke(this, args);
         }
-
-        Stopwatch sw = new Stopwatch();
-
         public TranslatorBase(TranslationTask task)
         {
             _translationTask = task;
@@ -130,7 +128,6 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         public void Start()
         {
-            sw.Restart();
             _task = Task.Factory.StartNew(() =>
             {
                 try
@@ -226,16 +223,10 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         void TranslateSuccessful()
         {
-            _translationTask.State = TaskState.Completed;
-            _translationTask.SaveConfig();
-
             _communicator.Dispose();
             _task = null;
-            ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成，但存在翻译失败的文件，请手动翻译后合并");
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
             TrigerStopedEvent(TranslateStopEventArgs.CreateSucess());
-
-            sw.Stop();
-            ViewModelManager.WriteLine($"[{DateTime.Now:G}]耗时{sw.ElapsedMilliseconds / 1000d}秒");
         }
 
         /// <summary>
@@ -243,14 +234,10 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         void TranslateNeedMerge()
         {
-            _translationTask.State = TaskState.WaitMerge;
-            _translationTask.SaveConfig();
-
             _communicator.Dispose();
             _task = null;
-            ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
-            sw.Stop();
-            ViewModelManager.WriteLine($"[{DateTime.Now:G}]耗时{sw.ElapsedMilliseconds / 1000d}秒");
+            ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成，但存在翻译失败的文件，请手动翻译后合并");
+            TrigerStopedEvent(TranslateStopEventArgs.CreateNeedMerge());
         }
 
         void TranslateBreaked(string error, bool save = true, bool isKnownError = true)

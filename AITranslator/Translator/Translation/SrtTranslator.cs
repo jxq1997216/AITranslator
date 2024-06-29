@@ -81,6 +81,9 @@ namespace AITranslator.Translator.Translation
                 SrtData value = kv.Value;
                 string source = value.Text;
 
+                foreach (var kv_replace in _replaces)
+                    source = source.Replace(kv_replace.Key, kv_replace.Value);
+
                 string result_single = Translate_NoResetNewline(source, true, 150, 0.6, 0);
 
                 if (result_single.Length > source.Length + 50)

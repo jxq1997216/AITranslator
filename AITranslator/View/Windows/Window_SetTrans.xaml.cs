@@ -1,4 +1,6 @@
-﻿using AITranslator.View.Models;
+﻿using AITranslator.Translator.Persistent;
+using AITranslator.View.Models;
+using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,14 +25,14 @@ namespace AITranslator.View.Windows
     public partial class Window_SetTrans : Window
     {
         TranslationTask _task;
-        ViewModel_TaskConfig _vm;
+        ViewModel_TaskConfigView _vm;
         public Window_SetTrans(TranslationTask task)
         {
             InitializeComponent();
 
             _task = task;
             //创建一个临时ViewModel
-            _vm = ViewModel_TaskConfig.Create(task);
+            _vm = ViewModel_TaskConfigView.Create(task);
 
             DataContext = _vm;
         }
@@ -48,12 +50,76 @@ namespace AITranslator.View.Windows
             if (!_vm.ValidateError())
                 return;
 
-            //复制临时创建的ViewModel到Task的ViewModel中
+            //复制临时创建的ViewModel拷贝到Task的ViewModel中
             _vm.CopyTo(_task);
             _task.SaveConfig();
 
             Close();
         }
 
+        private void Button_Import_Click(object sender, RoutedEventArgs e)
+        {
+            if (_vm.Replaces.Count != 0)
+            {
+                if (!Window_Message.ShowDialog("提示", "当前已存在替换列表，导入新的替换列表将清空当前列表，请确认是否继续", false, this))
+                    return;
+            }
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Title = "请选择要加载的替换字典",
+                Multiselect = false,
+                FileName = "Select a file",
+                Filter = "Json文件(*.json)|*.json",
+            };
+
+            if (!ofd.ShowDialog()!.Value)
+                return;
+
+
+            _vm.Replaces.Clear();
+            List<(string key, string value)> importDic = JsonPersister.Load<List<(string key, string value)>>(ofd.FileName);
+
+            foreach (var item in importDic)
+                _vm.Replaces.Add(new(item.key, item.value));
+        }
+
+        private void Button_Export_Click(object sender, RoutedEventArgs e)
+        {
+            if (_vm.Replaces.Count == 0)
+            {
+                Window_Message.ShowDialog("提示", "当前替换列表数量为0，无法导出", owner: this);
+                return;
+            }
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                Title = "请选择替换字典的保存位置",
+                FileName = "Replace.json",
+                Filter = "Json文件(*.json)|*.json",
+            };
+            if (!sfd.ShowDialog()!.Value)
+                return;
+            List<(string, string)> exportDic = new List<(string, string)>();
+            foreach (var item in _vm.Replaces)
+            {
+                string key = item.Key;
+                string value = item.Value;
+                exportDic.Add((key, value));
+            }
+            JsonPersister.Save(exportDic, sfd.FileName);
+        }
+
+        private void Button_Add_Click(object sender, RoutedEventArgs e)
+        {
+            _vm.Replaces.Add(new());
+            var newItem = _vm.Replaces.Last();
+            view_Replaces.ScrollIntoView(newItem);
+        }
+
+        private void Button_Remove_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            KeyValueStr kv = btn.DataContext as KeyValueStr;
+            _vm.Replaces.Remove(kv);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AITranslator.Exceptions;
 using AITranslator.Translator.Translation;
+using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -13,51 +14,43 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AITranslator.View.Windows
+namespace AITranslator.View.UserControls
 {
     /// <summary>
-    /// 清除翻译记录的确认窗口
+    /// UserControl_ManualTranslateView.xaml 的交互逻辑
     /// </summary>
     [INotifyPropertyChanged]
-    public partial class Window_ManualTranslate : Window
+    public partial class UserControl_ManualTranslateView : UserControl
     {
         /// <summary>
         /// 翻译中
         /// </summary>
         [ObservableProperty]
         private bool translating;
-
-        ManualTranslator _translator = new ManualTranslator();
-        public Window_ManualTranslate()
+        public UserControl_ManualTranslateView()
         {
             InitializeComponent();
-            DataContext = this;
         }
-
-        private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
-
-        private void Button_Close_Click(object sender, RoutedEventArgs e)
-        {
-            _translator.Dispose();
-            Close();
-        }
-
 
         private async void Button_Translate_Click(object sender, RoutedEventArgs e)
         {
+
             string input = tb_input.Text;
             if (string.IsNullOrWhiteSpace(input))
                 return;
             Translating = true;
+            ManualTranslator _translator = null;
             try
             {
+                _translator = new ManualTranslator();
                 tb_output.Text = await Task.Run(() => _translator.Translate(input));
             }
             catch (KnownException err)
             {
-                Window_Message.ShowDialog("错误",err.Message,owner:this);
+                Window_Message.ShowDialog("错误", err.Message);
             }
             catch (Exception err)
             {
@@ -66,10 +59,13 @@ namespace AITranslator.View.Windows
                     errorMsg = "未知错误:" + err.InnerException;
                 else
                     errorMsg = "未知错误:" + err;
-                Window_Message.ShowDialog("错误", errorMsg, owner: this);
+                Window_Message.ShowDialog("错误", errorMsg);
             }
-
-            Translating = false;
+            finally
+            {
+                _translator?.Dispose();
+                Translating = false;
+            }
         }
     }
 }

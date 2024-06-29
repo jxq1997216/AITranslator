@@ -1,4 +1,5 @@
 ﻿using AITranslator.Exceptions;
+using AITranslator.Mail;
 using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Tools;
@@ -209,11 +210,41 @@ namespace AITranslator.View.Models
             _translator.Stoped -= _translator_Stoped;
             if (ViewModelManager.ViewModel.ActiveTask == this)
                 ViewModelManager.ViewModel.ActiveTask = null;
-            ViewModelManager.ViewModel.UnfinishedTasks.FirstOrDefault(s => s.State == TaskState.WaitTranslate)?.Start();
-            if (!e.IsPause)
-                ToCompletedTasks();
+
+            //如果启用发送邮件
+            if (ViewModelManager.ViewModel.EnableEmail)
+            {
+                if (!e.IsPause.HasValue || !e.IsPause.Value)
+                    Task.Run(() => SmtpMailSender.SendSuccess(FileName));
+                else
+                {
+                    if (e.PauseMsg != "按下暂停按钮 翻译暂停")
+                        Task.Run(() => SmtpMailSender.SendFail(FileName));
+                }
+            }
+
+            //根据翻译任务的结果，设置状态并保存
+            if (e.IsPause.HasValue)
+            {
+                if (!e.IsPause.Value)
+                    ToCompletedTasks();
+                else
+                    State = TaskState.Pause;
+            }
             else
-                State = TaskState.Pause;
+                State = TaskState.WaitMerge;
+            SaveConfig();
+
+            //查找并启动下一个任务
+            TranslationTask? nextTask = ViewModelManager.ViewModel.UnfinishedTasks.FirstOrDefault(s => s.State == TaskState.WaitTranslate);
+            if (nextTask is null)
+            {
+                //如果没有下一个任务了，且不是用户主动暂停的
+                if (ViewModelManager.ViewModel.AutoShutdown && (!e.IsPause.HasValue || !e.IsPause.Value || e.PauseMsg != "按下暂停按钮 翻译暂停"))
+                    Process.Start("c:/windows/system32/shutdown.exe", "-s -f -t 0");
+            }
+            else
+                nextTask.Start();
         }
 
         public void Start(bool showErrorMsg = true)
@@ -333,6 +364,7 @@ namespace AITranslator.View.Models
         }
         void ToCompletedTasks()
         {
+            State = TaskState.Completed;
             ViewModelManager.ViewModel.Dispatcher.Invoke(() =>
             {
                 ViewModelManager.ViewModel.UnfinishedTasks.Remove(this);

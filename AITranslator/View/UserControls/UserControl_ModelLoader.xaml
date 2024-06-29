@@ -9,7 +9,7 @@
              xmlns:local="clr-namespace:AITranslator.View.UserControls"
              xmlns:media ="clr-namespace:System.Windows.Media;assembly=PresentationCore"
              mc:Ignorable="d" 
-             Height="Auto" d:DesignWidth="600" Background="#FF191D25" Loaded="UserControl_Loaded">
+             Height="Auto" d:DesignWidth="400" Background="#FF191D25" Loaded="UserControl_Loaded">
     <Grid Margin="5">
         <StackPanel>
             <CheckBox x:Name="cb_CfgVisible" Margin="-5" Height="24" Style="{StaticResource CheckButton}" Checked="cb_CfgVisible_Checked" Unchecked="cb_CfgVisible_Unchecked">
@@ -43,7 +43,7 @@
                                     <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !IsRomatePlatform ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
                                         <TextBox Name="tb_romateURL" Text="{Binding ServerURL}" Foreground="White" IsEnabled="{calc:Binding IsRomatePlatform}" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
                                     </Border>
-                                    <control:ToggleButton Grid.Column="2" Margin="0,0,5,0" Width="60" OnText="1B8" OffText="非1B8" IsChecked="{Binding IsModel1B8}"/>
+                                    <control:ToggleButton Grid.Column="2" Margin="0,0,5,0" Width="65" OnText="1B8" OffText="非1B8" IsChecked="{Binding IsModel1B8}"/>
                                 </Grid>
                             </StackPanel>
                         </control:SizeAnimationGrid>

@@ -14,13 +14,26 @@ namespace AITranslator.EventArg
         /// <summary>
         /// 是否为暂停，如果不是暂停就是翻译成功
         /// </summary>
-        public bool IsPause { get; private set; }
+        public bool? IsPause { get; private set; }
 
         /// <summary>
         /// 暂停原因
         /// </summary>
         public string PauseMsg { get; private set; } = string.Empty;
 
+        /// <summary>
+        /// 创建一个需要合并事件参数
+        /// </summary>
+        /// <returns>翻译暂停事件参数</returns>
+        public static TranslateStopEventArgs CreateNeedMerge()
+        {
+            TranslateStopEventArgs eventArg = new TranslateStopEventArgs()
+            {
+                IsPause = null,
+            };
+
+            return eventArg;
+        }
         /// <summary>
         /// 创建一个翻译暂停事件参数
         /// </summary>

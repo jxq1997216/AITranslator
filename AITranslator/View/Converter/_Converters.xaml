@@ -15,5 +15,6 @@
     <converter:ModelNameConverter x:Key="ModelName"/>
     <converter:CommunicatorTypeConverter x:Key="CommunicatorType"/>
     <converter:TaskStateToStringConverter x:Key="TaskStateToString"/>
+    <converter:ViewTitleConverter x:Key="ViewTitle"/>
 
 </ResourceDictionary>

@@ -87,6 +87,10 @@ namespace AITranslator.Translator.Translation
             {
                 int key = kv.Key;
                 string value = kv.Value;
+
+                foreach (var kv_replace in _replaces)
+                    value = value.Replace(kv_replace.Key, kv_replace.Value);
+
                 mergeKeys.Add(key);
                 mergeValues.Add(value);
                 length += value.Length;

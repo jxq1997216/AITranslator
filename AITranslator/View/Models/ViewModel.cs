@@ -111,11 +111,45 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private bool autoLoadModel;
         /// <summary>
+        /// 启用邮件通知
+        /// </summary>
+        [ObservableProperty]
+        private bool enableEmail;
+        /// <summary>
+        /// 邮箱地址
+        /// </summary>
+        [ObservableProperty]
+        private string emailAddress;
+        /// <summary>
+        /// 邮箱密码
+        /// </summary>
+        [ObservableProperty]
+        private string emailPassword;
+        /// <summary>
+        /// SMTP服务器地址
+        /// </summary>
+        [ObservableProperty]
+        private string smtpAddress = "smtp.qq.com";
+        /// <summary>
+        /// SMTP服务器端口
+        /// </summary>
+        [ObservableProperty]
+        private ushort smtpPort = 587;
+        /// <summary>
+        /// SMTP服务使用SSL
+        /// </summary>
+        [ObservableProperty]
+        private bool smtpUseSSL = true;
+        /// <summary>
+        /// 启用翻译完成自动关机
+        /// </summary>
+        [ObservableProperty]
+        private bool autoShutdown;
+        /// <summary>
         /// 设置界面的错误信息
         /// </summary>
         [ObservableProperty]
         private string errorMessage;
-
         /// <summary>
         /// 设置界面是否存在错误
         /// </summary>
