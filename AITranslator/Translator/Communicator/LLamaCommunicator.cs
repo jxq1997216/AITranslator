@@ -1,5 +1,4 @@
-﻿using AITranslator.Translator.Models;
-using LLama.Common;
+﻿using LLama.Common;
 using LLama;
 using LLama.Native;
 using System;
@@ -17,6 +16,8 @@ using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using LLama.Exceptions;
 using System.Windows;
+using AITranslator.Translator.PostData;
+using AITranslator.Translator.Tools;
 
 namespace AITranslator.Translator.Communicator
 {
@@ -43,19 +44,22 @@ namespace AITranslator.Translator.Communicator
         static CancellationTokenSource _cts;
         public static async Task<string> LoadModel()
         {
+            ViewModel_CommunicatorLLama vm = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
             if (!File.Exists("llama/llama.dll") && !File.Exists("llama/LLamaSelect.dll"))
                 return "模型加载库不存在，请下载对应您显卡版本的模型加载库放入软件目录下的llama文件夹中";
-            if (!File.Exists(ViewModelManager.ViewModel.ModelPath))
+            if (!File.Exists(vm.ModelPath))
                 return "模型文件不存在";
+            if (!vm.ModelPath.IsEnglishPath())
+                return "请将模型文件放在全英文路径下";
             Progress<float> progress = new Progress<float>();
             try
             {
-                ViewModelManager.ViewModel.ModelLoadProgress = 0;
-                ViewModelManager.ViewModel.ModelLoading = true;
+                vm.ModelLoadProgress = 0;
+                vm.ModelLoading = true;
                 _cts = new CancellationTokenSource();
                 CancellationToken ctk = _cts.Token;
                 progress.ProgressChanged += Progress_ProgressChanged;
-                await LLamaLoader.Load(ViewModelManager.ViewModel.ModelPath, ViewModelManager.ViewModel.GpuLayerCount, ViewModelManager.ViewModel.ContextSize, ctk, progress);
+                await LLamaLoader.Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, ctk, progress);
             }
             catch (KnownException err)
             {
@@ -67,10 +71,10 @@ namespace AITranslator.Translator.Communicator
             }
             finally
             {
-                ViewModelManager.ViewModel.ModelLoading = false;
+                vm.ModelLoading = false;
                 progress.ProgressChanged -= Progress_ProgressChanged;
             }
-            ViewModelManager.ViewModel.ModelLoaded = true;
+            vm.ModelLoaded = true;
             //ViewModelManager.ViewModel.ModelLoadProgress = 0;
             return string.Empty;
         }
@@ -81,7 +85,7 @@ namespace AITranslator.Translator.Communicator
         }
         private static void Progress_ProgressChanged(object? sender, float e)
         {
-            ViewModelManager.ViewModel.ModelLoadProgress = Math.Round(e * 100, 1);
+            ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.ModelLoadProgress = Math.Round(e * 100, 1);
         }
 
         public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, CancellationToken ctk, IProgress<float> progressReporter)
@@ -125,25 +129,34 @@ namespace AITranslator.Translator.Communicator
             _cts = new CancellationTokenSource();
         }
 
-        public string Translate(PostData postData)
+        public string Translate(PostDataBase postData)
         {
+            LLamaPostData _postData = postData as LLamaPostData;
             CancellationToken token = _cts.Token;
-            List<Message> example =
-                [
-                    new(AuthorRole.System, postData.negative_prompt),
-                ];
+            List<Message> example = new List<Message>();
+
             foreach (var item in postData.messages)
-                example.Add(new(item.role == "user" ? AuthorRole.User : AuthorRole.Assistant, item.content));
+            {
+                AuthorRole role = item.role switch
+                {
+                    "system" => AuthorRole.System,
+                    "user" => AuthorRole.User,
+                    "assistant" => AuthorRole.Assistant,
+                    _ => throw new KnownException("无效的Role！")
+                };
+                example.Add(new(role, item.content));
+            }
+
 
             string data = HistoryToText(example);
 
             InferenceParams inferenceParams = new InferenceParams()
             {
-                MaxTokens = postData.max_tokens,
-                AntiPrompts = postData.stop,
+                MaxTokens = _postData.max_tokens,
+                AntiPrompts = _postData.stop,
             };
 
-            string str = string.Join("", LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
+            string str = string.Join(string.Empty, LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
             if (_cts.Token.IsCancellationRequested)
                 throw new KnownException("按下暂停按钮");
             //Task<string> translateTask;

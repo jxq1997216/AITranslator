@@ -14,11 +14,11 @@
         <StackPanel>
             <CheckBox x:Name="cb_CfgVisible" Margin="-5" Height="24" Style="{StaticResource CheckButton}" Checked="cb_CfgVisible_Checked" Unchecked="cb_CfgVisible_Unchecked">
                 <CheckBox.Content>
-                    <MultiBinding Converter="{StaticResource CommunicatorType}" ConverterParameter="正在使用外置模型加载器 未加载模型 加载模型中... 已加载模型">
-                        <Binding Path="IsOpenAILoader"/>
-                        <Binding Path="ModelLoaded"/>
-                        <Binding Path="ModelLoading"/>
-                        <Binding Path="ModelLoadProgress"/>
+                    <MultiBinding Converter="{StaticResource CommunicatorTypeToString}" ConverterParameter="正在使用TGW模型通讯器 正在使用OpenAI模型通讯器 未加载模型 加载模型中... 已加载模型">
+                        <Binding Path="CommunicatorType"/>
+                        <Binding Path="CommunicatorLLama_ViewModel.ModelLoaded"/>
+                        <Binding Path="CommunicatorLLama_ViewModel.ModelLoading"/>
+                        <Binding Path="CommunicatorLLama_ViewModel.ModelLoadProgress"/>
                         <Binding ElementName="btn_SelectModel" Path="Content"/>
                     </MultiBinding>
                 </CheckBox.Content>
@@ -27,34 +27,82 @@
                 <GroupBox  BorderThickness="0.1" BorderBrush="White">
                     <GroupBox.Header>
                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                            <control:ToggleButton Width="38" Height="14" FontSize="8" Margin="5,0,0,0" OnText="外置" OffText="内置"  IsEnabled="{calc:Binding !ModelLoaded and !ModelLoading}" IsChecked="{Binding IsOpenAILoader}" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked"/>
+                            <ComboBox Foreground="White" SelectionChanged="ComboBox_CommunicatorType_SelectionChanged" IsEnabled="{calc:Binding '!CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading and ActiveTask == null and !ManualTranslating'}" SelectedIndex="{Binding CommunicatorType,Converter={StaticResource CommunicatorTypeToIndex},Mode=TwoWay}">
+                                <ComboBoxItem Content="内置加载器"/>
+                                <ComboBoxItem Content="TGW"/>
+                                <ComboBoxItem Content="OpenAI"/>
+                            </ComboBox>
+                            <!--<control:ToggleButton Width="38" Height="14" FontSize="8" Margin="5,0,0,0" OnText="外置" OffText="内置"   IsChecked="{Binding IsOpenAILoader}" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked"/>-->
                         </StackPanel>
                     </GroupBox.Header>
-                    <StackPanel Margin="5">
-                        <control:SizeAnimationGrid x:Name="gd_OpenAI" Height="30" IsEnabled="{Binding IsOpenAILoader}" Visibility="{calc:Binding '!(Opacity == 0)',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                    <StackPanel Margin="5,10,5,5">
+                        <control:SizeAnimationGrid x:Name="gd_OpemAI" Height="90" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.OpenAI'}" Visibility="{calc:Binding '!(Opacity == 0)',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
                             <StackPanel>
-                                <Grid>
+                                <Grid IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+
+                                    <Grid Grid.Row="0" Height="30">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="请求地址:" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"/>
+                                        <Border Grid.Column="1" BorderThickness="1" VerticalAlignment="Center" BorderBrush="{calc:Binding 'ActiveTask != null ? media:Brushes.Gray : media:Brushes.White'}" Height="25" CornerRadius="12.5" >
+                                            <TextBox Text="{Binding CommunicatorOpenAI_ViewModel.ServerURL}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                                        </Border>
+                                    </Grid>
+                                    <Grid Grid.Row="1" Height="30">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="API密钥:" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"/>
+                                        <Border Grid.Column="1" BorderThickness="1" VerticalAlignment="Center" BorderBrush="{calc:Binding 'ActiveTask != null ? media:Brushes.Gray : media:Brushes.White'}" Height="25" CornerRadius="12.5" >
+                                            <TextBox Text="{Binding CommunicatorOpenAI_ViewModel.ApiKey}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                                        </Border>
+                                    </Grid>
+                                    <Grid Grid.Row="2" Height="30">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="模型:" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"/>
+                                        <Border Grid.Column="1" BorderThickness="1" VerticalAlignment="Center" BorderBrush="{calc:Binding 'ActiveTask != null ? media:Brushes.Gray : media:Brushes.White'}" Height="25" CornerRadius="12.5" >
+                                            <TextBox Text="{Binding CommunicatorOpenAI_ViewModel.Model}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                                        </Border>
+                                    </Grid>
+                                </Grid>
+                            </StackPanel>
+                        </control:SizeAnimationGrid>
+
+                        <control:SizeAnimationGrid x:Name="gd_TGW" Height="30" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.TGW'}" Visibility="{calc:Binding '!(Opacity == 0)',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                            <StackPanel>
+                                <Grid IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <control:ToggleButton Margin="0,0,5,0" Width="60" OnText="远程" OffText="本地" IsChecked="{Binding IsRomatePlatform}"/>
-                                    <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !IsRomatePlatform ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
-                                        <TextBox Name="tb_romateURL" Text="{Binding ServerURL}" Foreground="White" IsEnabled="{calc:Binding IsRomatePlatform}" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                                    <control:ToggleButton Margin="0,0,5,0" Width="60" OnText="远程" OffText="本地" IsChecked="{Binding CommunicatorTGW_ViewModel.IsRomatePlatform}"/>
+                                    <Border Grid.Column="1" BorderThickness="1" IsEnabled="{Binding CommunicatorTGW_ViewModel.IsRomatePlatform}" BorderBrush="{calc:Binding !CommunicatorTGW_ViewModel.IsRomatePlatform ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
+                                        <TextBox Text="{Binding CommunicatorTGW_ViewModel.ServerURL}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
                                     </Border>
-                                    <control:ToggleButton Grid.Column="2" Margin="0,0,5,0" Width="65" OnText="1B8" OffText="非1B8" IsChecked="{Binding IsModel1B8}"/>
+                                    <control:ToggleButton Grid.Column="2" Margin="0,0,5,0" Width="65" OnText="1B8" OffText="非1B8" IsChecked="{Binding CommunicatorTGW_ViewModel.IsModel1B8}"/>
                                 </Grid>
                             </StackPanel>
                         </control:SizeAnimationGrid>
-                        <control:SizeAnimationGrid x:Name="gd_LLama" Height="115" IsEnabled="{calc:Binding !IsOpenAILoader}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                        <control:SizeAnimationGrid x:Name="gd_LLama" Height="115" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.LLama'}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
                             <StackPanel>
                                 <StackPanel Margin="2,0">
                                     <Grid Height="30">
-                                        <control:ViewButton x:Name="btn_SelectModel" Height="30" Content="{Binding ModelPath,Converter={StaticResource ModelName}}" IsHitTestVisible="{calc:Binding !ModelLoaded and !ModelLoading}" Click="Button_Select_Click"/>
-                                        <ProgressBar Height="3" BorderThickness="0" VerticalAlignment="Bottom" Maximum="100" Minimum="0" Foreground="MediumPurple" Background="Transparent" Value="{Binding ModelLoadProgress}" Visibility="{calc:Binding ModelLoading or ModelLoaded,FalseToVisibility=Hidden}"/>
+                                        <control:ViewButton x:Name="btn_SelectModel" Height="30" Content="{Binding CommunicatorLLama_ViewModel.ModelPath,Converter={StaticResource ModelName}}" IsHitTestVisible="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading}" Click="Button_Select_Click"/>
+                                        <ProgressBar Height="3" BorderThickness="0" VerticalAlignment="Bottom" Maximum="100" Minimum="0" Foreground="MediumPurple" Background="Transparent" Value="{Binding CommunicatorLLama_ViewModel.ModelLoadProgress}" Visibility="{calc:Binding CommunicatorLLama_ViewModel.ModelLoading or CommunicatorLLama_ViewModel.ModelLoaded,FalseToVisibility=Hidden}"/>
                                     </Grid>
-                                    <control:SizeAnimationGrid Height="50" IsEnabled="{calc:Binding !ModelLoaded and !ModelLoading}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                                    <control:SizeAnimationGrid Height="50" IsEnabled="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="10"/>
@@ -69,7 +117,7 @@
                                                     <ColumnDefinition/>
                                                     <ColumnDefinition Width="40"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Slider x:Name="slider_GpuLayerCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding GpuLayerCount,Converter={StaticResource GpuLayerCount}}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                                <Slider x:Name="slider_GpuLayerCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding CommunicatorLLama_ViewModel.GpuLayerCount,Converter={StaticResource GpuLayerCount}}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
                                                 <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_GpuLayerCount,Converter={StaticResource GpuLayerText}}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                                             </Grid>
                                         </GroupBox>
@@ -82,7 +130,7 @@
                                                     <ColumnDefinition/>
                                                     <ColumnDefinition Width="40"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Slider x:Name="slider_ContextSize" Grid.Column="0" Margin="0,0,10,0" Maximum="16348" Minimum="0" Value="{Binding ContextSize}" Ticks="512 1024 2048 3072 4096 5120 6144 7168 8192 9216 10240 11264 12288 13312 14336 15360 16384" IsSnapToTickEnabled="True" TickFrequency="16" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                                <Slider x:Name="slider_ContextSize" Grid.Column="0" Margin="0,0,10,0" Maximum="16348" Minimum="0" Value="{Binding CommunicatorLLama_ViewModel.ContextSize}" Ticks="512 1024 2048 3072 4096 5120 6144 7168 8192 9216 10240 11264 12288 13312 14336 15360 16384" IsSnapToTickEnabled="True" TickFrequency="16" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
                                                 <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_ContextSize}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                                             </Grid>
                                         </GroupBox>
@@ -93,17 +141,17 @@
                                             <ColumnDefinition Width="120"/>
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
-                                        <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'ActiveTask == null'}">
+                                        <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
                                             <Button.Content>
                                                 <MultiBinding Converter="{StaticResource LoadModelButtonText}" ConverterParameter="卸载模型 加载模型 取消加载">
-                                                    <Binding Path="ModelLoaded"/>
-                                                    <Binding Path="ModelLoading"/>
+                                                    <Binding Path="CommunicatorLLama_ViewModel.ModelLoaded"/>
+                                                    <Binding Path="CommunicatorLLama_ViewModel.ModelLoading"/>
                                                 </MultiBinding>
                                             </Button.Content>
                                         </control:ViewButton>
 
                                         <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                            <control:ToggleButton Margin="5,0" Width="80" OnText="自动加载" OffText="手动加载" HorizontalAlignment="Left" IsChecked="{Binding AutoLoadModel}"/>
+                                            <control:ToggleButton Margin="5,0" Width="80" OnText="自动加载" OffText="手动加载" HorizontalAlignment="Left" IsChecked="{Binding CommunicatorLLama_ViewModel.AutoLoadModel}"/>
                                             <TextBlock VerticalAlignment="Center" Foreground="White" Text="[?]" Cursor="Help" ToolTip="是否在程序启动时自动加载模型"/>
                                         </StackPanel>
                                         <!--<control:ToggleButton Grid.Column="2" HorizontalAlignment="Left" OnText="启动自加载" OffText="手动加载" IsChecked="{Binding AutoLoadModel}"/>-->

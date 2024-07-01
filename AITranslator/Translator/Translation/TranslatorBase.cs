@@ -18,6 +18,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Diagnostics;
 using System.Windows.Markup;
 using AITranslator.Mail;
+using AITranslator.Translator.PostData;
 
 namespace AITranslator.Translator.Translation
 {
@@ -59,13 +60,14 @@ namespace AITranslator.Translator.Translation
         internal event EventHandler<TranslateStopEventArgs> Stoped;
 
         //发送数据包
-        internal PostData postData;
+        //internal PostDataBase postData;
 
         /// <summary>
         /// 对话提示
         /// </summary>
         internal string prompt_with_text;
 
+        internal string system_prompt;
         /// <summary>
         /// 翻译线程
         /// </summary>
@@ -134,11 +136,13 @@ namespace AITranslator.Translator.Translation
                 {
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
                     //创建连接客户端，设置超时时间10分钟
-                    if (ViewModelManager.ViewModel.IsOpenAILoader)
-                        _communicator = new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.ServerURL + "/v1/chat/completions"));
-                    else
-                        _communicator = new LLamaCommunicator();
-
+                    _communicator = ViewModelManager.ViewModel.CommunicatorType switch
+                    {
+                        CommunicatorType.LLama => new LLamaCommunicator(),
+                        CommunicatorType.TGW => new TGWCommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorTGW_ViewModel.ServerURL + "/v1/chat/completions")),
+                        CommunicatorType.OpenAI => new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"), ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey),
+                        _ => throw ExceptionThrower.InvalidCommunicator,
+                    };
                     TranslateData.GetNotTranslatedData();
                     _history.Clear();
                     LoadHistory();
@@ -352,12 +356,20 @@ namespace AITranslator.Translator.Translation
         /// <exception cref="KnownException">出现的已知错误</exception>
         internal string TryTranslate(string str, string prompt_with_text, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
         {
-            List<ExampleDialogue> list_example = _example.ToList();
+            List<ExampleDialogue> exampleDialogues = [new ExampleDialogue("system", system_prompt), .. _example];
             if (useHistory)
-                list_example.AddRange(_history);
-            list_example.Add(new("user", $"{prompt_with_text}{str}"));
+                exampleDialogues.AddRange(_history);
+            exampleDialogues.Add(new("user", $"{prompt_with_text}{str}"));
 
-            postData.messages = list_example.ToArray();
+            PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
+            {
+                CommunicatorType.LLama => new LLamaPostData(),
+                CommunicatorType.TGW => new TGWPostData(),
+                CommunicatorType.OpenAI => new OpenAIPostData() { model = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model },
+                _=> throw ExceptionThrower.InvalidCommunicator,
+            };
+
+            postData.messages = exampleDialogues.ToArray();
             postData.temperature = temperature;
             postData.frequency_penalty = frequencyPenalty;
             postData.max_tokens = maxTokens;

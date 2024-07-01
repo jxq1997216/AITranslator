@@ -38,7 +38,7 @@ namespace AITranslator.Mail
         }
         public static bool Send(string title, string Message, out string error)
         {
-            ViewModel vm = ViewModelManager.ViewModel;
+            ViewModel_SetView vm = ViewModelManager.ViewModel.SetView_ViewModel;
             return Send(title, Message, vm.EmailAddress, vm.EmailPassword, vm.SmtpAddress, vm.SmtpPort, vm.SmtpUseSSL, out error);
         }
 

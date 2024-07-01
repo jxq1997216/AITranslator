@@ -1,4 +1,5 @@
-﻿using AITranslator.Translator.Communicator;
+﻿using AITranslator.Exceptions;
+using AITranslator.Translator.Communicator;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using LLama;
@@ -27,10 +28,11 @@ namespace AITranslator.View.UserControls
     /// </summary>
     public partial class UserControl_ModelLoader : UserControl
     {
-        double llamaHeight;
         double openAIHeight;
+        double llamaHeight;
+        double tgwHeight;
         double llamaUnLoadHeightAdd = 50;
-        double animOffset = 65;
+        double animOffset = 73;
 
         public UserControl_ModelLoader()
         {
@@ -42,14 +44,24 @@ namespace AITranslator.View.UserControls
         {
             gb_main.Height = 0;
             llamaHeight = gd_LLama.Height + animOffset;
-            openAIHeight = gd_OpenAI.Height + animOffset;
-            if (!ViewModelManager.ViewModel.IsOpenAILoader && ViewModelManager.ViewModel.AutoLoadModel)
+            tgwHeight = gd_TGW.Height + animOffset;
+            openAIHeight = gd_OpemAI.Height + animOffset;
+            ViewModel vm = ViewModelManager.ViewModel;
+            if (vm.CommunicatorType == CommunicatorType.LLama && vm.CommunicatorLLama_ViewModel.AutoLoadModel)
             {
                 llamaHeight -= llamaUnLoadHeightAdd;
                 gd_LLama.Height -= llamaUnLoadHeightAdd;
                 await LLamaLoader.LoadModel();
-                ViewModelManager.ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
+                vm.CommunicatorLLama_ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
             }
+
+            tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorType switch
+            {
+                CommunicatorType.LLama => ViewModelManager.ViewModel.CommunicatorLLama_ViewModel,
+                CommunicatorType.TGW => ViewModelManager.ViewModel.CommunicatorTGW_ViewModel,
+                CommunicatorType.OpenAI => ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel,
+                _ => throw ExceptionThrower.InvalidCommunicator,
+            };
         }
         private void Button_Select_Click(object sender, RoutedEventArgs e)
         {
@@ -64,16 +76,17 @@ namespace AITranslator.View.UserControls
             if (!openFileDialog.ShowDialog()!.Value)
                 return;
 
-            ViewModelManager.ViewModel.ModelPath = openFileDialog.FileName;
+            ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.ModelPath = openFileDialog.FileName;
         }
 
         private async void Button_Load_Click(object sender, RoutedEventArgs e)
         {
             //卸载模型
-            if (ViewModelManager.ViewModel.ModelLoaded)
+            ViewModel_CommunicatorLLama vm = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
+            if (vm.ModelLoaded)
             {
                 LLamaLoader.Unload();
-                ViewModelManager.ViewModel.ModelLoaded = false;
+                vm.ModelLoaded = false;
                 llamaHeight += llamaUnLoadHeightAdd;
                 AnimateLLamaViewHeight(llamaHeight - animOffset + tb_error.ActualHeight);
                 AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
@@ -81,17 +94,18 @@ namespace AITranslator.View.UserControls
             }
             else
             {
-                if (ViewModelManager.ViewModel.ModelLoading)
+                if (vm.ModelLoading)
                     LLamaLoader.StopLoadModel();
                 else
                 {
+
                     AnimateMainHeight(llamaHeight + tb_error.ActualHeight - llamaUnLoadHeightAdd);
                     AnimateLLamaViewHeight(llamaHeight - animOffset - llamaUnLoadHeightAdd);
                     llamaHeight -= llamaUnLoadHeightAdd;
                     string result = await LLamaLoader.LoadModel();
                     if (string.IsNullOrWhiteSpace(result))
                     {
-                        ViewModelManager.ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
+                        vm.IsModel1B8 = LLamaLoader.Is1B8;
                         Window_Message.ShowDialog("提示", "加载模型成功");
                     }
                     else
@@ -107,33 +121,74 @@ namespace AITranslator.View.UserControls
 
         private void Button_Save_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModelManager.ViewModel.IsOpenAILoader)
+            ViewModel_ValidateBase vm = ViewModelManager.ViewModel.CommunicatorType switch
             {
-                //如果不是远程服务器，设置服务地址为本地
-                if (!ViewModelManager.ViewModel.IsRomatePlatform)
-                    ViewModelManager.ViewModel.ServerURL = "http://127.0.0.1:5000";
+                CommunicatorType.LLama => ViewModelManager.ViewModel.CommunicatorLLama_ViewModel,
+                CommunicatorType.TGW => ViewModelManager.ViewModel.CommunicatorTGW_ViewModel,
+                CommunicatorType.OpenAI => ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel,
+                _ => throw ExceptionThrower.InvalidCommunicator,
+            };
 
-                //校验配置参数有没有错误
-                if (!ViewModelManager.ViewModel.ValidateError())
+            //如果不是远程服务器，设置服务地址为本地
+            if (vm is ViewModel_CommunicatorTGW vm_TGW && !vm_TGW.IsRomatePlatform)
+                vm_TGW.ServerURL = "http://127.0.0.1:5000";
+
+
+            //校验配置参数有没有错误
+            if (!vm.ValidateError())
+            {
+                Task.Run(() =>
                 {
-                    Task.Run(() =>
+                    Thread.Sleep(1);
+                    double height = ViewModelManager.ViewModel.CommunicatorType switch
                     {
-                        Thread.Sleep(1);
-                        Dispatcher.Invoke(() => AnimateMainHeight(openAIHeight + tb_error.ActualHeight));
-                    });
-                    return;
-                }
-
+                        CommunicatorType.LLama =>llamaHeight,
+                        CommunicatorType.TGW => tgwHeight,
+                        CommunicatorType.OpenAI => openAIHeight,
+                        _ => throw ExceptionThrower.InvalidCommunicator,
+                    };
+                    Dispatcher.Invoke(() => AnimateMainHeight(height + tb_error.ActualHeight));
+                });
+                return;
             }
 
             ViewModelManager.SaveBaseConfig();
-            AnimateMainHeight(ViewModelManager.ViewModel.IsOpenAILoader ? openAIHeight + tb_error.ActualHeight : llamaHeight + tb_error.ActualHeight);
+            switch (ViewModelManager.ViewModel.CommunicatorType)
+            {
+                case CommunicatorType.LLama:
+                    AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
+                    break;
+                case CommunicatorType.TGW:
+                    AnimateMainHeight(tgwHeight + tb_error.ActualHeight);
+                    break;
+                case CommunicatorType.OpenAI:
+                    AnimateMainHeight(openAIHeight + tb_error.ActualHeight);
+                    break;
+                default:
+                    throw ExceptionThrower.InvalidCommunicator;
+            }
             Window_Message.ShowDialog("提示", "保存配置成功");
         }
 
         private void cb_CfgVisible_Checked(object sender, RoutedEventArgs e)
         {
-            AnimateMainHeight(ViewModelManager.ViewModel.IsOpenAILoader ? openAIHeight + tb_error.ActualHeight : llamaHeight + tb_error.ActualHeight);
+            switch (ViewModelManager.ViewModel.CommunicatorType)
+            {
+                case CommunicatorType.LLama:
+                    AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
+                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
+                    break;
+                case CommunicatorType.TGW:
+                    AnimateMainHeight(tgwHeight + tb_error.ActualHeight);
+                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorTGW_ViewModel;
+                    break;
+                case CommunicatorType.OpenAI:
+                    AnimateMainHeight(openAIHeight + tb_error.ActualHeight);
+                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel;
+                    break;
+                default:
+                    throw ExceptionThrower.InvalidCommunicator;
+            }
         }
 
         private void cb_CfgVisible_Unchecked(object sender, RoutedEventArgs e)
@@ -157,15 +212,28 @@ namespace AITranslator.View.UserControls
             aniHeight.To = newHeight;
             gd_LLama.BeginAnimation(GroupBox.HeightProperty, aniHeight);
         }
-        private void ToggleButton_Checked(object sender, RoutedEventArgs e)
-        {
-            AnimateMainHeight(ViewModelManager.ViewModel.IsOpenAILoader ? openAIHeight : llamaHeight);
-        }
 
-        private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        private void ComboBox_CommunicatorType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            AnimateMainHeight(ViewModelManager.ViewModel.IsOpenAILoader ? openAIHeight : llamaHeight);
+            if (gb_main.Height is double.NaN)
+                return;
+            switch (ViewModelManager.ViewModel.CommunicatorType)
+            {
+                case CommunicatorType.LLama:
+                    AnimateMainHeight(llamaHeight);
+                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
+                    break;
+                case CommunicatorType.TGW:
+                    AnimateMainHeight(tgwHeight);
+                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorTGW_ViewModel;
+                    break;
+                case CommunicatorType.OpenAI:
+                    AnimateMainHeight(openAIHeight);
+                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel;
+                    break;
+                default:
+                    throw ExceptionThrower.InvalidCommunicator;
+            }
         }
-
     }
 }

@@ -98,7 +98,7 @@ namespace AITranslator.View.UserControls
                 else
                 {
                     ViewModel vm = ViewModelManager.ViewModel;
-                    if (!vm.IsOpenAILoader && !vm.ModelLoaded)
+                    if (vm.CommunicatorType == CommunicatorType.LLama && !vm.CommunicatorLLama_ViewModel.ModelLoaded)
                     {
                         Window_Message.ShowDialog("提示", "请先加载模型！");
                         return;

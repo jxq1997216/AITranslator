@@ -1,4 +1,5 @@
 ﻿using AITranslator.Translator.TranslateData;
+using AITranslator.View.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -14,64 +15,25 @@ namespace AITranslator.Translator.Models
     public class ConfigSave_Base
     {
         /// <summary>
-        /// 是否使用OpenAI接口的第三方加载库
+        /// 模型通讯器类型
         /// </summary>
-        public bool IsOpenAILoader { get; set; }
+        public CommunicatorType CommunicatorType { get; set; }
         /// <summary>
-        /// 是否使用远程翻译服务
+        /// 设置页面的参数
         /// </summary>
-        public bool IsRomatePlatform { get; set; }
+        public ConfigSave_Set Set { get; set; } = new ConfigSave_Set();
         /// <summary>
-        /// 翻译服务的访问URL
+        /// TGW通讯器的设置参数
         /// </summary>
-        public string? ServerURL { get; set; }
+        public ConfigSave_CommunicatorTGW CommunicatorTGW { get; set; } = new ConfigSave_CommunicatorTGW();
         /// <summary>
-        /// 本地LLM模型路径
+        /// LLama通讯器的设置参数
         /// </summary>
-        public string ModelPath { get; set; }
+        public ConfigSave_CommunicatorLLama CommunicatorLLama { get; set; } = new ConfigSave_CommunicatorLLama();
         /// <summary>
-        /// GpuLayerCount
+        /// OpenAI通讯器的设置参数
         /// </summary>
-        public int GpuLayerCount { get; set; }
-        /// <summary>
-        /// ContextSize
-        /// </summary>
-        public uint ContextSize { get; set; }
-        /// <summary>
-        /// 模型是否已加载
-        /// </summary>
-        public bool ModelLoaded { get; set; }
-        /// <summary>
-        /// 启动自动加载模型
-        /// </summary>
-        public bool AutoLoadModel { get; set; }
-        /// <summary>
-        /// 是否是1B8模型
-        /// </summary>
-        public bool IsModel1B8 { get; set; }
-        /// <summary>
-        /// 启用邮件通知
-        /// </summary>
-        public bool EnableEmail { get; set; }
-        /// <summary>
-        /// 邮箱地址
-        /// </summary>
-        public string EmailAddress { get; set; }
-        /// <summary>
-        /// 邮箱密码
-        /// </summary>
-        public string EmailPassword { get; set; }
-        /// <summary>
-        /// SMTP服务器地址
-        /// </summary>
-        public string SmtpAddress { get; set; }
-        /// <summary>
-        /// SMTP服务器端口
-        /// </summary>
-        public ushort SmtpPort { get; set; }
-        /// <summary>
-        /// SMTP服务使用SSL
-        /// </summary>
-        public bool SmtpUseSSL { get; set; }
+        public ConfigSave_CommunicatorOpenAI CommunicatorOpenAI { get; set; } = new ConfigSave_CommunicatorOpenAI();
+
     }
 }

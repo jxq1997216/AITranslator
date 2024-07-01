@@ -42,17 +42,17 @@ namespace AITranslator.View.Models
         /// SMTP服务器地址
         /// </summary>
         [ObservableProperty]
-        private string smtpAddress;
+        private string smtpAddress = "smtp.qq.com";
         /// <summary>
         /// SMTP服务器端口
         /// </summary>
         [ObservableProperty]
-        private ushort smtpPort;
+        private ushort smtpPort = 587;
         /// <summary>
         /// SMTP服务使用SSL
         /// </summary>
         [ObservableProperty]
-        private bool smtpUseSSL;  
+        private bool smtpUseSSL = true;
         /// <summary>
         /// 启用翻译完成自动关机
         /// </summary>
@@ -62,7 +62,7 @@ namespace AITranslator.View.Models
 
         public void Enable()
         {
-            ViewModel vm = ViewModelManager.ViewModel;
+            ViewModel_SetView vm = ViewModelManager.ViewModel.SetView_ViewModel;
             vm.EnableEmail = EnableEmail;
             vm.EmailAddress = EmailAddress;
             vm.EmailPassword = EmailPassword;
@@ -75,7 +75,7 @@ namespace AITranslator.View.Models
 
         public static ViewModel_SetView Create()
         {
-            ViewModel vm = ViewModelManager.ViewModel;
+            ViewModel_SetView vm = ViewModelManager.ViewModel.SetView_ViewModel;
             return new ViewModel_SetView
             {
                 EnableEmail = vm.EnableEmail,

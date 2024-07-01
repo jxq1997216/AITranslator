@@ -43,21 +43,13 @@ namespace AITranslator.View.Models
         {
             ConfigSave_Base save = new ConfigSave_Base()
             {
-                IsOpenAILoader = ViewModel.IsOpenAILoader,
-                IsRomatePlatform = ViewModel.IsRomatePlatform,
-                ServerURL = ViewModel.ServerURL,
-                IsModel1B8 = ViewModel.IsModel1B8,
-                ModelPath = ViewModel.ModelPath,
-                GpuLayerCount = ViewModel.GpuLayerCount,
-                ContextSize = ViewModel.ContextSize,
-                AutoLoadModel = ViewModel.AutoLoadModel,
-                EnableEmail = ViewModel.EnableEmail,
-                EmailAddress = ViewModel.EmailAddress,
-                EmailPassword = ViewModel.EmailPassword,
-                SmtpAddress = ViewModel.SmtpAddress,
-                SmtpPort = ViewModel.SmtpPort,
-                SmtpUseSSL = ViewModel.SmtpUseSSL,
+                CommunicatorType = ViewModel.CommunicatorType,
             };
+            save.Set.CopyFromViewModel(ViewModel.SetView_ViewModel);
+            save.CommunicatorLLama.CopyFromViewModel(ViewModel.CommunicatorLLama_ViewModel);
+            save.CommunicatorOpenAI.CopyFromViewModel(ViewModel.CommunicatorOpenAI_ViewModel);
+            save.CommunicatorTGW.CopyFromViewModel(ViewModel.CommunicatorTGW_ViewModel);
+
             JsonPersister.Save(save, PublicParams.ConfigPath_LoadModel, true);
         }
 
@@ -69,19 +61,11 @@ namespace AITranslator.View.Models
             if (File.Exists(PublicParams.ConfigPath_LoadModel))
             {
                 ConfigSave_Base save = JsonPersister.Load<ConfigSave_Base>(PublicParams.ConfigPath_LoadModel);
-                ViewModel.IsOpenAILoader = save.IsOpenAILoader;
-                ViewModel.IsRomatePlatform = save.IsRomatePlatform;
-                ViewModel.ServerURL = save.ServerURL;
-                ViewModel.ModelPath = save.ModelPath;
-                ViewModel.GpuLayerCount = save.GpuLayerCount;
-                ViewModel.ContextSize = save.ContextSize;
-                ViewModel.AutoLoadModel = save.AutoLoadModel;
-                ViewModel.EnableEmail = save.EnableEmail;
-                ViewModel.EmailAddress = save.EmailAddress;
-                ViewModel.EmailPassword = save.EmailPassword;
-                ViewModel.SmtpAddress = save.SmtpAddress;
-                ViewModel.SmtpPort = save.SmtpPort;
-                ViewModel.SmtpUseSSL = save.SmtpUseSSL;
+                ViewModel.CommunicatorType = save.CommunicatorType;
+                save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
+                save.CommunicatorLLama.CopyToViewModel(ViewModel.CommunicatorLLama_ViewModel);
+                save.CommunicatorOpenAI.CopyToViewModel(ViewModel.CommunicatorOpenAI_ViewModel);
+                save.CommunicatorTGW.CopyToViewModel(ViewModel.CommunicatorTGW_ViewModel);
             }
             else
                 SaveBaseConfig();

@@ -4,24 +4,61 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AITranslator.View.UserControls"
+             xmlns:vm="clr-namespace:AITranslator.View.Models"
              xmlns:controls="clr-namespace:AITranslator.View.Controls"
              xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
              mc:Ignorable="d" 
              d:DesignHeight="550" d:DesignWidth="350">
-    <DockPanel IsEnabled="{calc:Binding 'ActiveTask == null and (ModelLoaded or IsOpenAILoader)'}">
+    <DockPanel IsEnabled="{calc:Binding 'ActiveTask == null and (CommunicatorLLama_ViewModel.ModelLoaded or CommunicatorType != vm:CommunicatorType.LLama)'}">
         <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Margin="5" Foreground="White" Text="请在下方文本框中输入你想要手动翻译的文本："/>
         <TextBlock Visibility="{calc:Binding 'ActiveTask != null',FalseToVisibility=Collapsed}" DockPanel.Dock="Top" TextWrapping="Wrap" Margin="5,0" Foreground="Red" Text="手动翻译会和翻译任务抢占翻译资源，请先暂停翻译任务"/>
-        <TextBlock Visibility="{calc:Binding '!ModelLoaded and !IsOpenAILoader',FalseToVisibility=Collapsed}" DockPanel.Dock="Top" TextWrapping="Wrap" Margin="5,0" Foreground="Red" Text="请先加载模型!"/>
+        <TextBlock Visibility="{calc:Binding '!CommunicatorLLama_ViewModel.ModelLoaded and CommunicatorType == vm:CommunicatorType.LLama',FalseToVisibility=Collapsed}" DockPanel.Dock="Top" TextWrapping="Wrap" Margin="5,0" Foreground="Red" Text="请先加载模型!"/>
         <Grid DockPanel.Dock="Bottom" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition/>
-                <RowDefinition Height="45"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" BorderThickness="1" BorderBrush="White" CornerRadius="5" >
                 <TextBox Name="tb_input" TextWrapping="Wrap" Foreground="White" CaretBrush="White" HorizontalContentAlignment="Left" Margin="3" BorderThickness="0" Background="Transparent"/>
             </Border>
-            <controls:ViewButton Grid.Row="1" EnableAnimation="DisEnable" IsEnabled="{calc:Binding !Translating,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Content="{Binding Translating,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView},Converter={StaticResource BoolToText},ConverterParameter='翻译中 ↓翻译↓'}" Height="25" Click="Button_Translate_Click"/>
+            <StackPanel Grid.Row="1">
+                <Grid Margin="0,0,0,5" IsEnabled="{calc:Binding !ManualTranslating}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
+                        <GroupBox.Header>
+                            <TextBlock Text="Temperature" Foreground="White" FontSize="10"/>
+                        </GroupBox.Header>
+                        <Grid Margin="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="slider_Temperature" Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="0" Value="{Binding Temperature,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                            <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
+                        <GroupBox.Header>
+                            <TextBlock Text="Frequency Penalty" Foreground="White" FontSize="10"/>
+                        </GroupBox.Header>
+                        <Grid Margin="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="slider_FrequencyPenalty" Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                            <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </GroupBox>
+
+                </Grid>
+                <controls:ViewButton Margin="0,0,0,5" EnableAnimation="DisEnable" IsEnabled="{calc:Binding !ManualTranslating}" Content="{Binding ManualTranslating,Converter={StaticResource BoolToText},ConverterParameter='翻译中 ↓翻译↓'}" Height="25" Click="Button_Translate_Click"/>
+            </StackPanel>
             <Border Grid.Row="2" BorderThickness="1" BorderBrush="White" CornerRadius="5" >
                 <TextBox Name="tb_output" TextWrapping="Wrap" Foreground="White" CaretBrush="White" HorizontalContentAlignment="Left" Margin="3" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
             </Border>

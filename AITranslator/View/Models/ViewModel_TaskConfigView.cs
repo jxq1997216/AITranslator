@@ -6,11 +6,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AITranslator.View.Models
 {
-    public partial class ViewModel_TaskConfigView : ObservableValidator
+    public partial class ViewModel_TaskConfigView : ViewModel_ValidateBase
     {        /// <summary>
              /// 是否是英语翻译
              /// </summary>
@@ -30,17 +29,6 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private ObservableCollection<KeyValueStr> replaces = new ObservableCollection<KeyValueStr>();
 
-        /// <summary>
-        /// 设置界面的错误信息
-        /// </summary>
-        [ObservableProperty]
-        private string errorMessage;
-
-        /// <summary>
-        /// 设置界面是否存在错误
-        /// </summary>
-        [ObservableProperty]
-        private bool error;
 
         public ViewModel_TaskConfigView() { }
 
@@ -49,7 +37,7 @@ namespace AITranslator.View.Models
         /// 主动校验设置界面是否存在错误
         /// </summary>
         /// <returns></returns>
-        public bool ValidateError()
+        public override bool ValidateError()
         {
             ICollection<ValidationResult> results = new List<ValidationResult>();
 

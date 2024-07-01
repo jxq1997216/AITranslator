@@ -54,8 +54,8 @@
                             <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" Content="{Binding State,Converter={StaticResource StartButtonText},ConverterParameter=False}" ToolTip="{Binding State,Converter={StaticResource StartButtonText},ConverterParameter=True}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" IsEnabled="{calc:Binding 'State != vm:TaskState.WaitMerge'}" Click="Button_StartOrPause_Click"/>
                             <controls:ViewButton Width="24" Height="24" FontSize="16" Content="×" ToolTip="删除" Click="Button_Remove_Click"/>
                         </StackPanel>
-                        <TextBlock x:Name="tb_title" DockPanel.Dock="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Text="{Binding FileName}"/>
-                        <Rectangle DockPanel.Dock="Top" Margin="0,2" HorizontalAlignment="Left" Width="{Binding ActualWidth, ElementName=tb_title}" Fill="#3CFFFFFF" Height="1"/>
+                        <TextBlock x:Name="tb_title" DockPanel.Dock="Top" HorizontalAlignment="Left" MaxWidth="180" Foreground="Gray" FocusVisualStyle="{x:Null}"  Text="{Binding FileName}" ToolTip="{Binding FileName}"/>
+                        <Rectangle DockPanel.Dock="Top" Margin="0,2" HorizontalAlignment="Left" MaxWidth="180" Width="{Binding ActualWidth, ElementName=tb_title}" Fill="#3CFFFFFF" Height="1"/>
                         <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Width="58" Foreground="Gray" Text="{Binding Progress,StringFormat={}{0:0.00}%}"/>
                         <TextBlock HorizontalAlignment="Left" Foreground="Gray" Text="{Binding State,Converter={StaticResource TaskStateToString}}"/>
                     </DockPanel>

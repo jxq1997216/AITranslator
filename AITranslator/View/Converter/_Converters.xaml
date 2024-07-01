@@ -13,7 +13,8 @@
     <converter:GpuLayerTextConverter x:Key="GpuLayerText"/>
     <converter:BoolToTextConverter x:Key="BoolToText"/>
     <converter:ModelNameConverter x:Key="ModelName"/>
-    <converter:CommunicatorTypeConverter x:Key="CommunicatorType"/>
+    <converter:CommunicatorTypeToStringConverter x:Key="CommunicatorTypeToString"/>
+    <converter:CommunicatorTypeToIndexConverter x:Key="CommunicatorTypeToIndex"/>
     <converter:TaskStateToStringConverter x:Key="TaskStateToString"/>
     <converter:ViewTitleConverter x:Key="ViewTitle"/>
 

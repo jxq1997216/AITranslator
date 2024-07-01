@@ -113,47 +113,6 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         public TranslateDataType translateType;
 
-        ///// <summary>
-        ///// 设置界面的错误信息
-        ///// </summary>
-        //[ObservableProperty]
-        //private string errorMessage;
-
-        ///// <summary>
-        ///// 设置界面是否存在错误
-        ///// </summary>
-        //[ObservableProperty]
-        //private bool error;
-
-        ///// <summary>
-        ///// 主动校验设置界面是否存在错误
-        ///// </summary>
-        ///// <returns></returns>
-        //public bool ValidateError()
-        //{
-        //    ICollection<ValidationResult> results = new List<ValidationResult>();
-
-        //    bool b = Validator.TryValidateObject(this, new ValidationContext(this), results, true);
-        //    List<string> checkProperty = new List<string>
-        //    {
-        //        nameof(HistoryCount),
-        //    };
-
-        //    List<ValidationResult> setError = results.Where(s =>
-        //    {
-        //        foreach (var property in checkProperty)
-        //        {
-        //            if (s.MemberNames.Contains(property))
-        //                return true;
-        //        }
-        //        return false;
-        //    }).ToList();
-
-        //    Error = setError.Count != 0;
-        //    ErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
-        //    return b;
-        //}
-
         public TranslationTask() { }
 
         public TranslationTask(FileInfo file)
@@ -212,7 +171,7 @@ namespace AITranslator.View.Models
                 ViewModelManager.ViewModel.ActiveTask = null;
 
             //如果启用发送邮件
-            if (ViewModelManager.ViewModel.EnableEmail)
+            if (ViewModelManager.ViewModel.SetView_ViewModel.EnableEmail)
             {
                 if (!e.IsPause.HasValue || !e.IsPause.Value)
                     Task.Run(() => SmtpMailSender.SendSuccess(FileName));
@@ -240,7 +199,7 @@ namespace AITranslator.View.Models
             if (nextTask is null)
             {
                 //如果没有下一个任务了，且不是用户主动暂停的
-                if (ViewModelManager.ViewModel.AutoShutdown && (!e.IsPause.HasValue || !e.IsPause.Value || e.PauseMsg != "按下暂停按钮 翻译暂停"))
+                if (ViewModelManager.ViewModel.SetView_ViewModel.AutoShutdown && (!e.IsPause.HasValue || !e.IsPause.Value || e.PauseMsg != "按下暂停按钮 翻译暂停"))
                     Process.Start("c:/windows/system32/shutdown.exe", "-s -f -t 0");
             }
             else

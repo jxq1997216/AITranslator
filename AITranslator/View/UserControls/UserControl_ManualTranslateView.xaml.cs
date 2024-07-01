@@ -1,5 +1,6 @@
 ﻿using AITranslator.Exceptions;
 using AITranslator.Translator.Translation;
+using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
@@ -26,10 +27,16 @@ namespace AITranslator.View.UserControls
     public partial class UserControl_ManualTranslateView : UserControl
     {
         /// <summary>
-        /// 翻译中
+        /// 温度
         /// </summary>
         [ObservableProperty]
-        private bool translating;
+        private double temperature = 0.7;
+        /// <summary>
+        /// 频率惩罚
+        /// </summary>
+        [ObservableProperty]
+        private double frequencyPenalty;
+
         public UserControl_ManualTranslateView()
         {
             InitializeComponent();
@@ -41,12 +48,12 @@ namespace AITranslator.View.UserControls
             string input = tb_input.Text;
             if (string.IsNullOrWhiteSpace(input))
                 return;
-            Translating = true;
+            ViewModelManager.ViewModel.ManualTranslating = true;
             ManualTranslator _translator = null;
             try
             {
                 _translator = new ManualTranslator();
-                tb_output.Text = await Task.Run(() => _translator.Translate(input));
+                tb_output.Text = await Task.Run(() => _translator.Translate(input, Temperature, FrequencyPenalty));
             }
             catch (KnownException err)
             {
@@ -64,7 +71,7 @@ namespace AITranslator.View.UserControls
             finally
             {
                 _translator?.Dispose();
-                Translating = false;
+                ViewModelManager.ViewModel.ManualTranslating = false;
             }
         }
     }

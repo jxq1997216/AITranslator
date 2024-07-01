@@ -18,6 +18,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,6 +30,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Resources;
 using System.Windows.Shapes;
+using Path = System.IO.Path;
 
 namespace AITranslator
 {
@@ -37,6 +39,7 @@ namespace AITranslator
     /// </summary>
     public partial class Window_Main : Window
     {
+
         /// <summary>
         /// 翻译器
         /// </summary>
@@ -206,7 +209,7 @@ namespace AITranslator
                 return;
 
             ViewModel vm = ViewModelManager.ViewModel;
-            if (!vm.IsOpenAILoader && !vm.ModelLoaded)
+            if (vm.CommunicatorType == CommunicatorType.LLama && !vm.CommunicatorLLama_ViewModel.ModelLoaded)
             {
                 Window_Message.ShowDialog("提示", "请先加载模型！");
                 return;

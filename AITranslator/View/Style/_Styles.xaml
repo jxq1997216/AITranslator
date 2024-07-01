@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ComboBox.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/TitleBarButton.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ViewButton.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/CheckButton.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ToggleButton.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/SidebarRadioButton.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/Styles_ScrollBar.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/Styles_ScrollViewer.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

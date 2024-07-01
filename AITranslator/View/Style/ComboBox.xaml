@@ -1,0 +1,101 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding">
+
+    <!--ComBoBox项选中背景色-->
+    <SolidColorBrush x:Key="ComboBoxSelectdBackground" Color="#7B68B5"/>
+    <!--ComBoBox项鼠标经过背景色-->
+    <SolidColorBrush x:Key="ComboBoxMouseOverBackground" Color="#5A57A5"/>
+    <!--ComBoBox项选中前景色-->
+    <SolidColorBrush x:Key="ComboBoxSelectedForeground" Color="White"/>
+    <!--ComBoBox项鼠标经过前景色-->
+    <SolidColorBrush x:Key="ComboBoxMouseOverForegrond" Color="White"/>
+
+    <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
+        <Grid>
+            <Border Background="White" Opacity="0" Cursor="Hand"/>
+            <Path x:Name="Arrow" Data="M 0 0 6 6 12 0 Z" Margin="0,0,5,0" VerticalAlignment="Center" HorizontalAlignment="Right" Stretch="None" Fill="#B1B1B1" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="true">
+                <Setter TargetName="Arrow" Property="RenderTransform">
+                    <Setter.Value>
+                        <RotateTransform  CenterX="6" CenterY="3" Angle="180"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter TargetName="Arrow" Property="Margin" Value="0,0,5,0"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    
+    <Style TargetType="{x:Type ComboBox}">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ComboBoxItem">
+                    <!--<Setter Property="Height" Value="20"/>-->
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate  TargetType="{x:Type ComboBoxItem}">
+                                <Grid Height="{TemplateBinding Height}" Width="{TemplateBinding Width}">
+                                    <Border x:Name="_borderbg" Background="Transparent"/>
+                                    <TextBlock Margin="3 0 3 0" VerticalAlignment="Center" x:Name="_txt" Foreground="#333" Text="{Binding Content,RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <Border x:Name="_border" Background="White" Opacity="0"/>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="true">
+                                        <Setter TargetName="_borderbg" Property="Background" Value="{StaticResource ComboBoxSelectdBackground}" />
+                                        <Setter TargetName="_txt" Property="Foreground" Value="{StaticResource ComboBoxSelectedForeground}"/>
+                                    </Trigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="false"/>
+                                            <Condition Property="IsMouseOver" Value="true"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="_borderbg" Property="Background" Value="{StaticResource ComboBoxMouseOverBackground}" />
+                                        <Setter TargetName="_txt" Property="Foreground" Value="{StaticResource ComboBoxMouseOverForegrond}"/>
+                                    </MultiTrigger>
+
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="0.3*" MaxWidth="30"/>
+                        </Grid.ColumnDefinitions>
+                        <Border  Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="3"/>
+                        <ContentPresenter HorizontalAlignment="Left" Margin="12 ,3,24,3" x:Name="ContentSite" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False"/>
+
+                        <!--ToggleButton 已数据绑定到 ComboBox 本身以切换 IsDropDownOpen-->
+                        <ToggleButton Grid.Column="0"  Grid.ColumnSpan="2" Template="{StaticResource ComboBoxToggleButton}" x:Name="ToggleButton" Focusable="false" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"/>
+                        <!--必须将 TextBox 命名为 PART_EditableTextBox，否则 ComboBox 将无法识别它-->
+                        <TextBox  Visibility="Hidden" BorderThickness="0" Margin="2 0 0 0" x:Name="PART_EditableTextBox"  VerticalAlignment="Center" Focusable="True" Background="Transparent" IsReadOnly="{TemplateBinding IsReadOnly}"/>
+
+                        <!--Popup 可显示 ComboBox 中的项列表。IsOpen 已数据绑定到通过 ComboBoxToggleButton 来切换的 IsDropDownOpen-->
+                        <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" x:Name="Popup" Focusable="False" AllowsTransparency="True" PopupAnimation="Slide">
+                            <Grid MaxHeight="150" MinWidth="{TemplateBinding ActualWidth}" x:Name="DropDown" SnapsToDevicePixels="True">
+                                <Border x:Name="DropDownBorder"  BorderBrush="#e8e8e8" BorderThickness="1 0 1 1"/>
+                                <ScrollViewer Margin="1"  SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+                                    <!--StackPanel 用于显示子级，方法是将 IsItemsHost 设置为 True-->
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" Background="#CCFFFFFF"/>
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEditable" Value="true">
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

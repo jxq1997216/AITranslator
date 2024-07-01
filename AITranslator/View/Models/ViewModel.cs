@@ -3,6 +3,7 @@ using AITranslator.Translator.Persistent;
 using AITranslator.Translator.TranslateData;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,14 +15,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace AITranslator.View.Models
 {
     /// <summary>
+    /// 通讯类型
+    /// </summary>
+    public enum CommunicatorType
+    {
+        LLama,
+        TGW,
+        OpenAI
+    }
+    /// <summary>
     /// 用于界面绑定的ViewModel
     /// </summary>
-    public partial class ViewModel : ObservableValidator
+    public partial class ViewModel : ObservableObject
     {
         /// <summary>
         /// 版本号
@@ -39,6 +50,11 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private ObservableQueue<string> consoles = new ObservableQueue<string>(200);
         /// <summary>
+        /// 是否手动翻译中
+        /// </summary>
+        [ObservableProperty]
+        private bool manualTranslating;
+        /// <summary>
         /// 当前任务
         /// </summary>
         [ObservableProperty]
@@ -54,107 +70,30 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private ObservableCollection<TranslationTask> completedTasks = new ObservableCollection<TranslationTask>();
         /// <summary>
-        /// 模型加载进度
-        /// </summary>
-        [ObservableProperty]
-        private double modelLoadProgress;
-        /// <summary>
-        /// 模型正在加载
-        /// </summary>
-        [ObservableProperty]
-        private bool modelLoading;
-        /// <summary>
-        /// 是否为1B8模型
-        /// </summary>
-        [ObservableProperty]
-        private bool isModel1B8;
-        /// <summary>
         /// 是否使用OpenAI接口的第三方加载库
         /// </summary>
         [ObservableProperty]
-        private bool isOpenAILoader;
+        private CommunicatorType communicatorType;
         /// <summary>
-        /// 是否是远程平台
+        /// LLama模型加载器ViewModel
         /// </summary>
         [ObservableProperty]
-        private bool isRomatePlatform;
+        private ViewModel_CommunicatorLLama communicatorLLama_ViewModel = new ViewModel_CommunicatorLLama();
         /// <summary>
-        /// 翻译服务的URL
-        /// </summary>
-        [Required(ErrorMessage = "必须输入远程URL！")]
-        [Url(ErrorMessage = "请输入有效的远程URL！")]
-        [ObservableProperty]
-        private string serverURL = "http://127.0.0.1:5000";
-        /// <summary>
-        /// 本地LLM模型路径
+        /// TGW模型加载器ViewModel
         /// </summary>
         [ObservableProperty]
-        private string modelPath;
+        private ViewModel_CommunicatorTGW communicatorTGW_ViewModel = new ViewModel_CommunicatorTGW();
         /// <summary>
-        /// GpuLayerCount
+        /// OpenAI模型加载器ViewModel
         /// </summary>
         [ObservableProperty]
-        private int gpuLayerCount = -1;
+        private ViewModel_CommunicatorOpenAI communicatorOpenAI_ViewModel = new ViewModel_CommunicatorOpenAI();
         /// <summary>
-        /// ContextSize
+        /// 设置界面的ViewModel
         /// </summary>
         [ObservableProperty]
-        private uint contextSize = 2048;
-        /// <summary>
-        /// 模型是否已加载
-        /// </summary>
-        [ObservableProperty]
-        private bool modelLoaded;
-        /// <summary>
-        /// 启动自动加载模型
-        /// </summary>
-        [ObservableProperty]
-        private bool autoLoadModel;
-        /// <summary>
-        /// 启用邮件通知
-        /// </summary>
-        [ObservableProperty]
-        private bool enableEmail;
-        /// <summary>
-        /// 邮箱地址
-        /// </summary>
-        [ObservableProperty]
-        private string emailAddress;
-        /// <summary>
-        /// 邮箱密码
-        /// </summary>
-        [ObservableProperty]
-        private string emailPassword;
-        /// <summary>
-        /// SMTP服务器地址
-        /// </summary>
-        [ObservableProperty]
-        private string smtpAddress = "smtp.qq.com";
-        /// <summary>
-        /// SMTP服务器端口
-        /// </summary>
-        [ObservableProperty]
-        private ushort smtpPort = 587;
-        /// <summary>
-        /// SMTP服务使用SSL
-        /// </summary>
-        [ObservableProperty]
-        private bool smtpUseSSL = true;
-        /// <summary>
-        /// 启用翻译完成自动关机
-        /// </summary>
-        [ObservableProperty]
-        private bool autoShutdown;
-        /// <summary>
-        /// 设置界面的错误信息
-        /// </summary>
-        [ObservableProperty]
-        private string errorMessage;
-        /// <summary>
-        /// 设置界面是否存在错误
-        /// </summary>
-        [ObservableProperty]
-        private bool error;
+        private ViewModel_SetView setView_ViewModel = new ViewModel_SetView();
 
         //UI线程
         internal Dispatcher Dispatcher;
@@ -204,7 +143,7 @@ namespace AITranslator.View.Models
 
                 string dicName = PublicParams.GetDicName(task.DicName);
                 if (Directory.Exists(dicName))
-                    Directory.Delete(PublicParams.GetDicName(task.DicName), true);
+                    FileSystem.DeleteDirectory(PublicParams.GetDicName(task.DicName), UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
 
                 if (task.State == TaskState.Completed)
                     ViewModelManager.ViewModel.CompletedTasks.Remove(task);
@@ -237,45 +176,6 @@ namespace AITranslator.View.Models
             {
                 return;
             }
-        }
-
-        /// <summary>
-        /// 主动校验设置界面是否存在错误
-        /// </summary>
-        /// <returns></returns>
-        public bool ValidateError()
-        {
-            ICollection<ValidationResult> results = new List<ValidationResult>();
-
-            bool b = Validator.TryValidateObject(this, new ValidationContext(this), results, true);
-            List<string> checkProperty = new List<string>();
-            if (isOpenAILoader && IsRomatePlatform)
-                checkProperty.Add(nameof(ServerURL));
-            else
-            {
-                Error = false;
-                ErrorMessage = string.Empty;
-                return true;
-            }
-
-            List<ValidationResult> setError = results.Where(s =>
-            {
-                foreach (var property in checkProperty)
-                {
-                    if (s.MemberNames.Contains(property))
-                        return true;
-                }
-                return false;
-            }).ToList();
-            Error = setError.Count != 0;
-            ErrorMessage = string.Join("\r\n", setError.Select(s => s.ErrorMessage));
-            return b;
-        }
-
-        public void ClearError()
-        {
-            Error = false;
-            ErrorMessage = string.Empty;
         }
     }
 }

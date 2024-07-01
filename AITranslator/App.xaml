@@ -10,13 +10,7 @@
 
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Converter/_Converters.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/TitleBarButton.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ViewButton.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/CheckButton.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/ToggleButton.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/SidebarRadioButton.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/Styles_ScrollBar.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/Styles_ScrollViewer.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/_Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -5,9 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AITranslator.View.UserControls"
              xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
-             xmlns:media ="clr-namespace:System.Windows.Media;assembly=PresentationCore" xmlns:controls="clr-namespace:AITranslator.View.Controls"
+             xmlns:media ="clr-namespace:System.Windows.Media;assembly=PresentationCore" 
+             xmlns:controls="clr-namespace:AITranslator.View.Controls"
+             xmlns:vm="clr-namespace:AITranslator.View.Models"
              mc:Ignorable="d" 
              d:DesignHeight="550" d:DesignWidth="350" IsVisibleChanged="UserControl_IsVisibleChanged">
+    <UserControl.DataContext>
+        <vm:ViewModel_SetView/>
+    </UserControl.DataContext>
     <StackPanel Margin="5">
         <GroupBox Grid.Column="1" Margin="5,0,0,0" BorderThickness="0.1" BorderBrush="White">
             <GroupBox.Header>

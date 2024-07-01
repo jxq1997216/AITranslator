@@ -13,27 +13,25 @@ using AITranslator.Translator.PostData;
 
 namespace AITranslator.Translator.Communicator
 {
-    internal class OpenAICommunicator : ICommunicator
+    internal class TGWCommunicator : ICommunicator
     {
         HttpClient _client;
         Uri _url;
-        string _api_key;
         CancellationTokenSource _cts;
-        public OpenAICommunicator(Uri url,string api_key)
+        public TGWCommunicator(Uri url)
         {
             _cts = new CancellationTokenSource();
             _url = url;
-            _api_key = api_key;
             _client = new HttpClient()
             {
                 Timeout = TimeSpan.FromMinutes(10)
             };
-            _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_api_key}");
         }
 
         public string Translate(PostDataBase postData)
         {
-            OpenAIPostData _PostData = postData as OpenAIPostData;
+            TGWPostData _PostData = postData as TGWPostData;
+
             CancellationToken token = _cts.Token;
             string str_result = string.Empty;
             int tryCount = 0;

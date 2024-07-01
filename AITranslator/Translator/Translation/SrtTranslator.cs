@@ -29,7 +29,7 @@ namespace AITranslator.Translator.Translation
         public SrtTranslator(TranslationTask task) : base(task)
         {
             //生成PostData
-            postData = new PostData();
+            //postData = new PostData();
 
             //设置示例对话,negative_prompt和prompt_with_text
             if (task.IsEnglish)
@@ -42,7 +42,7 @@ namespace AITranslator.Translator.Translation
                     new("assistant","「一切都还好么？」"),
                 };
                 prompt_with_text = "将下面的英文文本翻译成中文：";
-                postData.negative_prompt = "你是一个英文翻译模型，可以流畅通顺地将英文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
+                system_prompt = "你是一个英文翻译模型，可以流畅通顺地将英文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
             }
             else
             {
@@ -54,7 +54,7 @@ namespace AITranslator.Translator.Translation
                     new("assistant","敌单体无视防御力的先行攻击"),
                 };
                 prompt_with_text = "将下面的日文文本翻译成中文：";
-                postData.negative_prompt = "你是一个日文翻译模型，可以流畅通顺地将日文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
+                system_prompt = "你是一个日文翻译模型，可以流畅通顺地将日文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
             }
         }
 

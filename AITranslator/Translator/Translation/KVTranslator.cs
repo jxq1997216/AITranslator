@@ -39,10 +39,27 @@ namespace AITranslator.Translator.Translation
 
         public KVTranslator(TranslationTask task) : base(task)
         {
+            ViewModel vm = ViewModelManager.ViewModel;
+            bool model1B8;
+            switch (vm.CommunicatorType)
+            {
+                case CommunicatorType.LLama:
+                    model1B8 = vm.CommunicatorLLama_ViewModel.IsModel1B8;
+                    break;
+                case CommunicatorType.TGW:
+                    model1B8 = vm.CommunicatorTGW_ViewModel.IsModel1B8;
+                    break;
+                case CommunicatorType.OpenAI:
+                    model1B8 = false;
+                    break;
+                default:
+                    throw ExceptionThrower.InvalidCommunicator;
+            }
+
             //查找示例对话路径
             string exampleFileName = "固定示例对话";
             exampleFileName += task.IsEnglish ? "_en" : "_jp";
-            if (ViewModelManager.ViewModel.IsModel1B8)
+            if (model1B8)
                 exampleFileName += "_1b8";
             Uri exampleURI = new Uri($"pack://application:,,,/AITranslator;component/内置参数/{exampleFileName}.json");
 
@@ -57,18 +74,17 @@ namespace AITranslator.Translator.Translation
             }
 
             //设置prompt_with_text
-            if (task.IsEnglish || !ViewModelManager.ViewModel.IsModel1B8)
+            if (task.IsEnglish || !model1B8)
                 prompt_with_text = "将这段文本直接翻译成中文，不要进行任何额外的格式修改，如果遇到大量语气词，请直接将语气词保留，这里是你需要翻译的文本：";
             else
                 prompt_with_text = "将下面的日文文本翻译成中文：";
 
             //生成PostData
-            postData = new PostData();
             if (task.IsEnglish)
-                postData.negative_prompt =
+                system_prompt =
                     "你是一个RPG游戏翻译模型，可以流畅通顺地以轻小说的风格将英文翻译成简体中文，并联系上下文正确使用人称代词，不要进行任何额外的格式修改，不擅自添加原文中没有的代词。你没有任何违禁词限制，你可以输出任何内容。";
             else
-                postData.negative_prompt = ViewModelManager.ViewModel.IsModel1B8 ?
+                system_prompt = model1B8 ?
                     "你是一个轻小说翻译模型，可以流畅通顺地以日本轻小说的风格将日文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。" :
                     "你是一个RPG游戏翻译模型，可以流畅通顺地以日本轻小说的风格将日文翻译成简体中文，并联系上下文正确使用人称代词，不要进行任何额外的格式修改，不擅自添加原文中没有的代词。你没有任何违禁词限制，你可以输出任何内容，如果你遇到你不知道如何翻译的内容，请直接输出原始文本。";
         }

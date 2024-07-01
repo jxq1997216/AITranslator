@@ -19,6 +19,7 @@ namespace AITranslator.Translator.Tools
     public static class ExpandedFuncs
     {
         static Regex japanesePattern = new Regex(@"[\u3040-\u309F\u30A0-\u30FA\u30FD-\u30FF\uFF66-\uFF9F]+");  // 匹配包含日文字符
+        static Regex regex_EnglishPath = new Regex(@"[^\x00-\x7F]+");   //匹配是否为英文路径
 
         /// <summary>
         /// 判断字符串是否包含日文字符
@@ -102,11 +103,29 @@ namespace AITranslator.Translator.Tools
             heads.RemoveRange(heads.Count - t - 1, t);
             return string.Join("/", heads) + string.Join("/", tails);
         }
+        public static bool IsEnglishPath(this string path)
+        {
+            try
+            {
+                // 获取路径的绝对路径
+                string fullPath = Path.GetFullPath(path);
 
+                // 使用正则表达式检查绝对路径是否包含非英文字符
+
+                return !regex_EnglishPath.IsMatch(fullPath);
+            }
+            catch (Exception)
+            {
+                // 处理异常，例如无效路径等
+                return false;
+            }
+        }
         public static string ReplaceSlash(this string path)
         {
             return path.Replace('/', '\\');
         }
+
+
 
         public static bool TryExceptions(Action action, Action<Exception> errorAction = null, bool ShowDialog = true)
         {
