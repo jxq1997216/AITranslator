@@ -1,5 +1,6 @@
 ﻿using AITranslator.Exceptions;
 using AITranslator.Translator.Communicator;
+using AITranslator.Translator.Tools;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using LLama;
@@ -51,8 +52,19 @@ namespace AITranslator.View.UserControls
             {
                 llamaHeight -= llamaUnLoadHeightAdd;
                 gd_LLama.Height -= llamaUnLoadHeightAdd;
-                await LLamaLoader.LoadModel();
-                vm.CommunicatorLLama_ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
+                string result = await LLamaLoader.LoadModel();
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    vm.CommunicatorLLama_ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
+                    Window_Message.ShowDialog("提示", "加载模型成功");
+                }
+                else
+                {
+                    llamaHeight += llamaUnLoadHeightAdd;
+                    AnimateLLamaViewHeight(llamaHeight - animOffset + tb_error.ActualHeight);
+                    AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
+                    Window_Message.ShowDialog("错误", result);
+                }
             }
 
             tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorType switch
@@ -75,6 +87,12 @@ namespace AITranslator.View.UserControls
 
             if (!openFileDialog.ShowDialog()!.Value)
                 return;
+
+            if (!openFileDialog.FileName.IsEnglishPath())
+            {
+                Window_Message.ShowDialog("错误", "请将模型文件放在全英文路径下");
+                return;
+            }
 
             ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.ModelPath = openFileDialog.FileName;
         }
