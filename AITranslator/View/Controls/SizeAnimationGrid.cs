@@ -35,7 +35,7 @@ namespace AITranslator.View.Controls
 
             bool isEnable = (bool)e.NewValue;
             if (button.height is double.NaN)
-                throw new InvalidOperationException("当动画类型为Horizontal时，按钮的Width不能为NaN！");
+                throw new InvalidOperationException("Height不能为NaN！");
             anim.To = isEnable ? button.height : 0;
             button.BeginAnimation(HeightProperty, anim);
             anim.To = isEnable ? 1 : 0;
