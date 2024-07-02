@@ -86,12 +86,12 @@ namespace AITranslator.Translator.Translation
 
                 string result_single = Translate_NoResetNewline(source, true, 150, 0.6, 0);
 
-                if (result_single.Length > source.Length + 50)
+                if (!ResultVerification(source, result_single))
                 {
                     ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + result_single);
                     ViewModelManager.WriteLine($"翻译未达标，正在尝试重新翻译...");
                     result_single = Translate_NoResetNewline(source, true, 150, 0.1, 0.15);
-                    if (result_single.Length > source.Length + 50)
+                    if (!ResultVerification(source, result_single))
                     {
                         Data.Dic_Failed[key] = value;
                         SaveFailedFile();
@@ -110,6 +110,17 @@ namespace AITranslator.Translator.Translation
                 CalculateProgress();
                 ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + result_single);
             }
+        }
+
+        /// <summary>
+        /// 翻译结果校验
+        /// </summary>
+        /// <param name="source">原始数据</param>
+        /// <param name="translated">翻译后数据</param>
+        /// <returns>校验是否通过</returns>
+        bool ResultVerification(string source, string translated)
+        {
+            return translated.Length != 0 && translated != source && translated.Length <= source.Length + 50;
         }
 
         internal override void MergeData()
@@ -142,7 +153,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    SrtPersister.Save(Data.Dic_Failed, PublicParams.GetFileName(Data,GenerateFileType.Failed));
+                    SrtPersister.Save(Data.Dic_Failed, PublicParams.GetFileName(Data, GenerateFileType.Failed));
                     success = true;
                 }
                 catch (FileSaveException)
