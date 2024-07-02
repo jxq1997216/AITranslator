@@ -16,6 +16,7 @@
     <converter:CommunicatorTypeToStringConverter x:Key="CommunicatorTypeToString"/>
     <converter:CommunicatorTypeToIndexConverter x:Key="CommunicatorTypeToIndex"/>
     <converter:TaskStateToStringConverter x:Key="TaskStateToString"/>
+    <converter:TaskStateToEnableConverter x:Key="TaskStateToEnable"/>
     <converter:ViewTitleConverter x:Key="ViewTitle"/>
 
 </ResourceDictionary>
