@@ -182,24 +182,27 @@ namespace AITranslator
 
         private void Button_AddTask_Click(object sender, RoutedEventArgs e)
         {
-            ExpandedFuncs.TryExceptions(() =>
+            OpenFileDialog openFileDialog = new OpenFileDialog()
             {
-                OpenFileDialog openFileDialog = new OpenFileDialog()
+                Title = "请选择待翻译的文本文件",
+                Multiselect = true,
+                FileName = "Select a file",
+                Filter = "待翻译文件(*.json;*.txt;*.srt)|*.json;*.txt;*.srt",
+            };
+
+            if (!openFileDialog.ShowDialog()!.Value)
+                return;
+
+            foreach (var fileName in openFileDialog.FileNames)
+            {
+                ExpandedFuncs.TryExceptions(() =>
                 {
-                    Title = "请选择待翻译的文本文件",
-                    Multiselect = false,
-                    FileName = "Select a file",
-                    Filter = "待翻译文件(*.json;*.txt;*.srt)|*.json;*.txt;*.srt",
-                };
+                    FileInfo file = new FileInfo(fileName);
+                    TranslationTask task = new TranslationTask(file);
 
-                if (!openFileDialog.ShowDialog()!.Value)
-                    return;
-
-                FileInfo file = new FileInfo(openFileDialog.FileName);
-                TranslationTask task = new TranslationTask(file);
-
-                ViewModelManager.ViewModel.AddTask(task);
-            });
+                    ViewModelManager.ViewModel.AddTask(task);
+                });
+            }
         }
 
 
