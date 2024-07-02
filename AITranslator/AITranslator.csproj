@@ -8,7 +8,7 @@
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationIcon>View\Resources\Icon\Icon.ico</ApplicationIcon>
-	<FileVersion>2.1.0</FileVersion>
+	<FileVersion>2.1.1</FileVersion>
 	<Authors>FireFrog</Authors>
   </PropertyGroup>
 

@@ -101,7 +101,7 @@ namespace AITranslator.Translator.Persistent
             {
                 throw new FileSaveException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException err)
             {
                 throw new FileSaveException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
             }

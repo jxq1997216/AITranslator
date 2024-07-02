@@ -334,17 +334,35 @@ namespace AITranslator.View.Models
         public void SaveConfig(TaskState state)
         {
             //创建配置文件
-            ConfigSave_Translate config = new ConfigSave_Translate()
+            int count = 0;
+            bool success = false;
+            while (!success)
             {
-                FileName = FileName,
-                IsEnglish = IsEnglish,
-                HistoryCount = HistoryCount,
-                TranslateType = TranslateType,
-                Replaces = Replaces.ToReplaceDictionary(),
-                Progress = Progress,
-                State = state,
-            };
-            JsonPersister.Save(config, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Config), true);
+                try
+                {
+                    ConfigSave_Translate config = new ConfigSave_Translate()
+                    {
+                        FileName = FileName,
+                        IsEnglish = IsEnglish,
+                        HistoryCount = HistoryCount,
+                        TranslateType = TranslateType,
+                        Replaces = Replaces.ToReplaceDictionary(),
+                        Progress = Progress,
+                        State = state,
+                    };
+                    JsonPersister.Save(config, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Config), true);
+                    success = true;
+                }
+                catch (FileSaveException)
+                {
+                    count++;
+                    if (count >= 3)
+                        throw;
+                    Debug.WriteLine($"记录[配置文件]失败{count + 1}");
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[配置文件]失败,将进行第{count + 1}次尝试");
+                    Thread.Sleep(500);
+                }
+            }
         }
         public void SaveConfig()
         {
