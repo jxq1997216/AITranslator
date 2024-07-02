@@ -59,7 +59,7 @@ namespace AITranslator.Translator.Communicator
                 _cts = new CancellationTokenSource();
                 CancellationToken ctk = _cts.Token;
                 progress.ProgressChanged += Progress_ProgressChanged;
-                await LLamaLoader.Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, ctk, progress);
+                await LLamaLoader.Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, vm.FlashAttention, ctk, progress);
             }
             catch (KnownException err)
             {
@@ -88,14 +88,15 @@ namespace AITranslator.Translator.Communicator
             ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.ModelLoadProgress = Math.Round(e * 100, 1);
         }
 
-        public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, CancellationToken ctk, IProgress<float> progressReporter)
+        public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, bool flashAttention, CancellationToken ctk, IProgress<float> progressReporter)
         {
             try
             {
                 var parameters = new ModelParams(modelPath)
                 {
                     ContextSize = contextSize,
-                    GpuLayerCount = gpuLayerCount
+                    GpuLayerCount = gpuLayerCount,
+                    FlashAttention = flashAttention,
                 };
                 model = await LLamaWeights.LoadFromFileAsync(parameters, ctk, progressReporter);
                 Executor = new StatelessExecutor(model, parameters);
