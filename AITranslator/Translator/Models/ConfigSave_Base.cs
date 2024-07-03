@@ -13,7 +13,11 @@ namespace AITranslator.Translator.Models
     /// 用于保存配置到本地的类
     /// </summary>
     public class ConfigSave_Base
-    {
+    { 
+        /// <summary>
+        /// 已同意软件声明
+        /// </summary>
+        public bool AgreedStatement { get; set; }
         /// <summary>
         /// 模型通讯器类型
         /// </summary>

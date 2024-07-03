@@ -45,6 +45,11 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private bool isBeta = true;
         /// <summary>
+        /// 已同意声明
+        /// </summary>
+        [ObservableProperty]
+        private bool agreedStatement;
+        /// <summary>
         /// 控制台输出内容
         /// </summary>
         [ObservableProperty]
