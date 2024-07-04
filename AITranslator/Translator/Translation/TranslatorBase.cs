@@ -358,10 +358,8 @@ namespace AITranslator.Translator.Translation
         /// <exception cref="KnownException">出现的已知错误</exception>
         internal string TryTranslate(string str, string prompt_with_text, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
         {
-            List<ExampleDialogue> exampleDialogues = [new ExampleDialogue("system", system_prompt), .. _example];
-            if (useHistory)
-                exampleDialogues.AddRange(_history);
-            exampleDialogues.Add(new("user", $"{prompt_with_text}{str}"));
+            ExampleDialogue[] headers = [new ExampleDialogue("system", system_prompt), .. _example];
+            ExampleDialogue[] history = useHistory ? _history.ToArray() : Array.Empty<ExampleDialogue>();
 
             PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
             {
@@ -371,12 +369,12 @@ namespace AITranslator.Translator.Translation
                 _ => throw ExceptionThrower.InvalidCommunicator,
             };
 
-            postData.messages = exampleDialogues.ToArray();
+
             postData.temperature = temperature;
             postData.frequency_penalty = frequencyPenalty;
             postData.max_tokens = maxTokens;
 
-            string str_result = _communicator.Translate(postData);
+            string str_result = _communicator.Translate(postData, headers, history, $"{prompt_with_text}{str}");
 
             return str_result;
         }

@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AITranslator.Translator.PostData;
+using AITranslator.Translator.Models;
 
 namespace AITranslator.Translator.Communicator
 {
@@ -19,7 +20,7 @@ namespace AITranslator.Translator.Communicator
         Uri _url;
         string _api_key;
         CancellationTokenSource _cts;
-        public OpenAICommunicator(Uri url,string api_key)
+        public OpenAICommunicator(Uri url, string api_key)
         {
             _cts = new CancellationTokenSource();
             _url = url;
@@ -31,9 +32,14 @@ namespace AITranslator.Translator.Communicator
             _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_api_key}");
         }
 
-        public string Translate(PostDataBase postData)
+        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string prompt_with_text)
         {
             OpenAIPostData _PostData = postData as OpenAIPostData;
+
+            List<ExampleDialogue> exampleDialogues = [.. headers, .. histories];
+            exampleDialogues.Add(new("user", prompt_with_text));
+            _PostData.messages = exampleDialogues.ToArray();
+
             CancellationToken token = _cts.Token;
             string str_result = string.Empty;
             int tryCount = 0;
