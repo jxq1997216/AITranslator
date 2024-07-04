@@ -148,18 +148,45 @@ namespace AITranslator.Translator.Communicator
                 example.Add(new(role, item.content));
             }
 
-
-            string data = HistoryToText(example);
-
             InferenceParams inferenceParams = new InferenceParams()
             {
                 MaxTokens = _postData.max_tokens,
                 AntiPrompts = _postData.stop,
             };
 
-            string str = string.Join(string.Empty, LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
-            if (_cts.Token.IsCancellationRequested)
-                throw new KnownException("按下暂停按钮");
+            string str = string.Empty;
+            bool noKvSlotError = false;
+            do
+            {
+                try
+                {
+                    string data = HistoryToText(example);
+                    str = string.Join(string.Empty, LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
+                    noKvSlotError = false;
+                }
+                catch (LLamaDecodeError err)
+                {
+                    if (err.Message == "llama_decode failed: 'NoKvSlot'")
+                    {
+                        noKvSlotError = true;
+                        Message message = example.Last();
+                        example.RemoveRange(example.Count - 3, 3);
+                        if (example.Count == 2)
+                            throw new KnownException("当前上下文已无法再删减,请检查要翻译的文本是否过长，或升级设备配置");
+                        example.Add(message);
+                        ViewModelManager.WriteLine($"[警告]:上下文长度超过当前设备配置能承载的极限，将减少上下文至{example.Count / 2 - 1}重新进行翻译");
+                    }
+                    else
+                        throw;
+                }
+                finally
+                {
+                    if (_cts.Token.IsCancellationRequested)
+                        throw new KnownException("按下暂停按钮");
+                }
+            } while (noKvSlotError);
+
+
             //Task<string> translateTask;
             //try
             //{
