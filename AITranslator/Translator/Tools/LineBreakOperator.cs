@@ -18,24 +18,38 @@ namespace AITranslator.Translator.Tools
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        public static (List<double>, string) CalculateNewlinePositions(this string text)
+        public static (Dictionary<string, List<double>>, string) CalculateNewlinePositions(this string text, params string[] escapeChars)
         {
-            List<double> positions = new List<double>();
-            int length = text.Length;
-            int currentLength = 0;
+            Dictionary<string, List<double>> resultDic = new Dictionary<string, List<double>>();
 
-            foreach (string part in text.Split('\n'))
+            foreach (var escapeChar in escapeChars)
             {
-                currentLength += part.Length;
-                if (currentLength < length)
+                List<double> positions = new List<double>();
+                resultDic[escapeChar] = positions;
+                int length = text.Length;
+                int currentLength = 0;
+                string[] splitedStr = text.Split(escapeChar);
+                for (int i = 0; i < splitedStr.Length - 1; i++)
                 {
+                    currentLength += splitedStr[i].Length;
                     double relativePosition = (double)currentLength / length;
                     positions.Add(relativePosition);
-                    currentLength += 1;
                 }
+                //foreach (string part in text.Split(escapeChar))
+                //{
+                //    currentLength += part.Length;
+                //    if (currentLength < length)
+                //    {
+                //        double relativePosition = (double)currentLength / length;
+                //        positions.Add(relativePosition);
+                //        currentLength += 1;
+                //    }
+                //}
+                text = text.Replace(escapeChar, "");
             }
 
-            return new(positions, text.Replace("\n", ""));
+
+            return new(resultDic, text);
         }
 
         /// <summary>
@@ -44,40 +58,29 @@ namespace AITranslator.Translator.Tools
         /// <param name="translatedText"></param>
         /// <param name="positions"></param>
         /// <returns></returns>
-        public static string InsertNewlines(this string translatedText, List<double> positions)
+        public static string InsertNewlines(this string translatedText, Dictionary<string, List<double>> dic_positions)
         {
             HashSet<char> punctuationMarksAfter = new HashSet<char>("・．，。！？；：”’）】》,!?;:\"')]}>…♡~#$%^&*@");
             HashSet<char> punctuationMarksBefore = new HashSet<char>("“‘（【《([{<");
 
-            int length = translatedText.Length;
-            strb.Clear();
-            int lastPos = 0;
+            string[] escapeChars = dic_positions.Keys.Reverse().ToArray();
 
-            double averageSentenceLength = (double)length / (positions.Count + 1);
-
-            foreach (double pos in positions)
+            foreach (var escapeChar in escapeChars)
             {
-                int currentPos = (int)(pos * length);
-                if (averageSentenceLength >= 4)
-                {
-                    int? punctuationPos = null;
-                    for (int i = currentPos; i < Math.Min(currentPos + 3, length); i++)
-                    {
-                        if (punctuationMarksAfter.Contains(translatedText[i]))
-                        {
-                            punctuationPos = i + 1;
-                            break;
-                        }
-                        else if (punctuationMarksBefore.Contains(translatedText[i]))
-                        {
-                            punctuationPos = i;
-                            break;
-                        }
-                    }
+                List<double> positions = dic_positions[escapeChar];
+                int length = translatedText.Length;
+                strb.Clear();
+                int lastPos = 0;
 
-                    if (punctuationPos == null)
+                double averageSentenceLength = (double)length / (positions.Count + 1);
+
+                foreach (double pos in positions)
+                {
+                    int currentPos = (int)(pos * length);
+                    if (averageSentenceLength >= 4)
                     {
-                        for (int i = currentPos - 1; i > Math.Max(currentPos - 4, -1); i--)
+                        int? punctuationPos = null;
+                        for (int i = currentPos; i < Math.Min(currentPos + 3, length); i++)
                         {
                             if (punctuationMarksAfter.Contains(translatedText[i]))
                             {
@@ -90,20 +93,39 @@ namespace AITranslator.Translator.Tools
                                 break;
                             }
                         }
+
+                        if (punctuationPos == null)
+                        {
+                            for (int i = currentPos - 1; i > Math.Max(currentPos - 4, -1); i--)
+                            {
+                                if (punctuationMarksAfter.Contains(translatedText[i]))
+                                {
+                                    punctuationPos = i + 1;
+                                    break;
+                                }
+                                else if (punctuationMarksBefore.Contains(translatedText[i]))
+                                {
+                                    punctuationPos = i;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (punctuationPos != null)
+                        {
+                            currentPos = punctuationPos.Value;
+                        }
                     }
 
-                    if (punctuationPos != null)
-                    {
-                        currentPos = punctuationPos.Value;
-                    }
+                    strb.Append(translatedText[lastPos..currentPos] + escapeChar);
+                    lastPos = currentPos;
                 }
 
-                strb.Append(translatedText[lastPos..currentPos] + "\n");
-                lastPos = currentPos;
+                strb.Append(translatedText[lastPos..]);
+                translatedText = strb.ToString();
             }
 
-            strb.Append(translatedText[lastPos..]);
-            return strb.ToString();
+            return translatedText;
         }
 
     }

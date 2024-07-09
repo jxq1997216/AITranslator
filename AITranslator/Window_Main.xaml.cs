@@ -47,6 +47,7 @@ namespace AITranslator
         public Window_Main()
         {
             InitializeComponent();
+
             App.OtherProgressSend += App_OtherProgressSend;
             Window_Message.DefaultOwner = this;
 
@@ -61,6 +62,8 @@ namespace AITranslator
         {
             //读取初始化配置
             InitState();
+
+
         }
         private void App_OtherProgressSend(object? sender, byte[] e)
         {
@@ -83,6 +86,21 @@ namespace AITranslator
             {
                 //加载配置信息
                 ViewModelManager.LoadBaseConfig();
+
+                if (!ViewModelManager.ViewModel.AgreedStatement)
+                {
+                    Window_Statement window_Statement = new Window_Statement();
+                    window_Statement.Owner = this;
+                    bool agreed = window_Statement.ShowDialog()!.Value;
+                    if (!agreed)
+                    {
+                        Environment.Exit(0);
+                        return;
+                    }
+                    ViewModelManager.ViewModel.AgreedStatement = agreed;
+                    ViewModelManager.SaveBaseConfig();
+                }
+
             }
             catch (Exception err)
             {
@@ -177,29 +195,32 @@ namespace AITranslator
 
         private void Button_Declare_Click(object sender, RoutedEventArgs e)
         {
-            Window_Message.ShowDialog("软件声明", "软件只提供AI翻译服务，仅作学习交流使用\r\n所有由本软件制成的翻译内容，与软件制作人无关，请各位遵守法律，合法翻译。");
+            Window_Message.ShowDialog("软件声明", "\r\nAITranslator皆仅供学习交流使用，开发者对使用本软件造成的问题不负任何责任。\r\n\r\n使用此软件翻译时，请遵守所使用模型或平台的相关规定\r\n\r\n所有使用本软件翻译的文件与其衍生成果均禁止任何形式的商用！\r\n\r\n所有使用本软件翻译的文件与其衍生成果均与软件制作者无关，请各位遵守法律，合法翻译。\r\n\r\n本软件为免费使用，如果您是付费购买的，请立刻举报您购买的平台");
         }
 
         private void Button_AddTask_Click(object sender, RoutedEventArgs e)
         {
-            ExpandedFuncs.TryExceptions(() =>
+            OpenFileDialog openFileDialog = new OpenFileDialog()
             {
-                OpenFileDialog openFileDialog = new OpenFileDialog()
+                Title = "请选择待翻译的文本文件",
+                Multiselect = true,
+                FileName = "Select a file",
+                Filter = "待翻译文件(*.json;*.txt;*.srt)|*.json;*.txt;*.srt",
+            };
+
+            if (!openFileDialog.ShowDialog()!.Value)
+                return;
+
+            foreach (var fileName in openFileDialog.FileNames)
+            {
+                ExpandedFuncs.TryExceptions(() =>
                 {
-                    Title = "请选择待翻译的文本文件",
-                    Multiselect = false,
-                    FileName = "Select a file",
-                    Filter = "待翻译文件(*.json;*.txt;*.srt)|*.json;*.txt;*.srt",
-                };
+                    FileInfo file = new FileInfo(fileName);
+                    TranslationTask task = new TranslationTask(file);
 
-                if (!openFileDialog.ShowDialog()!.Value)
-                    return;
-
-                FileInfo file = new FileInfo(openFileDialog.FileName);
-                TranslationTask task = new TranslationTask(file);
-
-                ViewModelManager.ViewModel.AddTask(task);
-            });
+                    ViewModelManager.ViewModel.AddTask(task);
+                });
+            }
         }
 
 

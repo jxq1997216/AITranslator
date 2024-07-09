@@ -66,6 +66,6 @@
                 <controls:ViewButton EnableAnimation="DisEnable" Margin="0,10,0,0" HorizontalAlignment="Center" Height="25" Width="120" Content="发送测试邮件" Click="Button_SendTestMail_Click"/>
             </StackPanel>
         </GroupBox>
-        <CheckBox HorizontalAlignment="Left" Margin="5" Content="全部翻译完成自动关闭电脑" Foreground="White" IsChecked="{Binding AutoShutdown}"/>
+        <CheckBox HorizontalAlignment="Left" Margin="5" Content="全部翻译完成自动关闭电脑 (仅此次翻译生效)" Foreground="White" IsChecked="{Binding AutoShutdown}"/>
     </StackPanel>
 </UserControl>

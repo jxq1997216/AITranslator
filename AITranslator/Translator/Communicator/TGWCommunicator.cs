@@ -10,6 +10,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AITranslator.Translator.PostData;
+using AITranslator.Translator.Models;
+using System.Reflection.PortableExecutable;
 
 namespace AITranslator.Translator.Communicator
 {
@@ -28,9 +30,13 @@ namespace AITranslator.Translator.Communicator
             };
         }
 
-        public string Translate(PostDataBase postData)
+        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string prompt_with_text)
         {
             TGWPostData _PostData = postData as TGWPostData;
+
+            List<ExampleDialogue> exampleDialogues = [.. headers, .. histories];
+            exampleDialogues.Add(new("user", prompt_with_text));
+            _PostData.messages = exampleDialogues.ToArray();
 
             CancellationToken token = _cts.Token;
             string str_result = string.Empty;

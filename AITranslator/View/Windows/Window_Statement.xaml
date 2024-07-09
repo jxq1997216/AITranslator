@@ -1,0 +1,61 @@
+﻿<Window x:Class="AITranslator.View.Windows.Window_Statement"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AITranslator.View.Windows"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" 
+        xmlns:controls="clr-namespace:AITranslator.View.Controls"
+        mc:Ignorable="d"
+        Title="软件声明" SizeToContent="Height" Height="Auto" Width="280" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True" Loaded="Window_Loaded">
+    <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="1" Color="#FF21252D"/>
+                <GradientStop Offset="0" Color="#FF273146"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FF6B6C6D"/>
+                <GradientStop Offset="1" Color="#FF464646"/>
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Grid>
+            <Grid.Clip>
+                <RectangleGeometry Rect="0 0 278 1000" RadiusX="9" RadiusY="9"/>
+            </Grid.Clip>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Background="#FF191D25" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                    <Label Margin="5,0" HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
+                        <TextBlock TextWrapping="NoWrap" Foreground="#FFD2D9DC" Text="{Binding Title,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" FontFamily="{StaticResource English}"/>
+                    </Label>
+                </Grid>
+                <StackPanel Grid.Row="1" Margin="5,10">
+                    <TextBlock Margin="6" TextWrapping="Wrap" Foreground="White" Text="AITranslator皆仅供学习交流使用，开发者对使用本软件造成的问题不负任何责任。"/>
+                    <TextBlock Margin="6" TextWrapping="Wrap" Foreground="White" Text="使用此软件翻译时，请遵守所使用模型或平台的相关规定"/>
+                    <TextBlock Margin="6" TextWrapping="Wrap" Foreground="White" Text="所有使用本软件翻译的文件与其衍生成果均禁止任何形式的商用！"/>
+                    <TextBlock Margin="6" TextWrapping="Wrap" Foreground="White" Text="所有使用本软件翻译的文件与其衍生成果均与软件制作者无关，请各位遵守法律，合法翻译。"/>
+                    <TextBlock Margin="6" TextWrapping="Wrap" Foreground="White" Text="本软件为免费使用，如果您是付费购买的，请立刻举报您购买的平台"/>
+                </StackPanel>
+
+
+                <StackPanel HorizontalAlignment="Center" Margin="5" Grid.Row="2" Orientation="Horizontal">
+                    <controls:ViewButton IsEnabled="{Binding CountdownEnds, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:Window_Statement}}}" EnableAnimation="DisEnable" Margin="5" Height="25" Width="120" Click="Button_Yes_Click" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="同意"/>
+                            <TextBlock  Margin="5,0,0,0" Visibility="{calc:Binding !CountdownEnds,FalseToVisibility=Collapsed, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:Window_Statement}}}" Text="{Binding Countdown, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:Window_Statement}}}"/>
+                        </StackPanel>
+                    </controls:ViewButton>
+                    <controls:ViewButton EnableAnimation="DisEnable" Margin="5" Height="25" Width="120" Content="拒绝" Click="Button_No_Click" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+
+</Window>

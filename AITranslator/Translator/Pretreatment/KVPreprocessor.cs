@@ -106,7 +106,7 @@ namespace AITranslator.Translator.Pretreatment
                 string key = kv.Key;
                 string value = kv.Value;
 
-                value = value.Replace("\r\n", "\n");
+                //value = value.Replace("\r\n", "\n");
                 //foreach (var kv_replace in dic_replace)
                 //    value = value.Replace(kv_replace.Key, kv_replace.Value);
 

@@ -23,15 +23,22 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public uint ContextSize { get; set; }
         /// <summary>
+        /// Flash Attention
+        /// </summary>
+        public bool FlashAttention { get; set; }
+        /// <summary>
         /// 启动自动加载模型
         /// </summary>
         public bool AutoLoadModel { get; set; }
 
+
+        
         public void CopyFromViewModel(ViewModel_CommunicatorLLama vm)
         {
             ModelPath = vm.ModelPath;
             GpuLayerCount = vm.GpuLayerCount;
             ContextSize = vm.ContextSize;
+            FlashAttention = vm.FlashAttention;
             AutoLoadModel = vm.AutoLoadModel;
         }
 
@@ -40,6 +47,7 @@ namespace AITranslator.Translator.Models
             vm.ModelPath = ModelPath;
             vm.GpuLayerCount = GpuLayerCount;
             vm.ContextSize = ContextSize;
+            vm.FlashAttention = FlashAttention;
             vm.AutoLoadModel = AutoLoadModel;
         }
     }

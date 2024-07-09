@@ -32,7 +32,7 @@ namespace AITranslator.View.UserControls
         double openAIHeight;
         double llamaHeight;
         double tgwHeight;
-        double llamaUnLoadHeightAdd = 50;
+        double llamaUnLoadHeightAdd = 80;
         double animOffset = 73;
 
         public UserControl_ModelLoader()

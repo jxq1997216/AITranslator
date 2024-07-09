@@ -51,6 +51,11 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private uint contextSize = 2048;
+        /// <summary>
+        /// Flash Attention
+        /// </summary>
+        [ObservableProperty]
+        private bool flashAttention;
 
         public override bool ValidateError()
         {

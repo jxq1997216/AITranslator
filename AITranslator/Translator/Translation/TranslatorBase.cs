@@ -290,6 +290,8 @@ namespace AITranslator.Translator.Translation
                 _history.Enqueue(new("assistant", translated));
             }
         }
+
+        static string[] escapeChars = ["\r\n", "\n", "\t"];
         /// <summary>
         /// 多句合并翻译
         /// </summary>
@@ -297,11 +299,11 @@ namespace AITranslator.Translator.Translation
         /// <returns>翻译完成的字符串列表</returns>
         internal string[] Translate_Mult(List<string> mergeValues, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
         {
-            List<List<double>> positions_list = new List<List<double>>();
+            List<Dictionary<string, List<double>>> positions_list = new List<Dictionary<string, List<double>>>();
             List<string> processed_texts = new List<string>();
             foreach (var str in mergeValues)
             {
-                (List<double>, string) str_splites = str.CalculateNewlinePositions();
+                (Dictionary<string, List<double>>, string) str_splites = str.CalculateNewlinePositions(escapeChars);
                 positions_list.Add(str_splites.Item1);
                 processed_texts.Add(str_splites.Item2);
             }
@@ -331,8 +333,8 @@ namespace AITranslator.Translator.Translation
         /// <returns>翻译完成的字符串</returns>
         internal string Translate_Single(string value, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
         {
-            (List<double>, string) result = value.CalculateNewlinePositions();
-            List<double> positions = result.Item1;
+            (Dictionary<string, List<double>>, string) result = value.CalculateNewlinePositions(escapeChars);
+            Dictionary<string, List<double>> positions = result.Item1;
             string processed_texts = result.Item2;
             string str_result = TryTranslate(processed_texts, prompt_with_text, useHistory, maxTokens, temperature, frequencyPenalty).InsertNewlines(positions);
             return str_result;
@@ -356,25 +358,23 @@ namespace AITranslator.Translator.Translation
         /// <exception cref="KnownException">出现的已知错误</exception>
         internal string TryTranslate(string str, string prompt_with_text, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
         {
-            List<ExampleDialogue> exampleDialogues = [new ExampleDialogue("system", system_prompt), .. _example];
-            if (useHistory)
-                exampleDialogues.AddRange(_history);
-            exampleDialogues.Add(new("user", $"{prompt_with_text}{str}"));
+            ExampleDialogue[] headers = [new ExampleDialogue("system", system_prompt), .. _example];
+            ExampleDialogue[] history = useHistory ? _history.ToArray() : Array.Empty<ExampleDialogue>();
 
             PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
             {
                 CommunicatorType.LLama => new LLamaPostData(),
                 CommunicatorType.TGW => new TGWPostData(),
                 CommunicatorType.OpenAI => new OpenAIPostData() { model = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model },
-                _=> throw ExceptionThrower.InvalidCommunicator,
+                _ => throw ExceptionThrower.InvalidCommunicator,
             };
 
-            postData.messages = exampleDialogues.ToArray();
+
             postData.temperature = temperature;
             postData.frequency_penalty = frequencyPenalty;
             postData.max_tokens = maxTokens;
 
-            string str_result = _communicator.Translate(postData);
+            string str_result = _communicator.Translate(postData, headers, history, $"{prompt_with_text}{str}");
 
             return str_result;
         }

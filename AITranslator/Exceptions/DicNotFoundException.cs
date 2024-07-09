@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 namespace AITranslator.Exceptions
 {
     /// <summary>
-    /// 加载Json文件失败异常
+    /// 文件夹未找到异常
     /// </summary>
-    partial class FileLoadException : KnownException
+    partial class DicNotFoundException : KnownException
     {
-        public FileLoadException(string message) : base(message) { }
+        public DicNotFoundException(string message) : base(message) { }
     }
 }

@@ -18,6 +18,8 @@ using LLama.Exceptions;
 using System.Windows;
 using AITranslator.Translator.PostData;
 using AITranslator.Translator.Tools;
+using AITranslator.Translator.Models;
+using System.Reflection.PortableExecutable;
 
 namespace AITranslator.Translator.Communicator
 {
@@ -59,7 +61,7 @@ namespace AITranslator.Translator.Communicator
                 _cts = new CancellationTokenSource();
                 CancellationToken ctk = _cts.Token;
                 progress.ProgressChanged += Progress_ProgressChanged;
-                await LLamaLoader.Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, ctk, progress);
+                await LLamaLoader.Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, vm.FlashAttention, ctk, progress);
             }
             catch (KnownException err)
             {
@@ -88,14 +90,15 @@ namespace AITranslator.Translator.Communicator
             ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.ModelLoadProgress = Math.Round(e * 100, 1);
         }
 
-        public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, CancellationToken ctk, IProgress<float> progressReporter)
+        public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, bool flashAttention, CancellationToken ctk, IProgress<float> progressReporter)
         {
             try
             {
                 var parameters = new ModelParams(modelPath)
                 {
                     ContextSize = contextSize,
-                    GpuLayerCount = gpuLayerCount
+                    GpuLayerCount = gpuLayerCount,
+                    FlashAttention = flashAttention,
                 };
                 model = await LLamaWeights.LoadFromFileAsync(parameters, ctk, progressReporter);
                 Executor = new StatelessExecutor(model, parameters);
@@ -129,26 +132,32 @@ namespace AITranslator.Translator.Communicator
             _cts = new CancellationTokenSource();
         }
 
-        public string Translate(PostDataBase postData)
+        Message ExampleDialogueToMessage(ExampleDialogue exampleDialogue)
+        {
+            AuthorRole role = exampleDialogue.role switch
+            {
+                "system" => AuthorRole.System,
+                "user" => AuthorRole.User,
+                "assistant" => AuthorRole.Assistant,
+                _ => throw new KnownException("无效的Role！")
+            };
+            return new(role, exampleDialogue.content);
+        }
+        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText)
         {
             LLamaPostData _postData = postData as LLamaPostData;
             CancellationToken token = _cts.Token;
-            List<Message> example = new List<Message>();
 
-            foreach (var item in postData.messages)
-            {
-                AuthorRole role = item.role switch
-                {
-                    "system" => AuthorRole.System,
-                    "user" => AuthorRole.User,
-                    "assistant" => AuthorRole.Assistant,
-                    _ => throw new KnownException("无效的Role！")
-                };
-                example.Add(new(role, item.content));
-            }
+            Message[] _headers = new Message[headers.Length];
+
+            for (int i = 0; i < headers.Length; i++)
+                _headers[i] = ExampleDialogueToMessage(headers[i]);
 
 
-            string data = HistoryToText(example);
+            List<Message> _histories = new List<Message>();
+            foreach (var history in histories)
+                _histories.Add(ExampleDialogueToMessage(history));
+
 
             InferenceParams inferenceParams = new InferenceParams()
             {
@@ -156,9 +165,41 @@ namespace AITranslator.Translator.Communicator
                 AntiPrompts = _postData.stop,
             };
 
-            string str = string.Join(string.Empty, LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
-            if (_cts.Token.IsCancellationRequested)
-                throw new KnownException("按下暂停按钮");
+            string str = string.Empty;
+            bool noKvSlotError = false;
+            do
+            {
+                try
+                {
+                    List<Message> messages = new List<Message>();
+                    messages.AddRange(_headers);
+                    messages.AddRange(_histories);
+                    messages.Add(new(AuthorRole.User, inputText));
+                    string data = HistoryToText(messages);
+                    str = string.Join(string.Empty, LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
+                    noKvSlotError = false;
+                }
+                catch (LLamaDecodeError err)
+                {
+                    if (err.Message == "llama_decode failed: 'NoKvSlot'")
+                    {
+                        noKvSlotError = true;
+                        _histories.RemoveRange(_histories.Count - 2, 2);
+                        if (_histories.Count == 0)
+                            throw new KnownException("当前上下文已无法再删减,请检查要翻译的文本是否过长，或升级设备配置");
+                        ViewModelManager.WriteLine($"[警告]:上下文长度超过当前设备配置能承载的极限，将减少上下文至{_histories.Count / 2}重新进行翻译，如频繁出现此警告，请考虑手动调整历史上下文后再继续翻译");
+                    }
+                    else
+                        throw;
+                }
+                finally
+                {
+                    if (_cts.Token.IsCancellationRequested)
+                        throw new KnownException("按下暂停按钮");
+                }
+            } while (noKvSlotError);
+
+
             //Task<string> translateTask;
             //try
             //{

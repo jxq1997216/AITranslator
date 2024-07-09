@@ -62,9 +62,11 @@ namespace AITranslator.Translator.Translation
         {
             //添加历史记录
             uint historyCount = _translationTask.HistoryCount;
-            if (historyCount > 0 && Data.Dic_Successful.Count >= historyCount)
+            if (historyCount > 0)
             {
-                for (int i = Convert.ToInt32(Data.Dic_Successful.Count - historyCount); i < Data.Dic_Successful.Count; i++)
+                long endIndex = Data.Dic_Successful.Count - 1 - historyCount;
+                endIndex = endIndex < 0 ? 0 : endIndex;
+                for (int i = Convert.ToInt32(endIndex); i < Data.Dic_Successful.Count; i++)
                 {
                     KeyValuePair<int, SrtData> kv_Translated = Data.Dic_Successful.ElementAt(i);
                     SrtData source = Data.Dic_Cleaned[kv_Translated.Key];
@@ -86,12 +88,12 @@ namespace AITranslator.Translator.Translation
 
                 string result_single = Translate_NoResetNewline(source, true, 150, 0.6, 0);
 
-                if (result_single.Length > source.Length + 50)
+                if (!ResultVerification(source, result_single))
                 {
                     ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + result_single);
                     ViewModelManager.WriteLine($"翻译未达标，正在尝试重新翻译...");
                     result_single = Translate_NoResetNewline(source, true, 150, 0.1, 0.15);
-                    if (result_single.Length > source.Length + 50)
+                    if (!ResultVerification(source, result_single))
                     {
                         Data.Dic_Failed[key] = value;
                         SaveFailedFile();
@@ -110,6 +112,17 @@ namespace AITranslator.Translator.Translation
                 CalculateProgress();
                 ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + result_single);
             }
+        }
+
+        /// <summary>
+        /// 翻译结果校验
+        /// </summary>
+        /// <param name="source">原始数据</param>
+        /// <param name="translated">翻译后数据</param>
+        /// <returns>校验是否通过</returns>
+        bool ResultVerification(string source, string translated)
+        {
+            return translated.Length != 0 && translated != source && translated.Length <= source.Length + 50;
         }
 
         internal override void MergeData()
@@ -142,7 +155,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    SrtPersister.Save(Data.Dic_Failed, PublicParams.GetFileName(Data,GenerateFileType.Failed));
+                    SrtPersister.Save(Data.Dic_Failed, PublicParams.GetFileName(Data, GenerateFileType.Failed));
                     success = true;
                 }
                 catch (FileSaveException)

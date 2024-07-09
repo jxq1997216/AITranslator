@@ -92,9 +92,11 @@ namespace AITranslator.Translator.Translation
         {
             //添加历史记录
             uint historyCount = _translationTask.HistoryCount;
-            if (historyCount > 0 && Data.Dic_Successful.Count >= historyCount)
+            if (historyCount > 0)
             {
-                for (int i = Convert.ToInt32(Data.Dic_Successful.Count - historyCount); i < Data.Dic_Successful.Count; i++)
+                long endIndex = Data.Dic_Successful.Count - 1 - historyCount;
+                endIndex = endIndex < 0 ? 0 : endIndex;
+                for (int i = Convert.ToInt32(endIndex); i < Data.Dic_Successful.Count; i++)
                 {
                     KeyValuePair<string, string> kv = Data.Dic_Successful.ElementAt(i);
                     AddHistory(kv.Key, kv.Value);

@@ -43,6 +43,7 @@ namespace AITranslator.View.Models
         {
             ConfigSave_Base save = new ConfigSave_Base()
             {
+                AgreedStatement = ViewModel.AgreedStatement,
                 CommunicatorType = ViewModel.CommunicatorType,
             };
             save.Set.CopyFromViewModel(ViewModel.SetView_ViewModel);
@@ -61,6 +62,7 @@ namespace AITranslator.View.Models
             if (File.Exists(PublicParams.ConfigPath_LoadModel))
             {
                 ConfigSave_Base save = JsonPersister.Load<ConfigSave_Base>(PublicParams.ConfigPath_LoadModel);
+                ViewModel.AgreedStatement = save.AgreedStatement;
                 ViewModel.CommunicatorType = save.CommunicatorType;
                 save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
                 save.CommunicatorLLama.CopyToViewModel(ViewModel.CommunicatorLLama_ViewModel);

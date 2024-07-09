@@ -37,7 +37,7 @@ namespace AITranslator.Translator.Translation
         /// <param name="frequencyPenalty">频率惩罚</param>
         /// <returns>翻译完成的字符串</returns>
         /// <exception cref="KnownException">出现的已知错误</exception>
-        public string Translate(string str,double temperature,double frequency_penalty)
+        public string Translate(string str, double temperature, double frequency_penalty)
         {
             PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
             {
@@ -51,13 +51,8 @@ namespace AITranslator.Translator.Translation
             postData.frequency_penalty = frequency_penalty;
 
             postData.max_tokens = str.Length;
-            postData.messages =
-            [
-                new ("system", "你是一个翻译模型，可以流畅通顺地将任何语言翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。"),
-                new ("user", $"将下面的文本翻译成中文：{str}")
-            ];
 
-            string str_result = _communicator.Translate(postData);
+            string str_result = _communicator.Translate(postData, Array.Empty<ExampleDialogue>(), Array.Empty<ExampleDialogue>(), $"将下面的文本翻译成中文：{str}");
             return str_result;
         }
         public void Dispose()
