@@ -115,7 +115,6 @@
                 <!--主体-->
                 <Grid Grid.Row="1">
                     <DockPanel Margin="0,0,0,24">
-                        <!--模型加载区-->
                         <Border DockPanel.Dock="Left" BorderThickness="0,0,1,0"  BorderBrush="Black">
                             <StackPanel Width="50">
                                 <controls:SidebarRadioButton x:Name="rb_TranslatingView" ToolTip="未完成" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
@@ -211,6 +210,7 @@
                             <uc:UserControl_SetView x:Name="uc_Set" Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_SetView,FalseToVisibility=Collapsed}"/>
                         </Grid>
                     </DockPanel>
+                    <!--模型加载区-->
                     <uc:UserControl_ModelLoader VerticalAlignment="Bottom" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
                 </Grid>
             </Grid>
