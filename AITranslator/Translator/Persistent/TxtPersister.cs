@@ -47,7 +47,9 @@ namespace AITranslator.Translator.Persistent
             {
                 string strString = string.Join('\n', datas);
                 File.WriteAllText(fileBakName, strString);
-                File.Move(fileBakName, fileName, true);
+                File.Delete(fileName);
+                File.Copy(fileBakName, fileName, true);
+                File.Delete(fileBakName);
                 if (hide)
                 {
                     FileAttributes attributes = File.GetAttributes(filePath);
