@@ -33,7 +33,7 @@ namespace AITranslator.Translator.TranslateData
         public SrtData(string[] datas)
         {
             Time = datas[0];
-            Text = datas[1];
+            Text = string.Join('\n',datas[1..]); 
         }
 
         public SrtData Clone()
