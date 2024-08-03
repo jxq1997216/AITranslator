@@ -53,16 +53,19 @@ namespace AITranslator.Translator.Communicator
                     {
                         using (HttpResponseMessage? httpResponse = _client.PostAsync(_url, httpContent, token).Result)
                         {
+                            string json_result = httpResponse.Content.ReadAsStringAsync().Result;
+
                             if (httpResponse.StatusCode == HttpStatusCode.OK)
                             {
-                                string json_result = httpResponse.Content.ReadAsStringAsync().Result;
                                 JObject jobj = (JObject)JsonConvert.DeserializeObject(json_result);
                                 str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString()?.Trim() ?? string.Empty;
                                 retry = false;
                             }
                             else
                             {
-                                ViewModelManager.WriteLine("服务回复状态错误！");
+                                if (string.IsNullOrWhiteSpace(json_result))
+                                    json_result = "NULL";
+                                ViewModelManager.WriteLine($"服务回复状态错误[{Convert.ToInt32(httpResponse.StatusCode)}],返回数据为:{json_result}");
                                 tryCount++;
                                 if (tryCount >= 3)
                                     throw new KnownException("错误:多次回复状态错误！");
