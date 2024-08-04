@@ -58,31 +58,6 @@ namespace AITranslator
             vm.Dispatcher = Dispatcher;
             vm.Consoles.CollectionChanged += Consoles_CollectionChanged;
             ViewModelManager.SetViewModel(vm);
-
-
-            //using (HttpClient client = new HttpClient())
-            //{
-            //    client.DefaultRequestHeaders.Add("User-Agent", "Tauri-fetch");
-            //    // 设置请求的URL
-            //    string url = "https://api.github.com/repos/jxq1997216/AITranslator/releases/latest";
-
-            //    // 发送GET请求并获取响应
-            //    HttpResponseMessage response = client.GetAsync(url).Result;
-
-            //    // 检查响应是否成功
-            //    if (response.IsSuccessStatusCode)
-            //    {
-            //        // 读取响应内容
-            //        string responseBody = response.Content.ReadAsStringAsync().Result;
-
-            //        JObject? jObj = (JObject)JsonConvert.DeserializeObject(responseBody);
-            //        string? updateLog = jObj?["body"]?.ToString();
-
-            //        // 输出响应内容
-            //        Console.WriteLine(responseBody);
-            //    }
-            //}
-
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -286,6 +261,13 @@ namespace AITranslator
         private void Button_EnableSet_Click(object sender, RoutedEventArgs e)
         {
             uc_Set.EnableSet();
+        }
+
+        private void Button_CheckUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            Window_CheckUpdate window_CheckUpdate = new Window_CheckUpdate();
+            window_CheckUpdate.Owner = this;
+            window_CheckUpdate.ShowDialog();
         }
     }
 }

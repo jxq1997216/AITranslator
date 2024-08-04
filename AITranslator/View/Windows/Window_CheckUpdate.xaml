@@ -1,0 +1,60 @@
+﻿<Window x:Class="AITranslator.View.Windows.Window_CheckUpdate"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AITranslator.View.Windows"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" 
+        xmlns:controls="clr-namespace:AITranslator.View.Controls"
+        mc:Ignorable="d"
+        Title="检查更新" SizeToContent="Height" Height="Auto" Width="280" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True" Loaded="Window_Loaded">
+    <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="1" Color="#FF21252D"/>
+                <GradientStop Offset="0" Color="#FF273146"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FF6B6C6D"/>
+                <GradientStop Offset="1" Color="#FF464646"/>
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Grid>
+            <Grid.Clip>
+                <RectangleGeometry Rect="0 0 278 264" RadiusX="9" RadiusY="9"/>
+            </Grid.Clip>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="240"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Background="#FF191D25" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                    <Label Margin="5,0" HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
+                        <TextBlock TextWrapping="NoWrap" Foreground="#FFD2D9DC" Text="{Binding Title,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" FontFamily="{StaticResource English}"/>
+                    </Label>
+                    <StackPanel Margin="5,0,2,0" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
+                        <Button Style="{StaticResource TitleBarButton}" Click="Button_Close_Click">
+                            <Label Content="×" Margin="-5" Foreground="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="12"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
+                    <TextBlock TextWrapping="Wrap" Foreground="White" Text="{Binding UpdateLog}"/>
+                </ScrollViewer>
+
+                <StackPanel HorizontalAlignment="Center" Margin="5" Grid.Row="2" Orientation="Horizontal" Visibility="{calc:Binding NeedUpdate,FalseToVisibility=Collapsed}">
+                    <controls:ViewButton EnableAnimation="DisEnable" Margin="5" Height="25" Width="120" Content="去下载" Click="Button_Upgrade_Click" Cursor="Hand"/>
+                </StackPanel>
+
+                <Border Background="#99000000" Grid.Row="1" Grid.RowSpan="2" Visibility="{calc:Binding Checking,FalseToVisibility=Collapsed}">
+                    <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Text="检查更新中..."/>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+
+</Window>
