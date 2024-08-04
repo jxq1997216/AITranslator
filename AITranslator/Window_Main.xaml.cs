@@ -42,11 +42,6 @@ namespace AITranslator
     /// </summary>
     public partial class Window_Main : Window
     {
-
-        /// <summary>
-        /// 翻译器
-        /// </summary>
-        TranslatorBase _translator;
         public Window_Main()
         {
             ServicePointManager.SecurityProtocol =  SecurityProtocolType.Tls |
