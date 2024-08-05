@@ -43,7 +43,12 @@
                 </Grid>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10" MaxHeight="240">
-                    <TextBlock TextWrapping="Wrap" Foreground="White" Text="{Binding UpdateLog}"/>
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" FontSize="10" Foreground="#FFAAAAAA" Visibility="{calc:Binding !Checking,FalseToVisibility=Collapsed}" Text="{Binding NeedUpdate,Converter={StaticResource BoolToText},ConverterParameter='有新的更新 当前已是最新版本'}"/>
+                        <TextBlock TextWrapping="Wrap" FontSize="18" Foreground="White" Visibility="{calc:Binding !Checking,FalseToVisibility=Collapsed}" Text="{Binding Version}"/>
+                        <Rectangle Margin="0,5" Height="1" Visibility="{calc:Binding !Checking,FalseToVisibility=Collapsed}" Fill="White"/>
+                        <TextBlock TextWrapping="Wrap" Visibility="{calc:Binding !Checking,FalseToVisibility=Collapsed}" Foreground="White" Text="{Binding UpdateLog}"/>
+                    </StackPanel>
                 </ScrollViewer>
 
                 <Grid Margin="5" Grid.Row="2" Visibility="{calc:Binding NeedUpdate,FalseToVisibility=Collapsed}">
