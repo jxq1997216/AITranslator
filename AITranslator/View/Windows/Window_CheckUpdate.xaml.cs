@@ -47,7 +47,6 @@ namespace AITranslator.View.Windows
         [ObservableProperty]
         private string? updateLog;
 
-        bool _close = false;
         public Window_CheckUpdate()
         {
             InitializeComponent();
@@ -80,7 +79,8 @@ namespace AITranslator.View.Windows
                     }
                     else
                     {
-                        UpdateLog = $"获取更新信息失败:{jObj?["message"]}";
+                        Version = "获取更新信息失败";
+                        UpdateLog = jObj?["message"].ToString();
                         NeedUpdate = false;
                         Checking = false;
                     }
@@ -110,7 +110,6 @@ namespace AITranslator.View.Windows
 
         private void Button_Close_Click(object sender, RoutedEventArgs e)
         {
-            _close = true;
             Close();
         }
     }
