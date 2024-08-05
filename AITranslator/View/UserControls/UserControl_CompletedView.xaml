@@ -29,14 +29,14 @@
                         <Rectangle VerticalAlignment="Bottom" Height="4" DockPanel.Dock="Bottom" Fill="MediumPurple"/>
 
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" ToolTip="打开文件夹" Click="Button_OpenDic_Click">
+                            <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenDicCommand}">
                                 <Button.Content>
                                     <Viewbox Margin="4">
                                         <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
                                     </Viewbox>
                                 </Button.Content>
                             </controls:ViewButton>
-                            <controls:ViewButton Width="24" Height="24" FontSize="16" Content="×" ToolTip="删除" Click="Button_Remove_Click"/>
+                            <controls:ViewButton Width="24" Height="24" FontSize="16" Content="×" ToolTip="删除" Command="{Binding RemoveCommand}"/>
                         </StackPanel>
                         <TextBlock x:Name="tb_title" DockPanel.Dock="Top" HorizontalAlignment="Left" MaxWidth="180" Foreground="Gray" FocusVisualStyle="{x:Null}"  Text="{Binding FileName}" ToolTip="{Binding FileName}"/>
                         <Rectangle DockPanel.Dock="Top" Margin="0,2" HorizontalAlignment="Left" MaxWidth="180" Width="{Binding ActualWidth, ElementName=tb_title}" Fill="#3CFFFFFF" Height="1"/>

@@ -18,7 +18,7 @@ namespace AITranslator.View.Windows
     /// <summary>
     /// 软件声明窗口
     /// </summary>
-    [INotifyPropertyChanged]
+    [ObservableObject]
     public partial class Window_Statement : Window
     {
         /// <summary>

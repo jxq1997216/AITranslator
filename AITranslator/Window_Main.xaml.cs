@@ -10,6 +10,7 @@ using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -17,6 +18,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -39,13 +42,12 @@ namespace AITranslator
     /// </summary>
     public partial class Window_Main : Window
     {
-
-        /// <summary>
-        /// 翻译器
-        /// </summary>
-        TranslatorBase _translator;
         public Window_Main()
         {
+            ServicePointManager.SecurityProtocol =  SecurityProtocolType.Tls |
+                                                    SecurityProtocolType.Tls11 |
+                                                    SecurityProtocolType.Tls12 |
+                                                    SecurityProtocolType.Tls13;
             InitializeComponent();
 
             App.OtherProgressSend += App_OtherProgressSend;
@@ -56,14 +58,11 @@ namespace AITranslator
             vm.Dispatcher = Dispatcher;
             vm.Consoles.CollectionChanged += Consoles_CollectionChanged;
             ViewModelManager.SetViewModel(vm);
-
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             //读取初始化配置
             InitState();
-
-
         }
         private void App_OtherProgressSend(object? sender, byte[] e)
         {
@@ -110,11 +109,12 @@ namespace AITranslator
             if (!Directory.Exists(PublicParams.TranslatedDataDic))
                 Directory.CreateDirectory(PublicParams.TranslatedDataDic);
             //读取文件夹信息，加载历史翻译文件
-            foreach (var dicPath in Directory.GetDirectories(PublicParams.TranslatedDataDic))
+            DirectoryInfo[] directoryInfos = Directory.GetDirectories(PublicParams.TranslatedDataDic).Select(s => new DirectoryInfo(s)).OrderBy(s => s.CreationTime).ToArray();
+            foreach (var dicInfo in directoryInfos)
             {
                 ExpandedFuncs.TryExceptions(() =>
                     {
-                        TranslationTask task = new TranslationTask(new DirectoryInfo(dicPath));
+                        TranslationTask task = new TranslationTask(dicInfo);
                         ViewModelManager.ViewModel.AddTask(task);
                     },
                     ShowDialog: false);
@@ -140,7 +140,6 @@ namespace AITranslator
                 uc_Logs.ViewToItem(newItem);
             }
         }
-
 
         private void tbIcon_TrayLeftMouseDoubleClick(object sender, RoutedEventArgs e) => AnimShow();
 
@@ -191,75 +190,6 @@ namespace AITranslator
 
             await Task.Delay(animTime);
             Close();
-        }
-
-        private void Button_Declare_Click(object sender, RoutedEventArgs e)
-        {
-            Window_Message.ShowDialog("软件声明", "\r\nAITranslator皆仅供学习交流使用，开发者对使用本软件造成的问题不负任何责任。\r\n\r\n使用此软件翻译时，请遵守所使用模型或平台的相关规定\r\n\r\n所有使用本软件翻译的文件与其衍生成果均禁止任何形式的商用！\r\n\r\n所有使用本软件翻译的文件与其衍生成果均与软件制作者无关，请各位遵守法律，合法翻译。\r\n\r\n本软件为免费使用，如果您是付费购买的，请立刻举报您购买的平台");
-        }
-
-        private void Button_AddTask_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog()
-            {
-                Title = "请选择待翻译的文本文件",
-                Multiselect = true,
-                FileName = "Select a file",
-                Filter = "待翻译文件(*.json;*.txt;*.srt)|*.json;*.txt;*.srt",
-            };
-
-            if (!openFileDialog.ShowDialog()!.Value)
-                return;
-
-            foreach (var fileName in openFileDialog.FileNames)
-            {
-                ExpandedFuncs.TryExceptions(() =>
-                {
-                    FileInfo file = new FileInfo(fileName);
-                    TranslationTask task = new TranslationTask(file);
-
-                    ViewModelManager.ViewModel.AddTask(task);
-                });
-            }
-        }
-
-
-        private void Button_StartAll_Click(object sender, RoutedEventArgs e)
-        {
-            if (ViewModelManager.ViewModel.UnfinishedTasks.Count == 0)
-                return;
-
-            ViewModel vm = ViewModelManager.ViewModel;
-            if (vm.CommunicatorType == CommunicatorType.LLama && !vm.CommunicatorLLama_ViewModel.ModelLoaded)
-            {
-                Window_Message.ShowDialog("提示", "请先加载模型！");
-                return;
-            }
-
-            ViewModelManager.ViewModel.StartAllTask();
-        }
-
-        private void Button_PauseAll_Click(object sender, RoutedEventArgs e)
-        {
-            ViewModelManager.ViewModel.PauseAllTask();
-        }
-
-        private void Button_RemoveAll_Click(object sender, RoutedEventArgs e)
-        {
-            if (ViewModelManager.ViewModel.CompletedTasks.Count == 0)
-                return;
-
-            Window_ConfirmClear window_ConfirmClear = new Window_ConfirmClear();
-            window_ConfirmClear.Owner = this;
-            if (!window_ConfirmClear.ShowDialog()!.Value)
-                return;
-
-            ViewModelManager.ViewModel.RemoveAllCompletedTask();
-        }
-
-        private void Button_EnableSet_Click(object sender, RoutedEventArgs e)
-        {
-            uc_Set.EnableSet();
         }
     }
 }

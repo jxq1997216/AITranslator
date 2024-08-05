@@ -19,7 +19,7 @@ namespace AITranslator.View.Windows
     /// <summary>
     /// 弹窗显示窗口
     /// </summary>
-    [INotifyPropertyChanged]
+    [ObservableObject]
     public partial class Window_Message
     {
         /// <summary>

@@ -7,6 +7,7 @@ using AITranslator.Translator.TranslateData;
 using AITranslator.Translator.Translation;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -294,7 +295,7 @@ namespace AITranslator.View.Models
                 _ => throw new KnownException("不支持的翻译文件类型"),
             };
         }
-        public void Merge()
+        public void merge()
         {
             if (_translator is null)
                 CreateTranslator();
@@ -302,15 +303,13 @@ namespace AITranslator.View.Models
             _translator = null;
             ToCompletedTasks();
         }
-
-        public void OpenDic()
+        public void openDic()
         {
             string diaName = PublicParams.GetDicName(DicName);
             if (!Directory.Exists(diaName))
                 throw new DicNotFoundException($"任务[{fileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
             Process.Start("explorer.exe", diaName.ReplaceSlash());
         }
-
         void CreateTranslator()
         {
             _translator = TranslateType switch
@@ -381,6 +380,72 @@ namespace AITranslator.View.Models
             Replaces = config.Replaces.ToReplaceCollection();
             Progress = config.Progress;
             State = config.State;
+        }
+
+        [RelayCommand]
+        private async Task Remove()
+        {
+            Window_ConfirmClear window_ConfirmClear = new Window_ConfirmClear();
+            window_ConfirmClear.Owner = Window_Message.DefaultOwner;
+            if (!window_ConfirmClear.ShowDialog()!.Value)
+                return;
+
+            await ViewModelManager.ViewModel.RemoveTask(this);
+        }
+
+        [RelayCommand]
+        private void OpenDic()
+        {
+            ExpandedFuncs.TryExceptions(() =>
+            {
+                openDic();
+            },
+            (err) =>
+            {
+                if (err is DicNotFoundException)
+                    ViewModelManager.ViewModel.RemoveTask(this);
+            });
+        }
+
+        [RelayCommand]
+        private void Merge()
+        {
+            ExpandedFuncs.TryExceptions(() =>
+            {
+
+                if (HasFailedData())
+                {
+                    string message = "当前翻译存在翻译失败内容\r\n" +
+                                    "[点击确认]:继续合并，把[翻译失败]中的内容合并到结果中\r\n" +
+                                    "[点击取消]:暂停合并，手动翻译[翻译失败]中的内容";
+                    bool result = ViewModelManager.ShowDialogMessage("提示", message, false);
+
+                    if (!result)
+                    {
+                        openDic();
+                        return;
+                    }
+
+                    merge();
+                }
+                else
+                    merge();
+
+            },
+                (err) =>
+                {
+                    if (err is DicNotFoundException)
+                        ViewModelManager.ViewModel.RemoveTask(this);
+                });
+        }
+
+
+        [RelayCommand]
+        private void TransConfig()
+        {
+            Window_SetTrans window_SetTrans = new Window_SetTrans(this);
+            window_SetTrans.Owner = Window_Message.DefaultOwner;
+            window_SetTrans.ShowDialog();
         }
     }
 }

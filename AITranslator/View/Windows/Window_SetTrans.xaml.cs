@@ -121,5 +121,25 @@ namespace AITranslator.View.Windows
             KeyValueStr kv = btn.DataContext as KeyValueStr;
             _vm.Replaces.Remove(kv);
         }
+
+        private void Button_Up_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            KeyValueStr kv = btn.DataContext as KeyValueStr;
+            int index = _vm.Replaces.IndexOf(kv);
+            if (index == 0)
+                return;
+            _vm.Replaces.Move(index, index - 1);
+        }
+
+        private void Button_Down_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            KeyValueStr kv = btn.DataContext as KeyValueStr;
+            int index = _vm.Replaces.IndexOf(kv);
+            if (index == _vm.Replaces.Count - 1)
+                return;
+            _vm.Replaces.Move(index, index + 1);
+        }
     }
 }
