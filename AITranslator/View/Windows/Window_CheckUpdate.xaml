@@ -23,13 +23,13 @@
         </Border.BorderBrush>
         <Grid>
             <Grid.Clip>
-                <RectangleGeometry Rect="0 0 278 264" RadiusX="9" RadiusY="9"/>
+                <RectangleGeometry Rect="0 0 278 2640" RadiusX="9" RadiusY="9"/>
             </Grid.Clip>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25"/>
-                    <RowDefinition Height="240"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="50"/>
                 </Grid.RowDefinitions>
                 <Grid Background="#FF191D25" MouseLeftButtonDown="Header_MouseLeftButtonDown">
                     <Label Margin="5,0" HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
@@ -42,15 +42,15 @@
                     </StackPanel>
                 </Grid>
 
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10" MaxHeight="240">
                     <TextBlock TextWrapping="Wrap" Foreground="White" Text="{Binding UpdateLog}"/>
                 </ScrollViewer>
 
-                <StackPanel HorizontalAlignment="Center" Margin="5" Grid.Row="2" Orientation="Horizontal" Visibility="{calc:Binding NeedUpdate,FalseToVisibility=Collapsed}">
+                <Grid Margin="5" Grid.Row="2" Visibility="{calc:Binding NeedUpdate,FalseToVisibility=Collapsed}">
                     <controls:ViewButton EnableAnimation="DisEnable" Margin="5" Height="25" Width="120" Content="去下载" Click="Button_Upgrade_Click" Cursor="Hand"/>
-                </StackPanel>
+                </Grid>
 
-                <Border Background="#99000000" Grid.Row="1" Grid.RowSpan="2" Visibility="{calc:Binding Checking,FalseToVisibility=Collapsed}">
+                <Border Background="#99000000" CornerRadius="0,0,9,9" Grid.Row="1" Grid.RowSpan="2" Visibility="{calc:Binding Checking,FalseToVisibility=Collapsed}">
                     <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Text="检查更新中..."/>
                 </Border>
             </Grid>

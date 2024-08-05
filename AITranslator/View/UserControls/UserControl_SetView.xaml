@@ -63,7 +63,7 @@
                     </Border>
                 </Grid>
                 <CheckBox HorizontalAlignment="Center" Content="使用SSL" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" IsChecked="{Binding SmtpUseSSL}"/>
-                <controls:ViewButton EnableAnimation="DisEnable" Margin="0,10,0,0" HorizontalAlignment="Center" Height="25" Width="120" Content="发送测试邮件" Click="Button_SendTestMail_Click"/>
+                <controls:ViewButton EnableAnimation="DisEnable" Margin="0,10,0,0" HorizontalAlignment="Center" Height="25" Width="120" Content="发送测试邮件" Command="{Binding SendTestMailCommand}"/>
             </StackPanel>
         </GroupBox>
         <CheckBox HorizontalAlignment="Left" Margin="5" Content="全部翻译完成自动关闭电脑 (仅此次翻译生效)" Foreground="White" IsChecked="{Binding AutoShutdown}"/>

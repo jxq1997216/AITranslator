@@ -38,23 +38,10 @@ namespace AITranslator.View.UserControls
             }
         }
 
-        public void EnableSet()
-        {
-            (DataContext as ViewModel_SetView)!.Enable();
-        }
-
         Regex re_Num = new Regex("[^0-9]+");
         public void NumberInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = re_Num.IsMatch(e.Text);
-        }
-
-        private void Button_SendTestMail_Click(object sender, RoutedEventArgs e)
-        {
-            ViewModel_SetView vm = (DataContext as ViewModel_SetView);
-            bool result = SmtpMailSender.SendTest(vm.EmailAddress, vm.EmailPassword, vm.SmtpAddress, vm.SmtpPort, vm.SmtpUseSSL, out string error);
-            if (!result)
-                Window_Message.ShowDialog("错误", $"发送测试邮件失败:{error}\r\n请检查网络是否通畅，或输入信息是否有误");
         }
     }
 }

@@ -1,9 +1,13 @@
-﻿using AITranslator.Translator.Models;
+﻿using AITranslator.Mail;
+using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
+using AITranslator.Translator.Tools;
 using AITranslator.Translator.TranslateData;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.VisualBasic.FileIO;
+using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -111,34 +115,6 @@ namespace AITranslator.View.Models
                 UnfinishedTasks.Add(task);
         }
 
-        public void PauseAllTask()
-        {
-            if (ActiveTask is not null)
-            {
-                foreach (var _task in UnfinishedTasks.Where(s => s.State != TaskState.Translating))
-                    _task.Pause().Wait();
-
-                ActiveTask.Pause();
-            }
-            else
-            {
-                foreach (var _task in UnfinishedTasks)
-                    _task.Pause();
-            }
-        }
-
-        public void StartAllTask()
-        {
-            foreach (var _task in UnfinishedTasks)
-                _task.Start(false);
-        }
-
-        public void RemoveAllCompletedTask()
-        {
-            while (CompletedTasks.Count != 0)
-                RemoveTask(CompletedTasks[0], false).Wait();
-        }
-
         public async Task RemoveTask(TranslationTask task, bool showErrorMsg = true)
         {
             try
@@ -181,6 +157,101 @@ namespace AITranslator.View.Models
             {
                 return;
             }
+        }
+
+        [RelayCommand]
+        private void StartAll()
+        {
+            if (UnfinishedTasks.Count == 0)
+                return;
+
+            if (CommunicatorType == CommunicatorType.LLama && !CommunicatorLLama_ViewModel.ModelLoaded)
+            {
+                Window_Message.ShowDialog("提示", "请先加载模型！");
+                return;
+            }
+
+            foreach (var _task in UnfinishedTasks)
+                _task.Start(false);
+        }
+
+        [RelayCommand]
+        private void PauseAll()
+        {
+            if (ActiveTask is not null)
+            {
+                foreach (var _task in UnfinishedTasks.Where(s => s.State != TaskState.Translating))
+                    _task.Pause().Wait();
+
+                ActiveTask.Pause();
+            }
+            else
+            {
+                foreach (var _task in UnfinishedTasks)
+                    _task.Pause();
+            }
+        }
+
+        [RelayCommand]
+        private void AddTask()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog()
+            {
+                Title = "请选择待翻译的文本文件",
+                Multiselect = true,
+                FileName = "Select a file",
+                Filter = "待翻译文件(*.json;*.txt;*.srt)|*.json;*.txt;*.srt",
+            };
+
+            if (!openFileDialog.ShowDialog()!.Value)
+                return;
+
+            foreach (var fileName in openFileDialog.FileNames)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    FileInfo file = new FileInfo(fileName);
+                    TranslationTask task = new TranslationTask(file);
+
+                    AddTask(task);
+                });
+            }
+        }
+
+        [RelayCommand]
+        private void RemoveAll()
+        {
+            if (CompletedTasks.Count == 0)
+                return;
+
+            Window_ConfirmClear window_ConfirmClear = new Window_ConfirmClear();
+            window_ConfirmClear.Owner = Window_Message.DefaultOwner;
+            if (!window_ConfirmClear.ShowDialog()!.Value)
+                return;
+
+            while (CompletedTasks.Count != 0)
+                RemoveTask(CompletedTasks[0], false).Wait();
+        }
+
+        [RelayCommand]
+        private void EnableSet()
+        {
+            SetView_ViewModel.Enable();
+        }
+
+        [RelayCommand]
+        private void ShowDeclare()
+        {
+            Window_Message.ShowDialog("软件声明", "\r\nAITranslator皆仅供学习交流使用，开发者对使用本软件造成的问题不负任何责任。\r\n\r\n使用此软件翻译时，请遵守所使用模型或平台的相关规定\r\n\r\n所有使用本软件翻译的文件与其衍生成果均禁止任何形式的商用！\r\n\r\n所有使用本软件翻译的文件与其衍生成果均与软件制作者无关，请各位遵守法律，合法翻译。\r\n\r\n本软件为免费使用，如果您是付费购买的，请立刻举报您购买的平台");
+        }
+
+
+        [RelayCommand]
+        private void CheckUpdate()
+        {
+            Window_CheckUpdate window_CheckUpdate = new Window_CheckUpdate();
+            window_CheckUpdate.Owner = Window_Message.DefaultOwner;
+            window_CheckUpdate.ShowDialog();
         }
     }
 }

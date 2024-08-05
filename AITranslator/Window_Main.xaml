@@ -76,14 +76,14 @@
                         <TextBlock Margin="3,0,0,0" Text="Beta" Visibility="{calc:Binding IsBeta,FalseToVisibility=Collapsed}" FontFamily="{StaticResource English}" FontSize="12" Foreground="#FFD2D9DC" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Margin="5,0,2,0" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
-                        <Button Style="{StaticResource TitleBarButton}" ToolTip="检查更新" Click="Button_CheckUpdate_Click" Cursor="Hand">
+                        <Button Style="{StaticResource TitleBarButton}" ToolTip="检查更新" Command="{Binding CheckUpdateCommand}" Cursor="Hand">
                             <Button.Content>
                                 <Viewbox Margin="0,4,5,0">
                                     <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M223.425605 449.2744l161.632237 0 0 253.65714c0 16.954137 13.745049 30.699186 30.699186 30.699186 16.95516 0 30.699186-13.745049 30.699186-30.699186l0-284.356326c0-16.95516-13.744026-30.699186-30.699186-30.699186L291.035446 387.876028l217.23665-248.51605L733.039255 387.580293 607.104031 387.580293c-16.954137 0-30.699186 13.745049-30.699186 30.699186l0 284.652062c0 16.954137 13.745049 30.699186 30.699186 30.699186s30.699186-13.745049 30.699186-30.699186L637.803217 448.978664l164.448376 0c12.140505 0 23.140023-7.154957 28.063149-18.251689 4.922103-11.097756 2.841721-24.053835-5.307889-33.05279L530.62315 72.570829c-5.881964-6.495948-14.273075-10.134825-23.024389-10.091846-8.763594 0.076748-17.076934 3.895727-22.844288 10.494005L200.312188 398.371056c-7.92653 9.067516-9.818623 21.931498-4.839215 32.896224S211.383338 449.2744 223.425605 449.2744zM222.354204 829.113381l581.732178 0c16.954137 0 30.699186-13.745049 30.699186-30.699186s-13.745049-30.699186-30.699186-30.699186L222.354204 767.715009c-16.954137 0-30.699186 13.745049-30.699186 30.699186S205.400067 829.113381 222.354204 829.113381zM804.086381 896.729361 222.354204 896.729361c-16.954137 0-30.699186 13.745049-30.699186 30.699186s13.745049 30.699186 30.699186 30.699186l581.732178 0c16.954137 0 30.699186-13.745049 30.699186-30.699186S821.041542 896.729361 804.086381 896.729361z"/>
                                 </Viewbox>
                             </Button.Content>
                         </Button>
-                        <Button Style="{StaticResource TitleBarButton}" ToolTip="软件声明" Click="Button_Declare_Click" Cursor="Hand">
+                        <Button Style="{StaticResource TitleBarButton}" ToolTip="软件声明" Command="{Binding ShowDeclareCommand}" Cursor="Hand">
                             <Button.Content>
                                 <Viewbox Margin="0,4,0,0">
                                     <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M512.172014 0C238.32555 0 12.987065 222.930287 12.987065 499.012935c0 273.846464 222.930287 499.012935 499.012935 499.012934 273.846464 0 499.012935-222.930287 499.012935-499.012934C1008.776751 222.930287 785.846464 0 512.172014 0m0 925.435915c-234.971275 0-426.42298-191.451705-426.42298-426.42298S277.200739 72.761969 512.172014 72.761969 938.594994 264.04166 938.594994 499.012935 747.143289 925.435915 512.172014 925.435915M475.877037 775.267596h70.181757v-356.069209H475.877037v356.069209z m36.294977-523.266924c-14.621199 0-26.662187 4.816395-38.703175 14.621199-9.63279 9.63279-14.621199 24.25399-14.621199 38.703175 0 14.621199 4.816395 29.070385 14.621199 38.703175 9.63279 9.63279 24.25399 14.621199 38.703175 14.621199s26.662187-4.816395 38.703175-14.621199c9.63279-9.63279 14.621199-24.25399 14.621199-38.703175 0-14.621199-4.816395-26.662187-14.621199-38.703175-12.040988-9.804804-24.25399-14.621199-38.703175-14.621199"/>
@@ -146,9 +146,9 @@
                             </TextBlock>
 
                             <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="▶" ToolTip="全部开始" Click="Button_StartAll_Click"/>
-                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="‖" ToolTip="全部暂停" Click="Button_PauseAll_Click"/>
-                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="新建任务" Click="Button_AddTask_Click">
+                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="▶" ToolTip="全部开始" Command="{Binding StartAllCommand}"/>
+                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="‖" ToolTip="全部暂停" Command="{Binding PauseAllCommand}"/>
+                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="新建任务" Command="{Binding AddTaskCommand}">
                                     <controls:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBlock VerticalAlignment="Center" Margin="0,0,5,2" FontSize="18" Text="+"/>
@@ -159,7 +159,7 @@
                             </StackPanel>
 
                             <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_CompletedView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="删除全部" Click="Button_RemoveAll_Click">
+                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="删除全部" Command="{Binding RemoveAllCommand}">
                                     <controls:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBlock VerticalAlignment="Center" Margin="0,0,5,0" FontSize="18" Text="×"/>
@@ -170,7 +170,7 @@
                             </StackPanel>
 
                             <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_SetView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="应用" Click="Button_EnableSet_Click">
+                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="应用" Command="{Binding EnableSetCommand}">
                                     <controls:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Viewbox Width="12" Height="12" Margin="0,0,5,0">

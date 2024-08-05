@@ -88,17 +88,22 @@
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Width="{calc:Binding ActualWidth,ElementName=view_Replaces}" Margin="0,5,0,0">
+                                    <Grid Width="{calc:Binding 'ActualWidth - 5',ElementName=view_Replaces}" Margin="4,5,0,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="20"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="25"/>
+                                            <ColumnDefinition Width="2"/>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="22"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBox Grid.Column="0" CaretBrush="White" VerticalAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Key}"/>
                                         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Foreground="White" FocusVisualStyle="{x:Null}" Text="→"/>
                                         <TextBox Grid.Column="2" VerticalAlignment="Center" CaretBrush="White" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Value}"/>
-                                        <controls:ViewButton Grid.Column="3" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
+                                        <controls:ViewButton Grid.Column="4" Content="↑" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Up_Click"/>
+                                        <controls:ViewButton Grid.Column="5" Content="↓" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Down_Click"/>
+                                        <controls:ViewButton Grid.Column="6" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

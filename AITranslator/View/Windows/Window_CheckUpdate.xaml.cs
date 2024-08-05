@@ -16,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Diagnostics;
 
 namespace AITranslator.View.Windows
 {
@@ -63,28 +64,28 @@ namespace AITranslator.View.Windows
                     string url = "https://api.github.com/repos/jxq1997216/AITranslator/releases/latest";
 
                     // 发送GET请求并获取响应
-                    while (!_close)
+
+                    HttpResponseMessage response = client.GetAsync(url).Result;
+
+                    // 读取响应内容
+                    string responseBody = response.Content.ReadAsStringAsync().Result;
+                    JObject? jObj = (JObject)JsonConvert.DeserializeObject(responseBody);
+                    // 检查响应是否成功
+                    if (response.IsSuccessStatusCode)
                     {
-                        HttpResponseMessage response = client.GetAsync(url).Result;
-
-                        // 检查响应是否成功
-                        if (response.IsSuccessStatusCode)
-                        {
-                            // 读取响应内容
-                            string responseBody = response.Content.ReadAsStringAsync().Result;
-
-                            JObject? jObj = (JObject)JsonConvert.DeserializeObject(responseBody);
-                            Version = jObj?["name"]?.ToString();
-                            UpdateLog = jObj?["body"]?.ToString();
-                            NeedUpdate = Version != $"v{ViewModelManager.ViewModel.Version}";
-                            Checking = false;
-                            break;
-                        }
+                        Version = jObj?["name"]?.ToString();
+                        UpdateLog = jObj?["body"]?.ToString();
+                        NeedUpdate = Version != $"v{ViewModelManager.ViewModel.Version}";
+                        Checking = false;
+                    }
+                    else
+                    {
+                        UpdateLog = $"获取更新信息失败:{jObj?["message"]}";
+                        NeedUpdate = false;
+                        Checking = false;
                     }
                 }
             });
-
-
         }
 
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
@@ -92,7 +93,19 @@ namespace AITranslator.View.Windows
 
         private void Button_Upgrade_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                var sInfo = new ProcessStartInfo("https://github.com/jxq1997216/AITranslator")
+                {
+                    UseShellExecute = true,
+                };
+                Process.Start(sInfo);
+            }
+            catch (Exception err)
+            {
 
+                Window_Message.ShowDialog("错误", $"跳转链接失败:{err.Message}");
+            }
         }
 
         private void Button_Close_Click(object sender, RoutedEventArgs e)

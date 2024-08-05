@@ -1,8 +1,10 @@
-﻿using AITranslator.Translator.Models;
+﻿using AITranslator.Mail;
+using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
 using AITranslator.Translator.TranslateData;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -66,7 +68,7 @@ namespace AITranslator.View.Models
             vm.EnableEmail = EnableEmail;
             vm.EmailAddress = EmailAddress;
             vm.EmailPassword = EmailPassword;
-            vm.SmtpAddress  = SmtpAddress;
+            vm.SmtpAddress = SmtpAddress;
             vm.SmtpPort = SmtpPort;
             vm.AutoShutdown = AutoShutdown;
             vm.SmtpUseSSL = SmtpUseSSL;
@@ -86,6 +88,14 @@ namespace AITranslator.View.Models
                 AutoShutdown = vm.AutoShutdown,
                 SmtpUseSSL = vm.SmtpUseSSL,
             };
+        }
+
+        [RelayCommand]
+        private void SendTestMail()
+        {
+            bool result = SmtpMailSender.SendTest(EmailAddress, EmailPassword, SmtpAddress, SmtpPort, SmtpUseSSL, out string error);
+            if (!result)
+                Window_Message.ShowDialog("错误", $"发送测试邮件失败:{error}\r\n请检查网络是否通畅，或输入信息是否有误");
         }
     }
 }

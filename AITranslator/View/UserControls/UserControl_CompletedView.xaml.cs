@@ -28,34 +28,5 @@ namespace AITranslator.View.UserControls
         {
             InitializeComponent();
         }
-
-        private void Button_OpenDic_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.DataContext is TranslationTask task)
-            {
-                ExpandedFuncs.TryExceptions(() =>
-                {
-                    task.OpenDic();
-                },
-                (err) =>
-                {
-                    if (err is DicNotFoundException)
-                        ViewModelManager.ViewModel.RemoveTask(task);
-                });
-            }
-        }
-
-        private async void Button_Remove_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.DataContext is TranslationTask task)
-            {
-                Window_ConfirmClear window_ConfirmClear = new Window_ConfirmClear();
-                window_ConfirmClear.Owner = Window_Message.DefaultOwner;
-                if (!window_ConfirmClear.ShowDialog()!.Value)
-                    return;
-
-                await ViewModelManager.ViewModel.RemoveTask(task);
-            }
-        }
     }
 }
