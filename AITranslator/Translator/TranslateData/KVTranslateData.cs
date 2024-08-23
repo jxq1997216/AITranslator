@@ -21,6 +21,8 @@ namespace AITranslator.Translator.TranslateData
     {
         static TranslateDataType type = TranslateDataType.KV;
         public TranslateDataType Type => type;
+
+        public string FileName { get; set; }
         public string DicName { get; set; }
 
         /// <summary>
@@ -39,10 +41,10 @@ namespace AITranslator.Translator.TranslateData
         /// 未翻译的数据
         /// </summary>
         public Dictionary<string, string> Dic_NotTranslated = new Dictionary<string, string>();
-        public KVTranslateData(string dicName)
+        public KVTranslateData(string dicName,string fileName)
         {
             DicName = dicName;
-
+            FileName = fileName;
             ReloadData();
         }
 

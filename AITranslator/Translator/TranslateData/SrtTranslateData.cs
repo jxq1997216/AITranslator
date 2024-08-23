@@ -50,7 +50,7 @@ namespace AITranslator.Translator.TranslateData
     {
         static TranslateDataType type = TranslateDataType.Srt;
         public TranslateDataType Type => type;
-
+        public string FileName { get; set; }
         public string DicName { get; set; }
         /// <summary>
         /// 原始翻译数据
@@ -69,9 +69,10 @@ namespace AITranslator.Translator.TranslateData
         /// </summary>
         public Dictionary<int, SrtData> Dic_NotTranslated = new Dictionary<int, SrtData>();
 
-        public SrtTranslateData(string dicName)
+        public SrtTranslateData(string dicName, string fileName)
         {
             DicName = dicName;
+            FileName = fileName;
 
             ReloadData();
         }

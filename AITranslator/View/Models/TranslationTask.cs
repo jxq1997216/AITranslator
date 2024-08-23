@@ -69,7 +69,7 @@ namespace AITranslator.View.Models
         /// </summary>
         TranslatorBase _translator;
         /// <summary>
-        /// 文件夹名称
+        /// 文件名称
         /// </summary>
         [ObservableProperty]
         private string fileName;

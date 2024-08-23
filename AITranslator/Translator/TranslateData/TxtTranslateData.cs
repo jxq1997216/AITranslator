@@ -19,6 +19,7 @@ namespace AITranslator.Translator.TranslateData
         static TranslateDataType type = TranslateDataType.Txt;
         public TranslateDataType Type => type;
 
+        public string FileName { get; set; }
         public string DicName { get; set; }
 
         /// <summary>
@@ -39,10 +40,10 @@ namespace AITranslator.Translator.TranslateData
         public Dictionary<int, string> Dic_NotTranslated = new Dictionary<int, string>();
 
 
-        public TxtTranslateData(string dicName)
+        public TxtTranslateData(string dicName,string fileName)
         {
             DicName = dicName;
-
+            FileName = fileName;
             ReloadData();
         }
 
