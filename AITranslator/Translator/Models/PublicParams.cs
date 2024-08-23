@@ -63,8 +63,17 @@ namespace AITranslator.Translator.Models
 
         public static string GetFileName(ITranslateData data, GenerateFileType FileType)
         {
-            return GetFileName(data.DicName, data.Type, FileType);
+            return GetFileName(data.DicName, data.FileName, data.Type, FileType);
         }
+
+        public static string GetFileName(string dicName, string fileName, TranslateDataType dataType, GenerateFileType FileType)
+        {
+            if (FileType == GenerateFileType.Merged)
+                return $"{TranslatedDataDic}/{dicName}/{fileName}";
+
+            return GetFileName(dicName, dataType, FileType);
+        }
+
         public static string GetFileName(string dicName, TranslateDataType dataType, GenerateFileType FileType)
         {
             if (FileType == GenerateFileType.Config)
@@ -79,7 +88,6 @@ namespace AITranslator.Translator.Models
                         GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.json",
                         GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.json",
                         GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.json",
-                        GenerateFileType.Merged => $"{TranslatedDataDic}/{dicName}/合并结果.json",
                         _ => throw new KnownException("无效的存储文件类型")
                     };
                 case TranslateDataType.Srt:
@@ -89,8 +97,7 @@ namespace AITranslator.Translator.Models
                         GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.srt",
                         GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.srt",
                         GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.srt",
-                        GenerateFileType.Merged => $"{TranslatedDataDic}/{dicName}/合并结果.srt",
-                        _=> throw new KnownException("无效的存储文件类型")
+                        _ => throw new KnownException("无效的存储文件类型")
                     };
                 case TranslateDataType.Txt:
                     return FileType switch
@@ -99,7 +106,6 @@ namespace AITranslator.Translator.Models
                         GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.txt",
                         GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.json",
                         GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.json",
-                        GenerateFileType.Merged => $"{TranslatedDataDic}/{dicName}/合并结果.txt",
                         _ => throw new KnownException("无效的存储文件类型")
                     };
                 default:

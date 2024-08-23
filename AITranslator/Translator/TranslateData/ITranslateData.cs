@@ -18,6 +18,7 @@ namespace AITranslator.Translator.TranslateData
     public interface ITranslateData
     {
         public TranslateDataType Type { get; }
+        public string FileName { get; set; }
         public string DicName { get; set; }
 
         public void GetNotTranslatedData();

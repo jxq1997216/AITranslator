@@ -102,9 +102,9 @@ namespace AITranslator.Translator.Translation
             //创建Data
             TranslateData = task.TranslateType switch
             {
-                TranslateDataType.KV => new KVTranslateData(task.DicName),
-                TranslateDataType.Srt => new SrtTranslateData(task.DicName),
-                TranslateDataType.Txt => new TxtTranslateData(task.DicName),
+                TranslateDataType.KV => new KVTranslateData(task.DicName,task.FileName),
+                TranslateDataType.Srt => new SrtTranslateData(task.DicName, task.FileName),
+                TranslateDataType.Txt => new TxtTranslateData(task.DicName, task.FileName),
                 _ => throw new KnownException("不支持的翻译文件类型"),
             };
 
