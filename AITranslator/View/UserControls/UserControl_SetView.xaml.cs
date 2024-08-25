@@ -43,5 +43,11 @@ namespace AITranslator.View.UserControls
         {
             e.Handled = re_Num.IsMatch(e.Text);
         }
+
+        public void EnableSet()
+        {
+            (DataContext as ViewModel_SetView)!.Enable();
+            Window_Message.ShowDialog("提示","应用成功");
+        }
     }
 }
