@@ -191,5 +191,11 @@ namespace AITranslator
             await Task.Delay(animTime);
             Close();
         }
+
+
+        private void Button_EnableSet_Click(object sender, RoutedEventArgs e)
+        {
+            uc_Set.EnableSet();
+        }
     }
 }

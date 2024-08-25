@@ -234,12 +234,6 @@ namespace AITranslator.View.Models
         }
 
         [RelayCommand]
-        private void EnableSet()
-        {
-            SetView_ViewModel.Enable();
-        }
-
-        [RelayCommand]
         private void ShowDeclare()
         {
             Window_Message.ShowDialog("软件声明", "\r\nAITranslator皆仅供学习交流使用，开发者对使用本软件造成的问题不负任何责任。\r\n\r\n使用此软件翻译时，请遵守所使用模型或平台的相关规定\r\n\r\n所有使用本软件翻译的文件与其衍生成果均禁止任何形式的商用！\r\n\r\n所有使用本软件翻译的文件与其衍生成果均与软件制作者无关，请各位遵守法律，合法翻译。\r\n\r\n本软件为免费使用，如果您是付费购买的，请立刻举报您购买的平台");

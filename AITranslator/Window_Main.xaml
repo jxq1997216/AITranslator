@@ -170,7 +170,7 @@
                             </StackPanel>
 
                             <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_SetView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="应用" Command="{Binding EnableSetCommand}">
+                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="应用" Click="Button_EnableSet_Click">
                                     <controls:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Viewbox Width="12" Height="12" Margin="0,0,5,0">
