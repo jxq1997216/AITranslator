@@ -4,10 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AITranslator.View.UserControls"
-             xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+             xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:controls="clr-namespace:AITranslator.View.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="550" d:DesignWidth="350">
-    <ListBox x:Name="list_Logs" Background="Transparent" BorderThickness="0" ItemsSource="{Binding Consoles}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Auto">
+    <controls:LogView x:Name="logView" Background="Transparent" BorderThickness="0" ItemsSource="{Binding Consoles}" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Auto">
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
                 <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -26,5 +26,5 @@
                 <TextBlock TextWrapping="Wrap" Foreground="Gray" FocusVisualStyle="{x:Null}"  Width="{calc:Binding '(ActualWidth - 5) less 0 ? 0 : (ActualWidth - 5)',ElementName=list_Logs}" Text="{Binding}"/>
             </DataTemplate>
         </ListBox.ItemTemplate>
-    </ListBox>
+    </controls:LogView>
 </UserControl>

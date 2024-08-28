@@ -44,7 +44,7 @@ namespace AITranslator
     {
         public Window_Main()
         {
-            ServicePointManager.SecurityProtocol =  SecurityProtocolType.Tls |
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls |
                                                     SecurityProtocolType.Tls11 |
                                                     SecurityProtocolType.Tls12 |
                                                     SecurityProtocolType.Tls13;
@@ -134,10 +134,8 @@ namespace AITranslator
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                // 获取最后一个添加的项            
-                var newItem = e.NewItems[0];
-                // 滚动到最后一个添加的项
-                uc_Logs.ViewToItem(newItem);
+                // 滚动到最后
+                uc_Logs.ViewToItem();
             }
         }
 
