@@ -23,7 +23,7 @@ namespace AITranslator.View.Models
     /// <summary>
     /// 用于界面绑定的ViewModel
     /// </summary>
-    public partial class ViewModel_SetView : ObservableObject
+    public partial class ViewModel_SetView : ObservableValidator
     {
         /// <summary>
         /// 启用邮件通知
@@ -64,7 +64,7 @@ namespace AITranslator.View.Models
         /// 重翻失败部分最大次数
         /// </summary>
         [ObservableProperty]
-        private byte translateFailedTimes = 3;
+        private int translateFailedTimes = 3;
         /// <summary>
         /// 启用翻译完成自动关机
         /// </summary>

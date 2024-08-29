@@ -7,6 +7,7 @@
              xmlns:vm="clr-namespace:AITranslator.View.Models"
              xmlns:controls="clr-namespace:AITranslator.View.Controls"
              xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+             xmlns:pros="clr-namespace:AITranslator.View.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="550" d:DesignWidth="350">
     <DockPanel IsEnabled="{calc:Binding 'ActiveTask == null and (CommunicatorLLama_ViewModel.ModelLoaded or CommunicatorType != vm:CommunicatorType.LLama)'}">
@@ -39,7 +40,7 @@
                                 <ColumnDefinition Width="40"/>
                             </Grid.ColumnDefinitions>
                             <Slider x:Name="slider_Temperature" Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="0" Value="{Binding Temperature,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                            <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedDecimal" CaretBrush="White" Text="{Binding Value,ElementName=slider_Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         </Grid>
                     </GroupBox>
                     <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
@@ -52,7 +53,7 @@
                                 <ColumnDefinition Width="40"/>
                             </Grid.ColumnDefinitions>
                             <Slider x:Name="slider_FrequencyPenalty" Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                            <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding Value,ElementName=slider_FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                         </Grid>
                     </GroupBox>
 

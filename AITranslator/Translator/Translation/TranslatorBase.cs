@@ -150,7 +150,7 @@ namespace AITranslator.Translator.Translation
                     //保存文件
                     SaveFiles();
 
-                    byte translateFailedTimes = ViewModelManager.ViewModel.SetView_ViewModel.TranslateFailedAgain ? ViewModelManager.ViewModel.SetView_ViewModel.TranslateFailedTimes : (byte)0;
+                    int translateFailedTimes = ViewModelManager.ViewModel.SetView_ViewModel.TranslateFailedAgain ? ViewModelManager.ViewModel.SetView_ViewModel.TranslateFailedTimes : 0;
                     int i = 0;
                     while (true)
                     {

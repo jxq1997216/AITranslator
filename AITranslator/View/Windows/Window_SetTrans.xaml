@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
         xmlns:controls="clr-namespace:AITranslator.View.Controls"
-        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:translatedata="clr-namespace:AITranslator.Translator.TranslateData"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" 
+        xmlns:translatedata="clr-namespace:AITranslator.Translator.TranslateData"
+        xmlns:pros="clr-namespace:AITranslator.View.Properties"
         mc:Ignorable="d"
         Title="Start Config" SizeToContent="Height" Height="Auto" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Window.DataContext>
@@ -65,7 +67,7 @@
                                         <ColumnDefinition Width="40"/>
                                     </Grid.ColumnDefinitions>
                                     <Slider x:Name="slider_HistoryCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding HistoryCount}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                                    <TextBox Grid.Column="1" Text="{Binding Value, ElementName=slider_HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding Value, ElementName=slider_HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                                 </Grid>
                             </GroupBox>
                         </Grid>

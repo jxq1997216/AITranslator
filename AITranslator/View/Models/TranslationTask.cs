@@ -108,9 +108,9 @@ namespace AITranslator.View.Models
         /// <summary>
         /// 上下文记忆数量
         /// </summary>
-        [Range(typeof(uint), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
+        [Range(typeof(int), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
         [ObservableProperty]
-        private uint historyCount = 5;
+        private int historyCount = 5;
 
         /// <summary>
         /// 翻译类型

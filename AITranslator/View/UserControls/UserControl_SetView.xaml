@@ -8,20 +8,21 @@
              xmlns:media ="clr-namespace:System.Windows.Media;assembly=PresentationCore" 
              xmlns:controls="clr-namespace:AITranslator.View.Controls"
              xmlns:vm="clr-namespace:AITranslator.View.Models"
+             xmlns:pros="clr-namespace:AITranslator.View.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="550" d:DesignWidth="350" IsVisibleChanged="UserControl_IsVisibleChanged">
     <UserControl.DataContext>
         <vm:ViewModel_SetView/>
     </UserControl.DataContext>
     <StackPanel Margin="5">
-        <GroupBox Grid.Column="1" Margin="5,0,0,0" BorderThickness="0.1" BorderBrush="White">
+        <GroupBox Grid.Column="1" Margin="0,0,0,5" BorderThickness="0.1" BorderBrush="White">
             <GroupBox.Header>
                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                     <CheckBox Content="邮件通知" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding EnableEmail}"/>
                     <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="启用后，每个任务翻译完成或出现错误暂停时都会发送邮件通知您"/>
                 </StackPanel>
             </GroupBox.Header>
-            <StackPanel Margin="5" IsEnabled="{Binding EnableEmail}">
+            <StackPanel>
                 <Grid Margin="0,0,0,5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="90"/>
@@ -63,14 +64,16 @@
                     </Border>
                 </Grid>
                 <CheckBox HorizontalAlignment="Center" Content="使用SSL" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" IsChecked="{Binding SmtpUseSSL}"/>
-                <controls:ViewButton EnableAnimation="DisEnable" Margin="0,10,0,0" HorizontalAlignment="Center" Height="25" Width="120" Content="发送测试邮件" Command="{Binding SendTestMailCommand}"/>
+
+                <controls:ViewButton EnableAnimation="DisEnable"  Margin="0,10,0,0" HorizontalAlignment="Center" Height="25" Width="120" Content="发送测试邮件" Command="{Binding SendTestMailCommand}"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Grid.Column="1" Margin="5,0,0,0" BorderThickness="0.1" BorderBrush="White">
+
+        <GroupBox Grid.Column="1" Margin="0,0,0,5" BorderThickness="0.1" BorderBrush="White">
             <GroupBox.Header>
                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                     <CheckBox Content="自动重翻失败部分" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding TranslateFailedAgain}"/>
-                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="当翻译任务完成时存在翻译失败部分，不等待合并，而是重新将翻译失败的部分进行重新翻译"/>
+                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="当翻译任务完成时存在翻译失败部分，不等待合并，而是将翻译失败的部分进行重新翻译"/>
                 </StackPanel>
             </GroupBox.Header>
             <StackPanel Margin="5" IsEnabled="{Binding TranslateFailedAgain }">
@@ -82,11 +85,12 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="重翻次数" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <Slider x:Name="slider_Retranslations" Grid.Column="1" Margin="10,0" Maximum="10" Minimum="1" Value="{Binding TranslateFailedTimes}" Ticks="1 2 3 4 5 6 7 8 9 10" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                    <TextBox Grid.Column="2" Text="{Binding Value, ElementName=slider_Retranslations}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox Grid.Column="2" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding Value, ElementName=slider_Retranslations}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 </Grid>
             </StackPanel>
         </GroupBox>
 
-        <CheckBox HorizontalAlignment="Left" Margin="5" Content="全部翻译完成自动关闭电脑 (仅此次翻译生效)" Foreground="White" IsChecked="{Binding AutoShutdown}"/>
+
+        <CheckBox HorizontalAlignment="Left" Margin="0" Content="全部翻译完成自动关闭电脑 (仅此次翻译生效)" Foreground="White" IsChecked="{Binding AutoShutdown}"/>
     </StackPanel>
 </UserControl>

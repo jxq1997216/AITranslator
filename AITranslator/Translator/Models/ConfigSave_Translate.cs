@@ -25,7 +25,7 @@ namespace AITranslator.Translator.Models
         /// <summary>
         /// 上下文记忆数量
         /// </summary>
-        public uint HistoryCount { get; set; }
+        public int HistoryCount { get; set; }
         /// <summary>
         /// 翻译类型
         /// </summary>

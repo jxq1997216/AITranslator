@@ -41,7 +41,7 @@ namespace AITranslator.Translator.Models
         /// <summary>
         /// 重翻失败部分最大次数
         /// </summary>
-        public byte TranslateFailedTimes { get; set; }
+        public int TranslateFailedTimes { get; set; }
         /// <summary>
         /// 启用翻译完成自动关机
         /// </summary>
