@@ -56,6 +56,16 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private bool smtpUseSSL = true;
         /// <summary>
+        /// 重翻失败部分
+        /// </summary>
+        [ObservableProperty]
+        private bool translateFailedAgain = false;
+        /// <summary>
+        /// 重翻失败部分最大次数
+        /// </summary>
+        [ObservableProperty]
+        private byte translateFailedTimes = 3;
+        /// <summary>
         /// 启用翻译完成自动关机
         /// </summary>
         [ObservableProperty]
@@ -72,6 +82,8 @@ namespace AITranslator.View.Models
             vm.SmtpPort = SmtpPort;
             vm.AutoShutdown = AutoShutdown;
             vm.SmtpUseSSL = SmtpUseSSL;
+            vm.TranslateFailedAgain = TranslateFailedAgain;
+            vm.TranslateFailedTimes = TranslateFailedTimes;
             ViewModelManager.SaveBaseConfig();
         }
 
@@ -87,6 +99,8 @@ namespace AITranslator.View.Models
                 SmtpPort = vm.SmtpPort,
                 AutoShutdown = vm.AutoShutdown,
                 SmtpUseSSL = vm.SmtpUseSSL,
+                TranslateFailedAgain = vm.TranslateFailedAgain,
+                TranslateFailedTimes = vm.TranslateFailedTimes,
             };
         }
 

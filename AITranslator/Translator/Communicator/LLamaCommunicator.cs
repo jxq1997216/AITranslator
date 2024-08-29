@@ -40,7 +40,7 @@ namespace AITranslator.Translator.Communicator
             }
             else
                 llamaPath += "llama.dll";
-            NativeLibraryConfig.Instance.WithLibrary(llamaPath, null);
+            NativeLibraryConfig.LLama.WithLibrary(llamaPath);
         }
 
         static CancellationTokenSource _cts;
@@ -126,7 +126,7 @@ namespace AITranslator.Translator.Communicator
     internal class LLamaCommunicator : ICommunicator
     {
         CancellationTokenSource _cts;
-
+        Stopwatch sw = new Stopwatch();
         public LLamaCommunicator()
         {
             _cts = new CancellationTokenSource();
@@ -143,8 +143,9 @@ namespace AITranslator.Translator.Communicator
             };
             return new(role, exampleDialogue.content);
         }
-        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText)
+        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText, out double speed)
         {
+            speed = 0;
             LLamaPostData _postData = postData as LLamaPostData;
             CancellationToken token = _cts.Token;
 
@@ -171,12 +172,13 @@ namespace AITranslator.Translator.Communicator
             {
                 try
                 {
-                    List<Message> messages = new List<Message>();
-                    messages.AddRange(_headers);
-                    messages.AddRange(_histories);
-                    messages.Add(new(AuthorRole.User, inputText));
+                    List<Message> messages = [.. _headers, .. _histories, new(AuthorRole.User, inputText)];
                     string data = HistoryToText(messages);
-                    str = string.Join(string.Empty, LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
+                    sw.Restart();
+                    List<string> resultText = LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token).ToList();
+                    sw.Stop();
+                    str = string.Join(string.Empty,resultText);
+                    speed = resultText.Count / (sw.ElapsedMilliseconds / 1000d);
                     noKvSlotError = false;
                 }
                 catch (LLamaDecodeError err)

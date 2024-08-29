@@ -84,6 +84,14 @@ namespace AITranslator.Translator.TranslateData
             }
         }
 
+        /// <summary>
+        /// 清除翻译失败的内容，用于重翻
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public void ClearFailedData()
+        {
+            Dic_Failed.Clear();
+        }
         public double GetProgress()
         {
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;
@@ -128,5 +136,7 @@ namespace AITranslator.Translator.TranslateData
             Dictionary<string, string> dic_failed = JsonPersister.Load<Dictionary<string, string>>(failedFile);
             return dic_failed.Count != 0;
         }
+
+
     }
 }

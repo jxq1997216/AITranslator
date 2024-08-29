@@ -112,7 +112,14 @@ namespace AITranslator.Translator.TranslateData
                 Dic_NotTranslated[key] = Dic_Cleaned[key];
             }
         }
-
+        /// <summary>
+        /// 清除翻译失败的内容，用于重翻
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public void ClearFailedData()
+        {
+            Dic_Failed.Clear();
+        }
         public double GetProgress()
         {
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;

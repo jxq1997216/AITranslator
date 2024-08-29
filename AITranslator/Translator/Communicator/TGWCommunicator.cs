@@ -12,11 +12,13 @@ using System.Threading.Tasks;
 using AITranslator.Translator.PostData;
 using AITranslator.Translator.Models;
 using System.Reflection.PortableExecutable;
+using System.Diagnostics;
 
 namespace AITranslator.Translator.Communicator
 {
     internal class TGWCommunicator : ICommunicator
     {
+        Stopwatch sw = new Stopwatch();
         HttpClient _client;
         Uri _url;
         CancellationTokenSource _cts;
@@ -30,12 +32,13 @@ namespace AITranslator.Translator.Communicator
             };
         }
 
-        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string prompt_with_text)
+        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText, out double speed)
         {
+            speed = 0;
             TGWPostData _PostData = postData as TGWPostData;
 
             List<ExampleDialogue> exampleDialogues = [.. headers, .. histories];
-            exampleDialogues.Add(new("user", prompt_with_text));
+            exampleDialogues.Add(new("user", inputText));
             _PostData.messages = exampleDialogues.ToArray();
 
             CancellationToken token = _cts.Token;
@@ -49,14 +52,18 @@ namespace AITranslator.Translator.Communicator
                     string sendJson = JsonConvert.SerializeObject(_PostData);
                     using (StringContent httpContent = new StringContent(sendJson, Encoding.UTF8, "application/json"))
                     {
+                        sw.Restart();
                         using (HttpResponseMessage? httpResponse = _client.PostAsync(_url, httpContent, token).Result)
                         {
+                            sw.Stop();
                             string json_result = httpResponse.Content.ReadAsStringAsync().Result;
 
                             if (httpResponse.StatusCode == HttpStatusCode.OK)
                             {
                                 JObject jobj = (JObject)JsonConvert.DeserializeObject(json_result);
                                 str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString()?.Trim() ?? string.Empty;
+                                int completion_tokens = jobj["usage"]!["completion_tokens"]!.Value<int>();
+                                speed = completion_tokens / (sw.ElapsedMilliseconds / 1000d);
                                 retry = false;
                             }
                             else

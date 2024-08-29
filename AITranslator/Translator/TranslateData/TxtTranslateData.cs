@@ -84,6 +84,14 @@ namespace AITranslator.Translator.TranslateData
                 Dic_NotTranslated[i] = List_Cleaned[i];
             }
         }
+        /// <summary>
+        /// 清除翻译失败的内容，用于重翻
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public void ClearFailedData()
+        {
+            Dic_Failed.Clear();
+        }
 
         public double GetProgress()
         {

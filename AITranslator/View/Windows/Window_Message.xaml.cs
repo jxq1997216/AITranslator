@@ -34,7 +34,7 @@ namespace AITranslator.View.Windows
         [ObservableProperty]
         private bool isSingleBtn;
 
-        public static Window DefaultOwner;
+        public static Window? DefaultOwner;
         private Window_Message()
         {
             InitializeComponent();

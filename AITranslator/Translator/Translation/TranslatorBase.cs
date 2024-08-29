@@ -102,7 +102,7 @@ namespace AITranslator.Translator.Translation
             //创建Data
             TranslateData = task.TranslateType switch
             {
-                TranslateDataType.KV => new KVTranslateData(task.DicName,task.FileName),
+                TranslateDataType.KV => new KVTranslateData(task.DicName, task.FileName),
                 TranslateDataType.Srt => new SrtTranslateData(task.DicName, task.FileName),
                 TranslateDataType.Txt => new TxtTranslateData(task.DicName, task.FileName),
                 _ => throw new KnownException("不支持的翻译文件类型"),
@@ -150,10 +150,36 @@ namespace AITranslator.Translator.Translation
                     //保存文件
                     SaveFiles();
 
-                    if (TryMergeData())
-                        TranslateSuccessful();
-                    else
-                        TranslateNeedMerge();
+                    byte translateFailedTimes = ViewModelManager.ViewModel.SetView_ViewModel.TranslateFailedAgain ? ViewModelManager.ViewModel.SetView_ViewModel.TranslateFailedTimes : (byte)0;
+                    int i = 0;
+                    while (true)
+                    {
+                        if (TryMergeData())
+                        {
+                            TranslateSuccessful();
+                            break;
+                        }
+                        else
+                        {
+                            if (i >= translateFailedTimes)
+                            {
+                                //等待合并
+                                TranslateNeedMerge();
+                                break;
+                            }
+                            else
+                            {
+                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始第{i + 1}次重翻失败部分");
+                                //重新翻译失败部分
+                                TranslateData.ClearFailedData();
+                                TranslateData.GetNotTranslatedData();
+                                Translate();
+                                SaveFiles();
+                            }
+                        }
+
+                        i++;
+                    }
                 }
                 catch (FileSaveException err)
                 {
@@ -374,8 +400,8 @@ namespace AITranslator.Translator.Translation
             postData.frequency_penalty = frequencyPenalty;
             postData.max_tokens = maxTokens;
 
-            string str_result = _communicator.Translate(postData, headers, history, $"{prompt_with_text}{str}");
-
+            string str_result = _communicator.Translate(postData, headers, history, $"{prompt_with_text}{str}", out double speed);
+            _translationTask.Speed = speed;
             return str_result;
         }
     }

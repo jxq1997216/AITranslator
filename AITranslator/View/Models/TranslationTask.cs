@@ -94,7 +94,11 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private double progress;
-
+        /// <summary>
+        /// 翻译速度tokens/s
+        /// </summary>
+        [ObservableProperty]
+        private double speed;
         /// <summary>
         /// 是否是英语翻译
         /// </summary>
@@ -168,6 +172,7 @@ namespace AITranslator.View.Models
         private void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
         {
             _translator.Stoped -= _translator_Stoped;
+            Speed = 0;
             if (ViewModelManager.ViewModel.ActiveTask == this)
                 ViewModelManager.ViewModel.ActiveTask = null;
 
@@ -396,10 +401,7 @@ namespace AITranslator.View.Models
         [RelayCommand]
         private void OpenDic()
         {
-            ExpandedFuncs.TryExceptions(() =>
-            {
-                openDic();
-            },
+            ExpandedFuncs.TryExceptions(() => openDic(),
             (err) =>
             {
                 if (err is DicNotFoundException)

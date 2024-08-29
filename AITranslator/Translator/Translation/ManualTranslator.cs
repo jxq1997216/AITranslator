@@ -52,7 +52,7 @@ namespace AITranslator.Translator.Translation
 
             postData.max_tokens = str.Length;
 
-            string str_result = _communicator.Translate(postData, Array.Empty<ExampleDialogue>(), Array.Empty<ExampleDialogue>(), $"将下面的文本翻译成中文：{str}");
+            string str_result = _communicator.Translate(postData, Array.Empty<ExampleDialogue>(), Array.Empty<ExampleDialogue>(), $"将下面的文本翻译成中文：{str}",out double speed);
             return str_result;
         }
         public void Dispose()

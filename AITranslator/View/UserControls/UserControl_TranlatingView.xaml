@@ -57,7 +57,8 @@
                         <TextBlock x:Name="tb_title" DockPanel.Dock="Top" HorizontalAlignment="Left" MaxWidth="180" Foreground="Gray" FocusVisualStyle="{x:Null}"  Text="{Binding FileName}" ToolTip="{Binding FileName}"/>
                         <Rectangle DockPanel.Dock="Top" Margin="0,2" HorizontalAlignment="Left" MaxWidth="180" Width="{Binding ActualWidth, ElementName=tb_title}" Fill="#3CFFFFFF" Height="1"/>
                         <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Width="58" Foreground="Gray" Text="{Binding Progress,StringFormat={}{0:0.00}%}"/>
-                        <TextBlock HorizontalAlignment="Left" Foreground="Gray" Text="{Binding State,Converter={StaticResource TaskStateToString}}"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="0,0,10,0" Foreground="Gray" Text="{Binding State,Converter={StaticResource TaskStateToString}}"/>
+                        <TextBlock HorizontalAlignment="Left" Foreground="Gray" Visibility="{Binding State,Converter={StaticResource TaskStateToSpeedVisibility}}" Text="{Binding Speed,StringFormat={}{0:0.##} Tokens/s}"/>
                     </DockPanel>
                 </Border>
             </DataTemplate>

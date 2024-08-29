@@ -66,6 +66,27 @@
                 <controls:ViewButton EnableAnimation="DisEnable" Margin="0,10,0,0" HorizontalAlignment="Center" Height="25" Width="120" Content="发送测试邮件" Command="{Binding SendTestMailCommand}"/>
             </StackPanel>
         </GroupBox>
+        <GroupBox Grid.Column="1" Margin="5,0,0,0" BorderThickness="0.1" BorderBrush="White">
+            <GroupBox.Header>
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <CheckBox Content="自动重翻失败部分" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding TranslateFailedAgain}"/>
+                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="当翻译任务完成时存在翻译失败部分，不等待合并，而是重新将翻译失败的部分进行重新翻译"/>
+                </StackPanel>
+            </GroupBox.Header>
+            <StackPanel Margin="5" IsEnabled="{Binding TranslateFailedAgain }">
+                <Grid Margin="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="重翻次数" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Slider x:Name="slider_Retranslations" Grid.Column="1" Margin="10,0" Maximum="10" Minimum="1" Value="{Binding TranslateFailedTimes}" Ticks="1 2 3 4 5 6 7 8 9 10" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                    <TextBox Grid.Column="2" Text="{Binding Value, ElementName=slider_Retranslations}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+
         <CheckBox HorizontalAlignment="Left" Margin="5" Content="全部翻译完成自动关闭电脑 (仅此次翻译生效)" Foreground="White" IsChecked="{Binding AutoShutdown}"/>
     </StackPanel>
 </UserControl>

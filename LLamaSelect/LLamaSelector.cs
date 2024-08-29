@@ -4,7 +4,7 @@ namespace LLamaSelect
 {
     public static class LLamaSelector
     {
-        [DllImport("CUDA/cudart64_12.dll")] // 假设你使用的是CUDA 10.0版本
+        [DllImport("CUDA/cudart64_12.dll")]
         private static extern int cudaDriverGetVersion(out int version);
 
         public static string GetLLamaPath()
