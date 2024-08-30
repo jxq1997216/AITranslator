@@ -14,83 +14,144 @@
     <UserControl.DataContext>
         <vm:ViewModel_SetView/>
     </UserControl.DataContext>
-    <StackPanel Margin="5">
-        <GroupBox Grid.Column="1" Margin="0,0,0,5" BorderThickness="0.1" BorderBrush="White">
-            <GroupBox.Header>
-                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                    <CheckBox Content="邮件通知" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding EnableEmail}"/>
-                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="启用后，每个任务翻译完成或出现错误暂停时都会发送邮件通知您"/>
+    <ScrollViewer  Margin="5" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <GroupBox Grid.Column="1" Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <CheckBox Content="邮件通知" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding EnableEmail}"/>
+                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="启用后，每个任务翻译完成或出现错误暂停时都会发送邮件通知您"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel >
+                    <Grid Margin="0,0,0,5" IsEnabled="{Binding EnableEmail}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="邮箱地址:" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}"/>
+                        <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
+                            <TextBox Text="{Binding EmailAddress}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                        </Border>
+                    </Grid>
+                    <Grid Margin="0,0,0,5" IsEnabled="{Binding EnableEmail}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="授权码:" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}"/>
+                        <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
+                            <TextBox Text="{Binding EmailPassword}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                        </Border>
+                    </Grid>
+                    <Grid Margin="0,0,0,5" IsEnabled="{Binding EnableEmail}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="SMTP服务器:" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}"/>
+                        <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
+                            <TextBox Text="{Binding SmtpAddress}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                        </Border>
+                    </Grid>
+                    <Grid Margin="0,0,0,5" IsEnabled="{Binding EnableEmail}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="SMTP服务端口:" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}"/>
+                        <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
+                            <TextBox Text="{Binding SmtpPort}" Foreground="White" PreviewTextInput="NumberInput" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
+                        </Border>
+                    </Grid>
+                    <CheckBox HorizontalAlignment="Center" IsEnabled="{Binding EnableEmail}" Content="使用SSL" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" IsChecked="{Binding SmtpUseSSL}"/>
+
+                    <controls:ViewButton EnableAnimation="DisEnable" IsEnabled="{Binding EnableEmail}" Margin="0,10,0,0" HorizontalAlignment="Center" Height="25" Width="120" Content="发送测试邮件" Command="{Binding SendTestMailCommand}"/>
                 </StackPanel>
-            </GroupBox.Header>
-            <StackPanel >
-                <Grid Margin="0,0,0,5" IsEnabled="{Binding EnableEmail}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="90"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="邮箱地址:" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}"/>
-                    <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
-                        <TextBox Text="{Binding EmailAddress}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
-                    </Border>
-                </Grid>
-                <Grid Margin="0,0,0,5" IsEnabled="{Binding EnableEmail}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="90"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="授权码:" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}"/>
-                    <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
-                        <TextBox Text="{Binding EmailPassword}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
-                    </Border>
-                </Grid>
-                <Grid Margin="0,0,0,5" IsEnabled="{Binding EnableEmail}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="90"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="SMTP服务器:" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}"/>
-                    <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
-                        <TextBox Text="{Binding SmtpAddress}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
-                    </Border>
-                </Grid>
-                <Grid Margin="0,0,0,5" IsEnabled="{Binding EnableEmail}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="90"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="SMTP服务端口:" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}"/>
-                    <Border Grid.Column="1" BorderThickness="1" BorderBrush="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
-                        <TextBox Text="{Binding SmtpPort}" Foreground="White" PreviewTextInput="NumberInput" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
-                    </Border>
-                </Grid>
-                <CheckBox HorizontalAlignment="Center" IsEnabled="{Binding EnableEmail}" Content="使用SSL" Foreground="{calc:Binding !EnableEmail ? media:Brushes.Gray : media:Brushes.White}" IsChecked="{Binding SmtpUseSSL}"/>
+            </GroupBox>
 
-                <controls:ViewButton EnableAnimation="DisEnable" IsEnabled="{Binding EnableEmail}" Margin="0,10,0,0" HorizontalAlignment="Center" Height="25" Width="120" Content="发送测试邮件" Command="{Binding SendTestMailCommand}"/>
-            </StackPanel>
-        </GroupBox>
-
-        <GroupBox Grid.Column="1" Margin="0,0,0,5" BorderThickness="0.1" BorderBrush="White">
-            <GroupBox.Header>
-                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                    <CheckBox Content="自动重翻失败部分" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding TranslateFailedAgain}"/>
-                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="当翻译任务完成时存在翻译失败部分，不等待合并，而是将翻译失败的部分进行重新翻译"/>
+            <GroupBox Grid.Column="1" Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <CheckBox Content="自动重翻失败部分" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding TranslateFailedAgain}"/>
+                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="当翻译任务完成时存在翻译失败部分，不等待合并，而是将翻译失败的部分进行重新翻译"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="5" IsEnabled="{Binding TranslateFailedAgain }">
+                    <Grid Margin="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="40"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="重翻次数" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Slider x:Name="slider_Retranslations" Grid.Column="1" Margin="10,0" Maximum="10" Minimum="1" Value="{Binding TranslateFailedTimes}" Ticks="1 2 3 4 5 6 7 8 9 10" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                        <TextBox Grid.Column="2" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding Value, ElementName=slider_Retranslations}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    </Grid>
                 </StackPanel>
-            </GroupBox.Header>
-            <StackPanel Margin="5" IsEnabled="{Binding TranslateFailedAgain }">
-                <Grid Margin="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="40"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="重翻次数" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Slider x:Name="slider_Retranslations" Grid.Column="1" Margin="10,0" Maximum="10" Minimum="1" Value="{Binding TranslateFailedTimes}" Ticks="1 2 3 4 5 6 7 8 9 10" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                    <TextBox Grid.Column="2" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding Value, ElementName=slider_Retranslations}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                </Grid>
-            </StackPanel>
-        </GroupBox>
+            </GroupBox>
 
+            <GroupBox Grid.Column="1" Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="名词替换模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
+                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置名词替换的模板,模板可以在翻译时直接使用"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="70"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Margin="5" Foreground="White" SelectedIndex="0">
+                            <ComboBoxItem Content="模板1"/>
+                        </ComboBox>
+                        <controls:ViewButton Margin="0,0,5,0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"  Content="新建模板" Width="60" Height="24" Click="Button_Add_Click"/>
 
-        <CheckBox HorizontalAlignment="Left" Margin="0" Content="全部翻译完成自动关闭电脑 (仅此次翻译生效)" Foreground="White" IsChecked="{Binding AutoShutdown}"/>
-    </StackPanel>
+                    </Grid>
+
+                    <ListBox x:Name="view_Replaces" Height="Auto" MaxHeight="200" Background="Transparent"  Grid.Row="2" BorderThickness="0" Margin="5" ItemsSource="{Binding Replaces}" ScrollViewer.CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Width="{calc:Binding 'ActualWidth - 5',ElementName=view_Replaces}" Margin="4,5,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="20"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="2"/>
+                                        <ColumnDefinition Width="22"/>
+                                        <ColumnDefinition Width="22"/>
+                                        <ColumnDefinition Width="22"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" CaretBrush="White" VerticalAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Key}"/>
+                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Foreground="White" FocusVisualStyle="{x:Null}" Text="→"/>
+                                    <TextBox Grid.Column="2" VerticalAlignment="Center" CaretBrush="White" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Value}"/>
+                                    <controls:ViewButton Grid.Column="4" Content="↑" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Up_Click"/>
+                                    <controls:ViewButton Grid.Column="5" Content="↓" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Down_Click"/>
+                                    <controls:ViewButton Grid.Column="6" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <controls:ViewButton Margin="5,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"  Content="+" Width="20" Height="20" Click="Button_Add_Click"/>
+                </StackPanel>
+
+            </GroupBox>
+            <CheckBox HorizontalAlignment="Left" Margin="0,0,5,5" Content="全部翻译完成自动关闭电脑 (仅此次翻译生效)" Foreground="White" IsChecked="{Binding AutoShutdown}"/>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

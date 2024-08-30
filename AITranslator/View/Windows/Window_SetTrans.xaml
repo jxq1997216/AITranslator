@@ -46,7 +46,7 @@
                 <Grid Margin="5" Grid.Row="1">
                     <StackPanel>
                         <TextBlock Margin="5" Foreground="White" Text="请配置你的翻译所用参数:"/>
-                        <Grid Margin="5,0,5,10">
+                        <Grid Margin="5,0,5,5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="3.5*"/>
@@ -58,7 +58,7 @@
                                 <GroupBox.Header>
                                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                         <TextBlock Text="上下文记忆" Foreground="White" FontSize="10"/>
-                                        <TextBlock Text=" [?]" Foreground="White" FontSize="10" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
+                                        <TextBlock Text=" [?]" Foreground="White" Cursor="Help" FontSize="10" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
                                     </StackPanel>
                                 </GroupBox.Header>
                                 <Grid Margin="2">
@@ -71,56 +71,68 @@
                                 </Grid>
                             </GroupBox>
                         </Grid>
-                        <StackPanel  Margin="5,5,5,0"  Orientation="Horizontal">
-                            <TextBlock Foreground="White" Text="请添加你要替换的专有名词:"/>
-                            <TextBlock Foreground="White" Text="[?]" Cursor="Help" ToolTip="注意：修改替换词后，已经被翻译的文本仍会保持原来的翻译"/>
-                        </StackPanel>
-                        <ListBox x:Name="view_Replaces" Height="Auto" MaxHeight="200" Background="Transparent"  Grid.Row="2" BorderThickness="0" Margin="5" ItemsSource="{Binding Replaces}" ScrollViewer.CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Width="{calc:Binding 'ActualWidth - 5',ElementName=view_Replaces}" Margin="4,5,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="20"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="2"/>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="22"/>
-                                            <ColumnDefinition Width="22"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0" CaretBrush="White" VerticalAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Key}"/>
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Foreground="White" FocusVisualStyle="{x:Null}" Text="→"/>
-                                        <TextBox Grid.Column="2" VerticalAlignment="Center" CaretBrush="White" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Value}"/>
-                                        <controls:ViewButton Grid.Column="4" Content="↑" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Up_Click"/>
-                                        <controls:ViewButton Grid.Column="5" Content="↓" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Down_Click"/>
-                                        <controls:ViewButton Grid.Column="6" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                        <StackPanel Margin="5,0,6,5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <controls:ViewButton  Content="+" Width="20" Height="20" Click="Button_Add_Click"/>
-                        </StackPanel>
-                        <Grid Margin="5" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <controls:ViewButton Margin="0,0,5,0" Grid.Column="0" Content="导入" Height="25" Click="Button_Import_Click" Cursor=""/>
-                            <controls:ViewButton Margin="5,0,0,0"  Grid.Column="1" Content="导出" Height="25" Click="Button_Export_Click" Cursor=""/>
-                        </Grid>
+
+                        <GroupBox Grid.Column="1" Margin="5,0,5,10" BorderThickness="0.1" BorderBrush="White">
+                            <GroupBox.Header>
+                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                    <TextBlock Text="名词替换" Foreground="White" FontSize="10"/>
+                                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" Cursor="Help" ToolTip="翻译时将部分名词替换成你想要的&#x0a;修改替换词不会对已经被翻译的文本生效"/>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <StackPanel>
+                                <StackPanel  Margin="5,5,5,0"  Orientation="Horizontal">
+                                    <TextBlock Foreground="White" Text="请添加你额外要替换的名词:"/>
+                                    <TextBlock Foreground="White" Text="[?]" Cursor="Help" ToolTip="在这里添加模板外额外要替换的词"/>
+                                </StackPanel>
+                                <ListBox x:Name="view_Replaces" Height="Auto" MaxHeight="200" Background="Transparent"  Grid.Row="2" BorderThickness="0" Margin="5" ItemsSource="{Binding Replaces}" ScrollViewer.CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Width="{calc:Binding 'ActualWidth - 5',ElementName=view_Replaces}" Margin="4,5,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="20"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="2"/>
+                                                    <ColumnDefinition Width="22"/>
+                                                    <ColumnDefinition Width="22"/>
+                                                    <ColumnDefinition Width="22"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0" CaretBrush="White" VerticalAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Key}"/>
+                                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Foreground="White" FocusVisualStyle="{x:Null}" Text="→"/>
+                                                <TextBox Grid.Column="2" VerticalAlignment="Center" CaretBrush="White" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Value}"/>
+                                                <controls:ViewButton Grid.Column="4" Content="↑" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Up_Click"/>
+                                                <controls:ViewButton Grid.Column="5" Content="↓" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Down_Click"/>
+                                                <controls:ViewButton Grid.Column="6" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <controls:ViewButton Margin="5,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"  Content="+" Width="20" Height="20" Click="Button_Add_Click"/>
+
+                                <Grid Margin="5" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <controls:ViewButton Margin="0,0,5,0" Grid.Column="0" Content="导入" Height="25" Click="Button_Import_Click" Cursor=""/>
+                                    <controls:ViewButton Margin="5,0,0,0"  Grid.Column="1" Content="导出" Height="25" Click="Button_Export_Click" Cursor=""/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+
 
                         <Border Visibility="{calc:Binding Error,FalseToVisibility=Collapsed}"  Margin="5,0,5,5" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
                             <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding ErrorMessage}"/>
