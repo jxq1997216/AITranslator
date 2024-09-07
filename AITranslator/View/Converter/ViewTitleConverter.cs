@@ -12,7 +12,7 @@ namespace AITranslator.View.Converter
 
     public class ViewTitleConverter : IMultiValueConverter
     {
-        string[] arr_ViewTitle = ["未完成","已完成","手动翻译","日志","设置"];
+        string[] arr_ViewTitle = ["未完成","已完成","手动翻译","日志","设置","模板"];
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             for (int i = 0; i < values.Length; i++)

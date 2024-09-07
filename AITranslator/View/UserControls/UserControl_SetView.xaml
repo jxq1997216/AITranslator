@@ -84,73 +84,13 @@
                             <ColumnDefinition/>
                             <ColumnDefinition Width="40"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="重翻次数" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        <Slider x:Name="slider_Retranslations" Grid.Column="1" Margin="10,0" Maximum="10" Minimum="1" Value="{Binding TranslateFailedTimes}" Ticks="1 2 3 4 5 6 7 8 9 10" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                        <TextBlock Text="重翻次数" Foreground="{calc:Binding !TranslateFailedAgain ? media:Brushes.Gray : media:Brushes.White}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Slider x:Name="slider_Retranslations" Foreground="Gray" Grid.Column="1" Margin="10,0" Maximum="10" Minimum="1" Value="{Binding TranslateFailedTimes}" Ticks="1 2 3 4 5 6 7 8 9 10" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
                         <TextBox Grid.Column="2" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding Value, ElementName=slider_Retranslations}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                     </Grid>
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
-                <GroupBox.Header>
-                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                        <TextBlock Text="名词替换模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
-                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置名词替换的模板,模板可以在翻译时直接使用"/>
-                    </StackPanel>
-                </GroupBox.Header>
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="70"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox Margin="5" Foreground="White" SelectedIndex="0">
-                            <ComboBoxItem Content="模板1"/>
-                        </ComboBox>
-                        <controls:ViewButton Margin="0,0,5,0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"  Content="新建模板" Width="60" Height="24" Click="Button_Add_Click"/>
-
-                    </Grid>
-
-                    <ListBox x:Name="view_Replaces" Height="Auto" MaxHeight="200" Background="Transparent"  Grid.Row="2" BorderThickness="0" Margin="5" ItemsSource="{Binding Replaces}" ScrollViewer.CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Standard" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Width="{calc:Binding 'ActualWidth - 5',ElementName=view_Replaces}" Margin="4,5,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="20"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="2"/>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition Width="22"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" CaretBrush="White" VerticalAlignment="Center" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Key}"/>
-                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Foreground="White" FocusVisualStyle="{x:Null}" Text="→"/>
-                                    <TextBox Grid.Column="2" VerticalAlignment="Center" CaretBrush="White" VerticalContentAlignment="Center" Background="Transparent" Foreground="White" FocusVisualStyle="{x:Null}"  Text="{Binding Value}"/>
-                                    <controls:ViewButton Grid.Column="4" Content="↑" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Up_Click"/>
-                                    <controls:ViewButton Grid.Column="5" Content="↓" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Down_Click"/>
-                                    <controls:ViewButton Grid.Column="6" Content="-" HorizontalAlignment="Center" Width="20" Height="20" Click="Button_Remove_Click"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-                    <controls:ViewButton Margin="5,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"  Content="+" Width="20" Height="20" Click="Button_Add_Click"/>
-                </StackPanel>
-
-            </GroupBox>
             <CheckBox HorizontalAlignment="Left" Margin="0,0,5,5" Content="全部翻译完成自动关闭电脑 (仅此次翻译生效)" Foreground="White" IsChecked="{Binding AutoShutdown}"/>
         </StackPanel>
     </ScrollViewer>

@@ -79,6 +79,16 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private ObservableCollection<TranslationTask> completedTasks = new ObservableCollection<TranslationTask>();
         /// <summary>
+        /// 提示词模板
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<Template> promptTemplate = new ObservableCollection<Template>();
+        /// <summary>
+        /// 替换词模板
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<Template> replaceTemplate = new ObservableCollection<Template>();
+        /// <summary>
         /// 是否使用OpenAI接口的第三方加载库
         /// </summary>
         [ObservableProperty]
@@ -246,6 +256,13 @@ namespace AITranslator.View.Models
             Window_CheckUpdate window_CheckUpdate = new Window_CheckUpdate();
             window_CheckUpdate.Owner = Window_Message.DefaultOwner;
             window_CheckUpdate.ShowDialog();
+        }
+
+
+        [RelayCommand]
+        private void AddReplaceTemplate()
+        {
+            ReplaceTemplate.Add(new("1234564615615646", TemplateType.Replace));
         }
     }
 }

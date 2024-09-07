@@ -61,10 +61,5 @@ namespace AITranslator.View.UserControls
             if (saveResult)
                 Window_Message.ShowDialog("提示", "应用成功");
         }
-
-        private void Button_Add_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

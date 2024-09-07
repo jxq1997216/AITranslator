@@ -119,6 +119,37 @@ namespace AITranslator
                     },
                     ShowDialog: false);
             }
+
+            if (!Directory.Exists(PublicParams.ReplaceTemplateDataDic))
+                Directory.CreateDirectory(PublicParams.ReplaceTemplateDataDic);
+            //读取名词替换模板文件夹信息，加载名词替换模板列表
+            FileInfo[] replaceTemplateFiles = Directory.GetFiles(PublicParams.ReplaceTemplateDataDic).Select(s => new FileInfo(s)).OrderBy(s => s.CreationTime).ToArray();
+            ViewModelManager.ViewModel.ReplaceTemplate.Add(new("无", TemplateType.Replace, false));
+            foreach (var fileInfo in replaceTemplateFiles)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    string fileName = fileInfo.Name[..^fileInfo.Extension.Length];
+                    Template template = new Template(fileName, TemplateType.Replace);
+                    ViewModelManager.ViewModel.ReplaceTemplate.Add(template);
+                },
+                ShowDialog: false);
+            }
+
+            if (!Directory.Exists(PublicParams.PromptTemplateDataDic))
+                Directory.CreateDirectory(PublicParams.PromptTemplateDataDic);
+            //读取提示词模板文件夹信息，加载提示词模板列表
+            FileInfo[] promptTemplateFiles = Directory.GetFiles(PublicParams.PromptTemplateDataDic).Select(s => new FileInfo(s)).OrderBy(s => s.CreationTime).ToArray();
+            foreach (var fileInfo in promptTemplateFiles)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    string fileName = fileInfo.Name[..^fileInfo.Extension.Length];
+                    Template template = new Template(fileName, TemplateType.Prompt);
+                    ViewModelManager.ViewModel.PromptTemplate.Add(template);
+                },
+                ShowDialog: false);
+            }
         }
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
         private void window_main_Closing(object sender, System.ComponentModel.CancelEventArgs e) => tbIcon.Dispose();
