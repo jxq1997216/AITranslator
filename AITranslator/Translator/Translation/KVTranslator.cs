@@ -148,7 +148,7 @@ namespace AITranslator.Translator.Translation
                             }
                             else
                             {
-                                Data.Dic_Failed[mergeKeys[i]] = mergeValues[i];
+                                Data.Dic_Failed[mergeKeys[i]] = result_single;
                                 SaveFailedFile();
                             }
 
@@ -170,7 +170,7 @@ namespace AITranslator.Translator.Translation
                             }
                             else
                             {
-                                Data.Dic_Failed[mergeKeys[i]] = mergeValues[i];
+                                Data.Dic_Failed[mergeKeys[i]] = result_single;
                                 SaveFailedFile();
                             }
 

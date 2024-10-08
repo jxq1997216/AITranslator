@@ -121,7 +121,7 @@ namespace AITranslator.Translator.Translation
                             if (result_single.Length > mergeValues[i].Length + 100)
                             {
                                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译后字数超过限制，怀疑模型退化，记录到错误列表。");
-                                Data.Dic_Failed[mergeKeys[i]] = mergeValues[i];
+                                Data.Dic_Failed[mergeKeys[i]] = result_single;
                                 SaveFailedFile();
                             }
                             else
@@ -145,7 +145,7 @@ namespace AITranslator.Translator.Translation
                             if (result_single.Length > mergeValues[i].Length + 100)
                             {
                                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译后字数超过限制，怀疑模型退化，记录到错误列表。");
-                                Data.Dic_Failed[mergeKeys[i]] = mergeValues[i];
+                                Data.Dic_Failed[mergeKeys[i]] = result_single;
                                 SaveFailedFile();
                             }
                             else

@@ -95,7 +95,9 @@ namespace AITranslator.Translator.Translation
                     result_single = Translate_NoResetNewline(source, true, 150, 0.1, 0.15);
                     if (!ResultVerification(source, result_single))
                     {
-                        Data.Dic_Failed[key] = value;
+                        SrtData faildData = value.Clone();
+                        faildData.Text = result_single;
+                        Data.Dic_Failed[key] = faildData;
                         SaveFailedFile();
                         CalculateProgress();
                         ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + result_single);
