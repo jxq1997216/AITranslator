@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Path = System.IO.Path;
 
 namespace AITranslator.View.Models
 {
@@ -260,9 +262,10 @@ namespace AITranslator.View.Models
 
 
         [RelayCommand]
-        private void AddReplaceTemplate()
+        private void OpenReplaceTemplateFolder()
         {
-            ReplaceTemplate.Add(new("1234564615615646", TemplateType.Replace));
+            string path = Path.GetFullPath(PublicParams.ReplaceTemplateDataDic);
+            Process.Start("explorer.exe", path);
         }
     }
 }
