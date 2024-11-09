@@ -32,19 +32,22 @@
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="ComboBoxItem">
-                    <!--<Setter Property="Height" Value="20"/>-->
+                    <Setter Property="Foreground" Value="Black"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate  TargetType="{x:Type ComboBoxItem}">
                                 <Grid Height="{TemplateBinding Height}" Width="{TemplateBinding Width}">
                                     <Border x:Name="_borderbg" Background="Transparent"/>
-                                    <TextBlock Margin="3 0 3 0" VerticalAlignment="Center" x:Name="_txt" Foreground="#333" Text="{Binding Content,RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    <!--<TextBlock Margin="3 0 3 0" VerticalAlignment="Center" x:Name="_txt" Foreground="#333" Text="{Binding Content,RelativeSource={RelativeSource TemplatedParent}}"/>-->
                                     <Border x:Name="_border" Background="White" Opacity="0"/>
                                 </Grid>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsSelected" Value="true">
                                         <Setter TargetName="_borderbg" Property="Background" Value="{StaticResource ComboBoxSelectdBackground}" />
-                                        <Setter TargetName="_txt" Property="Foreground" Value="{StaticResource ComboBoxSelectedForeground}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource ComboBoxSelectedForeground}"/>
                                     </Trigger>
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
@@ -52,7 +55,7 @@
                                             <Condition Property="IsMouseOver" Value="true"/>
                                         </MultiTrigger.Conditions>
                                         <Setter TargetName="_borderbg" Property="Background" Value="{StaticResource ComboBoxMouseOverBackground}" />
-                                        <Setter TargetName="_txt" Property="Foreground" Value="{StaticResource ComboBoxMouseOverForegrond}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource ComboBoxMouseOverForegrond}"/>
                                     </MultiTrigger>
 
                                 </ControlTemplate.Triggers>

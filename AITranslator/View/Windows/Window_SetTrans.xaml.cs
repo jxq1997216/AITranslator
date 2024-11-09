@@ -77,10 +77,10 @@ namespace AITranslator.View.Windows
 
 
             _vm.Replaces.Clear();
-            List<(string key, string value)> importDic = JsonPersister.Load<List<(string key, string value)>>(ofd.FileName);
+            Dictionary<string, string> importDic = JsonPersister.Load<Dictionary<string, string>>(ofd.FileName);
 
             foreach (var item in importDic)
-                _vm.Replaces.Add(new(item.key, item.value));
+                _vm.Replaces.Add(new(item.Key, item.Value));
         }
 
         private void Button_Export_Click(object sender, RoutedEventArgs e)
@@ -98,12 +98,12 @@ namespace AITranslator.View.Windows
             };
             if (!sfd.ShowDialog()!.Value)
                 return;
-            List<(string, string)> exportDic = new List<(string, string)>();
+            Dictionary<string, string> exportDic = new Dictionary<string, string>();
             foreach (var item in _vm.Replaces)
             {
                 string key = item.Key;
                 string value = item.Value;
-                exportDic.Add((key, value));
+                exportDic[key] = value;
             }
             JsonPersister.Save(exportDic, sfd.FileName);
         }

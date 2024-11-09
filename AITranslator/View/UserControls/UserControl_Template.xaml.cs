@@ -1,11 +1,14 @@
 ﻿using AITranslator.Exceptions;
 using AITranslator.Mail;
+using AITranslator.Translator.Models;
 using AITranslator.Translator.Tools;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -29,7 +32,60 @@ namespace AITranslator.View.UserControls
         public UserControl_Template()
         {
             InitializeComponent();
+            Task.Factory.StartNew(CheckFileChanged, TaskCreationOptions.LongRunning);
         }
 
+        void CheckFileChanged()
+        {
+            while (true)
+            {
+                if (!Directory.Exists(PublicParams.ReplaceTemplateDataDic))
+                    Directory.CreateDirectory(PublicParams.ReplaceTemplateDataDic);
+                //读取名词替换模板文件夹信息，加载名词替换模板列表
+                FileInfo[] replaceTemplateFiles = Directory.GetFiles(PublicParams.ReplaceTemplateDataDic,"*.json").Select(s => new FileInfo(s)).OrderBy(s => s.CreationTime).ToArray();
+                foreach (var fileInfo in replaceTemplateFiles)
+                {
+                    ExpandedFuncs.TryExceptions(() =>
+                    {
+                        string fileName = fileInfo.Name[..^fileInfo.Extension.Length];
+                        if (!ViewModelManager.ViewModel.ReplaceTemplate.Any(s => s.Name == fileName))
+                        {
+                            Template template = new Template(fileName, TemplateType.Replace);
+                            Dispatcher.Invoke(() => ViewModelManager.ViewModel.ReplaceTemplate.Add(template));
+                        }
+                    },
+                    ShowDialog: false);
+                }
+                for (int i = 0; i < ViewModelManager.ViewModel.ReplaceTemplate.Count; i++)
+                {
+                    ExpandedFuncs.TryExceptions(() =>
+                    {
+                        if (!replaceTemplateFiles.Any(s => s.Name[..^s.Extension.Length] == ViewModelManager.ViewModel.ReplaceTemplate[i].Name))
+                        {
+                            Dispatcher.Invoke(() => ViewModelManager.ViewModel.ReplaceTemplate.RemoveAt(i));
+                            i--;
+                        }
+                    },
+                  ShowDialog: false);
+                }
+
+                //if (!Directory.Exists(PublicParams.PromptTemplateDataDic))
+                //    Directory.CreateDirectory(PublicParams.PromptTemplateDataDic);
+                ////读取提示词模板文件夹信息，加载提示词模板列表
+                //FileInfo[] promptTemplateFiles = Directory.GetFiles(PublicParams.PromptTemplateDataDic).Select(s => new FileInfo(s)).OrderBy(s => s.CreationTime).ToArray();
+                //foreach (var fileInfo in promptTemplateFiles)
+                //{
+                //    ExpandedFuncs.TryExceptions(() =>
+                //    {
+                //        string fileName = fileInfo.Name[..^fileInfo.Extension.Length];
+                //        Template template = new Template(fileName, TemplateType.Prompt);
+                //        Dispatcher.Invoke(() => ViewModelManager.ViewModel.PromptTemplate.Add(template));
+                //    },
+                //    ShowDialog: false);
+                //}
+
+                Thread.Sleep(1000);
+            }
+        }
     }
 }
