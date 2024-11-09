@@ -11,10 +11,10 @@ namespace LLamaSelect
         {
             cudaDriverGetVersion(out int driverVersion);
 
-            if (driverVersion > 12000)
+            if (driverVersion >= 12200)
                 return "CUDA/llama.dll";
             else
-                return "OpenCL/llama.dll";
+                return "Vulkan/llama.dll";
         }
     }
 }

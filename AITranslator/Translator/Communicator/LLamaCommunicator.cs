@@ -20,6 +20,7 @@ using AITranslator.Translator.PostData;
 using AITranslator.Translator.Tools;
 using AITranslator.Translator.Models;
 using System.Reflection.PortableExecutable;
+using LLama.Sampling;
 
 namespace AITranslator.Translator.Communicator
 {
@@ -146,7 +147,7 @@ namespace AITranslator.Translator.Communicator
         public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText, out double speed)
         {
             speed = 0;
-            LLamaPostData _postData = postData as LLamaPostData;
+            LLamaPostData _postData = (postData as LLamaPostData)!;
             CancellationToken token = _cts.Token;
 
             Message[] _headers = new Message[headers.Length];
@@ -160,10 +161,16 @@ namespace AITranslator.Translator.Communicator
                 _histories.Add(ExampleDialogueToMessage(history));
 
 
-            InferenceParams inferenceParams = new InferenceParams()
+            InferenceParams inferenceParams = new InferenceParams
             {
-                MaxTokens = _postData.max_tokens,
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    Temperature = (float)_postData.temperature,
+                    AlphaFrequency = (float)_postData.frequency_penalty,
+                },
+
                 AntiPrompts = _postData.stop,
+                MaxTokens = _postData.max_tokens,
             };
 
             string str = string.Empty;
@@ -177,7 +184,7 @@ namespace AITranslator.Translator.Communicator
                     sw.Restart();
                     List<string> resultText = LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token).ToList();
                     sw.Stop();
-                    str = string.Join(string.Empty,resultText);
+                    str = string.Join(string.Empty, resultText);
                     speed = resultText.Count / (sw.ElapsedMilliseconds / 1000d);
                     noKvSlotError = false;
                 }

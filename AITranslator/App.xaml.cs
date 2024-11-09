@@ -30,6 +30,7 @@ namespace AITranslator
 
         protected override void OnStartup(StartupEventArgs e)
         {
+#if RELEASE
             int port = 30018;
             if (e.Args.Length != 0)
             {
@@ -51,6 +52,7 @@ namespace AITranslator
 
             UdpClient server = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             server.BeginReceive(Receive, server);
+#endif
             base.OnStartup(e);
         }
         static void Receive(IAsyncResult ar)
