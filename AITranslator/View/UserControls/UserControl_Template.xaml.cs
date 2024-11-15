@@ -69,21 +69,6 @@ namespace AITranslator.View.UserControls
                   ShowDialog: false);
                 }
 
-                //if (!Directory.Exists(PublicParams.PromptTemplateDataDic))
-                //    Directory.CreateDirectory(PublicParams.PromptTemplateDataDic);
-                ////读取提示词模板文件夹信息，加载提示词模板列表
-                //FileInfo[] promptTemplateFiles = Directory.GetFiles(PublicParams.PromptTemplateDataDic).Select(s => new FileInfo(s)).OrderBy(s => s.CreationTime).ToArray();
-                //foreach (var fileInfo in promptTemplateFiles)
-                //{
-                //    ExpandedFuncs.TryExceptions(() =>
-                //    {
-                //        string fileName = fileInfo.Name[..^fileInfo.Extension.Length];
-                //        Template template = new Template(fileName, TemplateType.Prompt);
-                //        Dispatcher.Invoke(() => ViewModelManager.ViewModel.PromptTemplate.Add(template));
-                //    },
-                //    ShowDialog: false);
-                //}
-
                 Thread.Sleep(1000);
             }
         }

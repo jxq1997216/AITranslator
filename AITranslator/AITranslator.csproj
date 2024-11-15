@@ -44,10 +44,6 @@
 
   <ItemGroup>
     <Resource Include="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
-    <Resource Include="内置参数\固定示例对话_en.json" />
-    <Resource Include="内置参数\固定示例对话_en_1b8.json" />
-    <Resource Include="内置参数\固定示例对话_jp.json" />
-    <Resource Include="内置参数\固定示例对话_jp_1b8.json" />
     <Resource Include="内置参数\屏蔽列表.json" />
   </ItemGroup>
 
@@ -58,6 +54,16 @@
     <Compile Update="View\UserControls\UserControl_SetView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="模板\名词替换\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="模板\提示词\默认提示词_日译中.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
