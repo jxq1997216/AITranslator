@@ -1,39 +1,15 @@
-﻿using AITranslator.Exceptions;
-using AITranslator.Translator.Communicator;
-using AITranslator.Translator.Models;
-using AITranslator.Translator.Persistent;
-using AITranslator.Translator.Pretreatment;
+﻿using AITranslator.Translator.Models;
 using AITranslator.Translator.Tools;
-using AITranslator.Translator.TranslateData;
-using AITranslator.Translator.Translation;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
-using Microsoft.Win32;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Resources;
-using System.Windows.Shapes;
-using Path = System.IO.Path;
 
 namespace AITranslator
 {
@@ -42,6 +18,7 @@ namespace AITranslator
     /// </summary>
     public partial class Window_Main : Window
     {
+
         public Window_Main()
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls |
@@ -57,7 +34,7 @@ namespace AITranslator
             ViewModel vm = (DataContext as ViewModel)!;
             vm.Dispatcher = Dispatcher;
             vm.Consoles.CollectionChanged += Consoles_CollectionChanged;
-            ViewModelManager.SetViewModel(vm);
+            Task.Factory.StartNew(CheckFileChanged, TaskCreationOptions.LongRunning);
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -195,5 +172,60 @@ namespace AITranslator
         {
             uc_Set.EnableSet();
         }
+
+        void CheckFileChanged()
+        {
+            while (true)
+            {
+                if (ViewModelManager.ViewModel.ReplaceTemplate.Count == 0)
+                    Dispatcher.Invoke(() => ViewModelManager.ViewModel.ReplaceTemplate.Add(new Template("空", TemplateType.Replace)));
+                else
+                {
+                    if (ViewModelManager.ViewModel.ReplaceTemplate[0].Name != "空")
+                        Dispatcher.Invoke(() => ViewModelManager.ViewModel.ReplaceTemplate.Insert(0, new Template("空", TemplateType.Replace)));
+                }
+                CheckFileChanged(PublicParams.ReplaceTemplateDataDic, "*.json", TemplateType.Replace, ViewModelManager.ViewModel.ReplaceTemplate);
+                CheckFileChanged(PublicParams.PromptTemplateDataDic, "*.json", TemplateType.Prompt, ViewModelManager.ViewModel.PromptTemplate);
+                CheckFileChanged(PublicParams.InstructTemplateDataDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate);
+                Thread.Sleep(1000);
+            }
+        }
+
+        void CheckFileChanged(string dicName, string extension, TemplateType templateType, ObservableCollection<Template> templates)
+        {
+            if (!Directory.Exists(dicName))
+                Directory.CreateDirectory(dicName);
+            //读取名词替换模板文件夹信息，加载名词替换模板列表
+            FileInfo[] templateFiles = Directory.GetFiles(dicName, extension).Select(s => new FileInfo(s)).OrderBy(s => s.CreationTime).ToArray();
+            foreach (var fileInfo in templateFiles)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    string fileName = fileInfo.Name[..^fileInfo.Extension.Length];
+                    if (!templates.Any(s => s.Name == fileName))
+                    {
+                        Template template = new Template(fileName, templateType);
+                        Dispatcher.Invoke(() => templates.Add(template));
+                    }
+                },
+                ShowDialog: false);
+            }
+            for (int i = 0; i < templates.Count; i++)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    if (!templateFiles.Any(s => s.Name[..^s.Extension.Length] == templates[i].Name))
+                    {
+                        if (templateType != TemplateType.Replace || templates[i].Name != "空")
+                        {
+                            Dispatcher.Invoke(() => templates.RemoveAt(i));
+                            i--;
+                        }
+                    }
+                },
+              ShowDialog: false);
+            }
+        }
+
     }
 }

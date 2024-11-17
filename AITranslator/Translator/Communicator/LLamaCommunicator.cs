@@ -21,11 +21,18 @@ using AITranslator.Translator.Tools;
 using AITranslator.Translator.Models;
 using System.Reflection.PortableExecutable;
 using LLama.Sampling;
+using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 
 namespace AITranslator.Translator.Communicator
 {
+    public sealed class CSXScriptInput
+    {
+        public List<Message> Messages = new List<Message>();
+    }
     public static class LLamaLoader
     {
+        public static Script<string> Script;
         public static bool Is1B8 => model is not null && model.ParameterCount <= 2000000000;
         static LLamaWeights model;
         public static StatelessExecutor Executor;
@@ -47,6 +54,7 @@ namespace AITranslator.Translator.Communicator
         static CancellationTokenSource _cts;
         public static async Task<string> LoadModel()
         {
+            Script = CSharpScript.Create<string>(File.ReadAllText(PublicParams.InstructTemplateDataDic + "/ChatML.csx"), ScriptOptions.Default.WithReferences(typeof(Message).Assembly, typeof(StringBuilder).Assembly), globalsType: typeof(CSXScriptInput));
             ViewModel_CommunicatorLLama vm = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
             if (!File.Exists("llama/llama.dll") && !File.Exists("llama/LLamaSelect.dll"))
                 return "模型加载库不存在，请下载对应您显卡版本的模型加载库放入软件目录下的llama文件夹中";
@@ -124,6 +132,7 @@ namespace AITranslator.Translator.Communicator
             model?.Dispose();
         }
     }
+
     internal class LLamaCommunicator : ICommunicator
     {
         CancellationTokenSource _cts;
@@ -180,7 +189,8 @@ namespace AITranslator.Translator.Communicator
                 try
                 {
                     List<Message> messages = [.. _headers, .. _histories, new(AuthorRole.User, inputText)];
-                    string data = HistoryToText(messages);
+                    CSXScriptInput gloableClass = new CSXScriptInput() { Messages = messages };
+                    string data = LLamaLoader.Script.RunAsync(gloableClass).Result.ReturnValue;
                     sw.Restart();
                     List<string> resultText = LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token).ToList();
                     sw.Stop();
@@ -208,31 +218,6 @@ namespace AITranslator.Translator.Communicator
                 }
             } while (noKvSlotError);
 
-
-            //Task<string> translateTask;
-            //try
-            //{
-
-            //    translateTask = Task.Run(() => string.Join("", LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token)));
-
-            //    while (!translateTask.IsCompleted)
-            //    {
-            //        if (_cts.Token.IsCancellationRequested)
-            //            throw new KnownException("按下暂停按钮");
-
-            //        Thread.Sleep(100);
-            //    }
-            //}
-            //catch (TaskCanceledException)
-            //{
-            //    return string.Empty;
-            //}
-            //catch (ObjectDisposedException)
-            //{
-            //    return string.Empty;
-            //}
-            //string str = translateTask.Result;
-
             foreach (var stop in postData.stop)
             {
                 if (str.EndsWith(stop))
@@ -250,32 +235,5 @@ namespace AITranslator.Translator.Communicator
         {
             _cts.Dispose();
         }
-
-        string HistoryToText(List<Message> example)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var message in example)
-                EncodeMessage(message, sb);
-            EncodeHeader(new Message(AuthorRole.Assistant, ""), sb);
-            return sb.ToString();
-        }
-
-        private void EncodeHeader(Message message, StringBuilder sb)
-        {
-            sb.Append(StartHeaderId);
-            sb.Append(message.AuthorRole.ToString());
-            sb.Append('\n');
-        }
-
-        private void EncodeMessage(ChatHistory.Message message, StringBuilder sb)
-        {
-            EncodeHeader(message, sb);
-            sb.Append(message.Content);
-            sb.Append(EndHeaderId);
-            sb.Append('\n');
-        }
-
-        private const string StartHeaderId = "<|im_start|>";
-        private const string EndHeaderId = "<|im_end|>";
     }
 }

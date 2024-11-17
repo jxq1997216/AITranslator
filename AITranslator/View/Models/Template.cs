@@ -12,7 +12,8 @@ namespace AITranslator.View.Models
     {
         UnKnow,
         Replace,
-        Prompt
+        Prompt,
+        Instruct
     }
     public partial class Template : ObservableObject
     {

@@ -45,6 +45,10 @@ namespace AITranslator.Translator.Models
     public static class PublicParams
     {
         /// <summary>
+        /// 对话格式模板文件的文件夹
+        /// </summary>
+        public const string InstructTemplateDataDic = "模板/对话格式";
+        /// <summary>
         /// 名词替换模板文件的文件夹
         /// </summary>
         public const string ReplaceTemplateDataDic = "模板/名词替换";

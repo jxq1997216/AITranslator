@@ -17,15 +17,7 @@ namespace AITranslator.View.Models
     /// </summary>
     public static class ViewModelManager
     {
-        static bool _setted = false;
         public static ViewModel ViewModel { get; private set; } = new ViewModel();
-        public static void SetViewModel(ViewModel vm)
-        {
-            if (_setted)
-                throw new InvalidOperationException("已设置过ViewModel，不能再次设置");
-            ViewModel = vm;
-            _setted = true;
-        }
 
         /// <summary>
         /// 打印控制台

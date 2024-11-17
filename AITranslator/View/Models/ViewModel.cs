@@ -81,6 +81,11 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private ObservableCollection<TranslationTask> completedTasks = new ObservableCollection<TranslationTask>();
         /// <summary>
+        /// 对话格式模板
+        /// </summary>
+        [ObservableProperty]
+        private ObservableCollection<Template> instructTemplate = new ObservableCollection<Template>();
+        /// <summary>
         /// 提示词模板
         /// </summary>
         [ObservableProperty]
@@ -266,6 +271,36 @@ namespace AITranslator.View.Models
         {
             string path = Path.GetFullPath(PublicParams.ReplaceTemplateDataDic);
             Process.Start("explorer.exe", path);
+        }
+
+        [RelayCommand]
+        private void OpenReplaceTemplateFile(string fileName)
+        {
+            string path = Path.GetFullPath($"{PublicParams.ReplaceTemplateDataDic}\\{fileName}.json");
+            OpenFileUseDefaultSoft(path);
+        }
+
+        [RelayCommand]
+        private void OpenPromptTemplateFolder()
+        {
+            string path = Path.GetFullPath(PublicParams.PromptTemplateDataDic);
+            Process.Start("explorer.exe", path);
+        }
+
+        [RelayCommand]
+        private void OpenPromptTemplateFile(string fileName)
+        {
+            string path = Path.GetFullPath($"{PublicParams.PromptTemplateDataDic}\\{fileName}.json");
+            OpenFileUseDefaultSoft(path);
+        }
+
+        void OpenFileUseDefaultSoft(string filePath)
+        {
+            Process process = new Process();
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
+            processStartInfo.UseShellExecute = true;
+            process.StartInfo = processStartInfo;
+            process.Start();
         }
     }
 }

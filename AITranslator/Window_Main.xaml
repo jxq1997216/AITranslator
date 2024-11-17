@@ -11,7 +11,7 @@
         xmlns:converter="clr-namespace:AITranslator.View.Converter" 
         xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
-        Title="AI Translator" Height="600" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Loaded="Window_Loaded" Closing="window_main_Closing">
+        Title="AI Translator" Height="600" Width="400" WindowStyle="None" ResizeMode="NoResize" DataContext="{Binding Source={x:Static vm:ViewModelManager.ViewModel}}" WindowStartupLocation="CenterScreen" Background="Transparent" AllowsTransparency="True" Loaded="Window_Loaded" Closing="window_main_Closing">
     <Window.RenderTransform>
         <TransformGroup>
             <ScaleTransform CenterX="{calc:Binding ActualWidth/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" CenterY="{calc:Binding ActualHeight/2,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" x:Name="window_scale"/>
@@ -29,9 +29,6 @@
             </BeginStoryboard>
         </EventTrigger>
     </Window.Triggers>
-    <Window.DataContext>
-        <vm:ViewModel/>
-    </Window.DataContext>
     <Border x:Name="border_Main" CornerRadius="0" BorderThickness="0">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">

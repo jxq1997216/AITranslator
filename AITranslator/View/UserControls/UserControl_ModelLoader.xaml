@@ -138,6 +138,7 @@
                                                 <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_ContextSize}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                                             </Grid>
                                         </GroupBox>
+                                        <TextBlock Margin="0,0,0,-5" Grid.Row="1" VerticalAlignment="Bottom" Foreground="White" Text="对话格式"/>
                                         <CheckBox Grid.Row="1" Grid.ColumnSpan="3" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Flash Attention" Foreground="White" IsChecked="{Binding CommunicatorLLama_ViewModel.FlashAttention}"/>
                                     </control:SizeAnimationGrid>
                                     <Grid Margin="0,10,0,0">
@@ -146,6 +147,9 @@
                                             <ColumnDefinition Width="120"/>
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
+
+                                        <ComboBox  MaxWidth="110" HorizontalAlignment="Left" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
+
                                         <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
                                             <Button.Content>
                                                 <MultiBinding Converter="{StaticResource LoadModelButtonText}" ConverterParameter="卸载模型 加载模型 取消加载">
