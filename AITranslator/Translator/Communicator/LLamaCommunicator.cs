@@ -52,9 +52,29 @@ namespace AITranslator.Translator.Communicator
         }
 
         static CancellationTokenSource _cts;
-        public static async Task<string> LoadModel()
+        public static async Task<string> LoadModel(string? templateName)
         {
-            Script = CSharpScript.Create<string>(File.ReadAllText(PublicParams.InstructTemplateDataDic + "/ChatML.csx"), ScriptOptions.Default.WithReferences(typeof(Message).Assembly, typeof(StringBuilder).Assembly), globalsType: typeof(CSXScriptInput));
+            if (string.IsNullOrWhiteSpace(templateName))
+                return "请创建并选择对话模板！";
+            string templateFilePath = PublicParams.InstructTemplateDataDic + $"/{templateName}.csx";
+            if (!File.Exists(templateFilePath))
+                return "当前对话模板不存在！";
+            try
+            {
+                Script = CSharpScript.Create<string>(File.ReadAllText(templateFilePath), ScriptOptions.Default.WithReferences(typeof(Message).Assembly, typeof(StringBuilder).Assembly), globalsType: typeof(CSXScriptInput));
+                List<Message> restmessages = [new(AuthorRole.System, "1"), new(AuthorRole.User, "2"), new(AuthorRole.Assistant, "3"), new(AuthorRole.User, "4")];
+                CSXScriptInput testGloableClass = new CSXScriptInput() { Messages = restmessages };
+                _ = LLamaLoader.Script.RunAsync(testGloableClass).Result.ReturnValue;
+            }
+            catch (CompilationErrorException error)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("脚本错误:");
+                foreach (var diagnostic in error.Diagnostics)
+                    sb.AppendLine(diagnostic.ToString());
+                return sb.ToString();
+            }
+
             ViewModel_CommunicatorLLama vm = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
             if (!File.Exists("llama/llama.dll") && !File.Exists("llama/LLamaSelect.dll"))
                 return "模型加载库不存在，请下载对应您显卡版本的模型加载库放入软件目录下的llama文件夹中";

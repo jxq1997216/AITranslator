@@ -148,7 +148,7 @@
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
 
-                                        <ComboBox  MaxWidth="110" HorizontalAlignment="Left" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
+                                        <ComboBox Visibility="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading,FalseToVisibility=Hidden}" MaxWidth="110" HorizontalAlignment="Left" Foreground="White" SelectedItem="{Binding CommunicatorLLama_ViewModel.CurrentInstructTemplate}" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
 
                                         <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
                                             <Button.Content>

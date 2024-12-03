@@ -294,6 +294,21 @@ namespace AITranslator.View.Models
             OpenFileUseDefaultSoft(path);
         }
 
+        [RelayCommand]
+        private void OpenInstructTemplateFolder()
+        {
+            string path = Path.GetFullPath(PublicParams.InstructTemplateDataDic);
+            Process.Start("explorer.exe", path);
+        }
+
+        [RelayCommand]
+        private void OpenInstructTemplateFile(string fileName)
+        {
+            string path = Path.GetFullPath($"{PublicParams.InstructTemplateDataDic}\\{fileName}.csx");
+            OpenFileUseDefaultSoft(path);
+        }
+
+
         void OpenFileUseDefaultSoft(string filePath)
         {
             Process process = new Process();

@@ -52,7 +52,7 @@ namespace AITranslator.View.UserControls
             {
                 llamaHeight -= llamaUnLoadHeightAdd;
                 gd_LLama.Height -= llamaUnLoadHeightAdd;
-                string result = await LLamaLoader.LoadModel();
+                string result = await LLamaLoader.LoadModel(ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate?.Name);
                 if (string.IsNullOrWhiteSpace(result))
                 {
                     vm.CommunicatorLLama_ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
@@ -116,11 +116,10 @@ namespace AITranslator.View.UserControls
                     LLamaLoader.StopLoadModel();
                 else
                 {
-
                     AnimateMainHeight(llamaHeight + tb_error.ActualHeight - llamaUnLoadHeightAdd);
                     AnimateLLamaViewHeight(llamaHeight - animOffset - llamaUnLoadHeightAdd);
                     llamaHeight -= llamaUnLoadHeightAdd;
-                    string result = await LLamaLoader.LoadModel();
+                    string result = await LLamaLoader.LoadModel(ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate.Name);
                     if (string.IsNullOrWhiteSpace(result))
                     {
                         vm.IsModel1B8 = LLamaLoader.Is1B8;

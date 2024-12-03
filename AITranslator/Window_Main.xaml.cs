@@ -60,6 +60,8 @@ namespace AITranslator
         {
             try
             {
+                //提前加载对话列表
+                CheckFileChanged(PublicParams.InstructTemplateDataDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate);
                 //加载配置信息
                 ViewModelManager.LoadBaseConfig();
 
@@ -225,6 +227,8 @@ namespace AITranslator
                 },
               ShowDialog: false);
             }
+            if (templateType == TemplateType.Instruct && templates.Count > 0 && ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
+                ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate = templates[0];
         }
 
     }

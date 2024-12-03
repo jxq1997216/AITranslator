@@ -42,6 +42,12 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private string modelPath;
         /// <summary>
+        /// 对话模板
+        /// </summary>
+        [Required(ErrorMessage = "必须选择对话模板")]
+        [ObservableProperty]
+        private Template? currentInstructTemplate;
+        /// <summary>
         /// GpuLayerCount
         /// </summary>
         [ObservableProperty]

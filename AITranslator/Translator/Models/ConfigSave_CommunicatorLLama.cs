@@ -15,6 +15,10 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public string ModelPath { get; set; }
         /// <summary>
+        /// 对话模板名词
+        /// </summary>
+        public string? InstructTemplateName { get; set; }
+        /// <summary>
         /// GpuLayerCount
         /// </summary>
         public int GpuLayerCount { get; set; }
@@ -32,7 +36,7 @@ namespace AITranslator.Translator.Models
         public bool AutoLoadModel { get; set; }
 
 
-        
+
         public void CopyFromViewModel(ViewModel_CommunicatorLLama vm)
         {
             ModelPath = vm.ModelPath;
@@ -40,6 +44,7 @@ namespace AITranslator.Translator.Models
             ContextSize = vm.ContextSize;
             FlashAttention = vm.FlashAttention;
             AutoLoadModel = vm.AutoLoadModel;
+            InstructTemplateName = vm.CurrentInstructTemplate?.Name;
         }
 
         public void CopyToViewModel(ViewModel_CommunicatorLLama vm)
@@ -49,6 +54,8 @@ namespace AITranslator.Translator.Models
             vm.ContextSize = ContextSize;
             vm.FlashAttention = FlashAttention;
             vm.AutoLoadModel = AutoLoadModel;
+            if (!string.IsNullOrWhiteSpace(InstructTemplateName))
+                vm.CurrentInstructTemplate = ViewModelManager.ViewModel.InstructTemplate.FirstOrDefault(s => s.Name == InstructTemplateName);
         }
     }
 }
