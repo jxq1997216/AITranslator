@@ -31,6 +31,13 @@
                     <ComboBox x:Name="cb_ReplaceTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding ReplaceTemplate}"/>
 
                     <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="设为默认" Command="{Binding OpenReplaceTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_ReplaceTemplate}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="3">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M263.460571 40.813714c6.436571 0 12.8 1.389714 18.578286 4.096l606.866286 283.062857a43.885714 43.885714 0 0 1 0 79.652572L292.571429 685.787429V950.857143a36.571429 36.571429 0 0 1-29.988572 35.986286l-6.582857 0.585142a36.571429 36.571429 0 0 1-35.986286-29.988571L219.428571 950.857143V84.699429a43.885714 43.885714 0 0 1 43.885715-43.885715z"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
                         <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenReplaceTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_ReplaceTemplate}">
                             <controls:ViewButton.Content>
                                 <Viewbox Margin="3">
@@ -79,44 +86,8 @@
                             </controls:ViewButton.Content>
                         </controls:ViewButton>
                     </StackPanel>
-
                 </Grid>
             </GroupBox>
-            
-            <GroupBox Grid.Column="1" Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
-                <GroupBox.Header>
-                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                        <TextBlock Text="对话格式模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
-                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置提示词的模板,模板可以在翻译时直接使用"/>
-                    </StackPanel>
-                </GroupBox.Header>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <ComboBox x:Name="cb_InstructTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
-
-                    <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenInstructTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_InstructTemplate}">
-                            <controls:ViewButton.Content>
-                                <Viewbox Margin="3">
-                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
-                                </Viewbox>
-                            </controls:ViewButton.Content>
-                        </controls:ViewButton>
-                        <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenInstructTemplateFolderCommand}">
-                            <controls:ViewButton.Content>
-                                <Viewbox Margin="2">
-                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
-                                </Viewbox>
-                            </controls:ViewButton.Content>
-                        </controls:ViewButton>
-                    </StackPanel>
-
-                </Grid>
-            </GroupBox>
-
         </StackPanel>
     </ScrollViewer>
 </UserControl>

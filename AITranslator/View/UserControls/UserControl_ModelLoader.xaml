@@ -95,14 +95,14 @@
                                 </Grid>
                             </StackPanel>
                         </control:SizeAnimationGrid>
-                        <control:SizeAnimationGrid x:Name="gd_LLama" Height="145" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.LLama'}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                        <control:SizeAnimationGrid x:Name="gd_LLama" Height="155" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.LLama'}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
                             <StackPanel>
                                 <StackPanel Margin="2,0">
                                     <Grid Height="30">
                                         <control:ViewButton x:Name="btn_SelectModel" Height="30" Content="{Binding CommunicatorLLama_ViewModel.ModelPath,Converter={StaticResource ModelName}}" IsHitTestVisible="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading}" Click="Button_Select_Click"/>
                                         <ProgressBar Height="3" BorderThickness="0" VerticalAlignment="Bottom" Maximum="100" Minimum="0" Foreground="MediumPurple" Background="Transparent" Value="{Binding CommunicatorLLama_ViewModel.ModelLoadProgress}" Visibility="{calc:Binding CommunicatorLLama_ViewModel.ModelLoading or CommunicatorLLama_ViewModel.ModelLoaded,FalseToVisibility=Hidden}"/>
                                     </Grid>
-                                    <control:SizeAnimationGrid Height="80" IsEnabled="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                                    <control:SizeAnimationGrid Height="90" IsEnabled="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="10"/>
@@ -110,7 +110,7 @@
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
                                             <RowDefinition/>
-                                            <RowDefinition Height="30"/>
+                                            <RowDefinition Height="40"/>
                                         </Grid.RowDefinitions>
                                         <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
                                             <GroupBox.Header>
@@ -138,8 +138,28 @@
                                                 <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_ContextSize}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                                             </Grid>
                                         </GroupBox>
-                                        <TextBlock Margin="0,0,0,-5" Grid.Row="1" VerticalAlignment="Bottom" Foreground="White" Text="对话格式"/>
-                                        <CheckBox Grid.Row="1" Grid.ColumnSpan="3" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Flash Attention" Foreground="White" IsChecked="{Binding CommunicatorLLama_ViewModel.FlashAttention}"/>
+                                        <GroupBox Grid.Row="1" Grid.ColumnSpan="3" Width="200" BorderThickness="0.1" BorderBrush="White">
+                                            <GroupBox.Header>
+                                                <TextBlock Text="对话格式" Foreground="White" FontSize="10"/>
+                                            </GroupBox.Header>
+                                            <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <ComboBox MinWidth="142" MaxWidth="{Binding MinWidth,RelativeSource={RelativeSource Mode=Self}}" Visibility="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading,FalseToVisibility=Hidden}" HorizontalAlignment="Left" Foreground="White" SelectedItem="{Binding CommunicatorLLama_ViewModel.CurrentInstructTemplate}" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
+                                                <control:ViewButton Margin="3,0,0,0" Width="20" Height="20" ToolTip="查看" Command="{Binding OpenInstructTemplateFileCommand}">
+                                                    <control:ViewButton.Content>
+                                                        <Viewbox Margin="0,0,2,3">
+                                                            <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type control:ViewButton}}}" Data="M928.842245 512.091074c0-5.006014-0.846274-9.193383-1.086751-9.691733-0.182149-2.480494-1.028423-7.001461-1.815345-9.374508-0.210801-0.590448-0.484024-1.209548-0.724501-1.799996-0.424672-1.360997-0.876973-2.691295-1.390673-3.749394-76.871785-168.137395-242.376213-281.144168-411.782507-281.144168-169.375595 0-334.865697 112.902396-411.388535 280.130072-0.921999 1.815345-1.572822 3.553942-1.981121 5.066389-0.181125 0.49835-0.39295 0.967024-0.558725 1.406023-1.512447 4.430916-1.542122 7.514137-1.421372 6.712889-0.710175 3.251044-1.360997 9.722432-1.360997 9.722432-0.181125 1.949398-0.181125 3.50687 0.030699 5.442966 0 0 0.649799 5.65479 0.968048 6.80294 0.090051 1.602498 0.483001 3.931542 0.951675 6.048763l-0.030699 0c0.408299 1.814322 0.968048 3.568269 1.738597 5.291516 0.393973 1.330298 0.862647 2.570545 1.270946 3.507894 76.976162 168.166047 242.436588 281.20352 411.781484 281.20352 169.436994 0 334.941422-112.945375 410.936233-279.328823 1.177825-2.177596 1.935072-4.233418 2.448772-6.018064 0.2415-0.543376 0.454348-1.027399 0.604774-1.511423 1.331321-3.872191 1.602498-7.227612 1.481747-7.227612l-0.028653 0.029676C928.027693 520.921183 928.842245 516.89959 928.842245 512.091074zM872.717993 514.146896c-0.029676 0.121773-0.091074 0.272199-0.151449 0.393973-0.090051 0.36225-0.240477 0.785899-0.332575 1.209548-68.403926 147.420561-212.830293 246.337431-360.191502 246.337431-146.997935 0-291.168476-98.642624-360.252901-246.578931-0.166799-0.5137-0.287549-0.998747-0.468674-1.481747-0.030699-0.484024-0.12075-0.876973-0.150426-1.150196-0.060375-0.300852-0.12075-0.724501-0.166799-1.088798l0-0.3776c0.166799-0.620124 0.286526-1.239224 0.347924-1.919722 0.12075-0.36225 0.211824-0.710175 0.347924-1.103124C220.132094 360.89042 364.680235 261.928524 512.041444 261.928524c147.420561 0 291.940049 99.051947 360.161826 246.322082 0.060375 0.287549 0.121773 0.530073 0.212848 0.726547 0.060375 0.2415 0.119727 0.484024 0.240477 0.740874 0.151449 1.104147 0.272199 2.192945 0.423649 2.736321C872.899118 513.028423 872.809067 513.572822 872.717993 514.146896zM512.041444 373.060601c-76.598562 0-138.954749 62.325487-138.954749 138.939399 0 76.598562 62.356187 138.954749 138.954749 138.954749 76.598562 0 138.954749-62.356187 138.954749-138.954749C650.996193 435.386088 588.640006 373.060601 512.041444 373.060601zM512.041444 595.372849c-45.935192 0-83.371826-37.406958-83.371826-83.371826 0-45.950542 37.436634-83.356476 83.371826-83.356476 45.964868 0 83.373873 37.406958 83.373873 83.356476C595.414293 557.965891 558.006312 595.372849 512.041444 595.372849z"/>
+                                                        </Viewbox>
+                                                    </control:ViewButton.Content>
+                                                </control:ViewButton>
+                                                <control:ViewButton Margin="3,0,0,0" Width="20" Height="20" ToolTip="打开文件夹" Command="{Binding OpenInstructTemplateFolderCommand}">
+                                                    <control:ViewButton.Content>
+                                                        <Viewbox Margin="2">
+                                                            <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type control:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                                        </Viewbox>
+                                                    </control:ViewButton.Content>
+                                                </control:ViewButton>
+                                            </StackPanel>
+                                        </GroupBox>
                                     </control:SizeAnimationGrid>
                                     <Grid Margin="0,10,0,0">
                                         <Grid.ColumnDefinitions>
@@ -148,7 +168,8 @@
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
 
-                                        <ComboBox Visibility="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading,FalseToVisibility=Hidden}" MaxWidth="110" HorizontalAlignment="Left" Foreground="White" SelectedItem="{Binding CommunicatorLLama_ViewModel.CurrentInstructTemplate}" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
+                                        <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" Content="Flash Attention" Foreground="White" IsChecked="{Binding CommunicatorLLama_ViewModel.FlashAttention}"/>
+
 
                                         <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
                                             <Button.Content>

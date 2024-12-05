@@ -1,4 +1,5 @@
 ﻿using AITranslator.Mail;
+using AITranslator.Translator.Communicator;
 using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Tools;
@@ -6,11 +7,16 @@ using AITranslator.Translator.TranslateData;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LLama.Common;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -22,6 +28,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static LLama.Common.ChatHistory;
 using Path = System.IO.Path;
 
 namespace AITranslator.View.Models
@@ -302,10 +309,39 @@ namespace AITranslator.View.Models
         }
 
         [RelayCommand]
-        private void OpenInstructTemplateFile(string fileName)
+        private void OpenInstructTemplateFile()
         {
-            string path = Path.GetFullPath($"{PublicParams.InstructTemplateDataDic}\\{fileName}.csx");
-            OpenFileUseDefaultSoft(path);
+            try
+            {
+                if (ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
+                {
+                    Window_Message.ShowDialog("提示", "请先选择对话格式");
+                    return;
+                }
+                Script<string> script = CSharpScript.Create<string>(File.ReadAllText($"{PublicParams.InstructTemplateDataDic}\\{ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate.Name}.csx"), ScriptOptions.Default.WithReferences(typeof(Message).Assembly, typeof(StringBuilder).Assembly), globalsType: typeof(CSXScriptInput));
+                List<Message> restmessages = [new(AuthorRole.System, "这里是System语句"), new(AuthorRole.User, "这里是User语句1"), new(AuthorRole.Assistant, "这里是Assistant语句1"), new(AuthorRole.User, "这里是User语句2")];
+                CSXScriptInput testGloableClass = new CSXScriptInput() { Messages = restmessages };
+                string result = script.RunAsync(testGloableClass).Result.ReturnValue;
+                Window_Message.ShowDialog("查看对话格式", result);
+            }
+            catch (CompilationErrorException error)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("对话格式脚本错误:");
+                for (int i = 0; i < error.Diagnostics.Length; i++)
+                {
+                    Diagnostic diagnostic = error.Diagnostics[i];
+                    if (i != error.Diagnostics.Length-1)
+                        sb.AppendLine(diagnostic.ToString());
+                    else
+                        sb.Append(diagnostic.ToString());
+                }
+                Window_Message.ShowDialog("错误", sb.Remove(sb.Length - 2, 2).ToString());
+            }
+            catch (Exception error)
+            {
+                Window_Message.ShowDialog("未知错误", error.ToString());
+            }
         }
 
 
