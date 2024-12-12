@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AITranslator.View.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -70,6 +72,14 @@ namespace AITranslator.View.Models
             Error = results.Count != 0;
             ErrorMessage = string.Join("\r\n", results.Select(s => s.ErrorMessage));
             return b;
+        }
+
+        [RelayCommand]
+        private void OpenMoreConfigsWindow()
+        {
+            Window_MoreLLamaConfigs window_MoreLLamaConfigs = new Window_MoreLLamaConfigs();
+            window_MoreLLamaConfigs.Owner = Window_Message.DefaultOwner;
+            window_MoreLLamaConfigs.ShowDialog();
         }
     }
 }

@@ -95,50 +95,45 @@
                                 </Grid>
                             </StackPanel>
                         </control:SizeAnimationGrid>
-                        <control:SizeAnimationGrid x:Name="gd_LLama" Height="155" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.LLama'}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                        <control:SizeAnimationGrid x:Name="gd_LLama" Height="160" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.LLama'}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
                             <StackPanel>
                                 <StackPanel Margin="2,0">
                                     <Grid Height="30">
                                         <control:ViewButton x:Name="btn_SelectModel" Height="30" Content="{Binding CommunicatorLLama_ViewModel.ModelPath,Converter={StaticResource ModelName}}" IsHitTestVisible="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading}" Click="Button_Select_Click"/>
                                         <ProgressBar Height="3" BorderThickness="0" VerticalAlignment="Bottom" Maximum="100" Minimum="0" Foreground="MediumPurple" Background="Transparent" Value="{Binding CommunicatorLLama_ViewModel.ModelLoadProgress}" Visibility="{calc:Binding CommunicatorLLama_ViewModel.ModelLoading or CommunicatorLLama_ViewModel.ModelLoaded,FalseToVisibility=Hidden}"/>
                                     </Grid>
-                                    <control:SizeAnimationGrid Height="90" IsEnabled="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition Width="10"/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition Height="40"/>
-                                        </Grid.RowDefinitions>
-                                        <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
-                                            <GroupBox.Header>
-                                                <TextBlock Text="GpuLayerCount" Foreground="White" FontSize="10"/>
-                                            </GroupBox.Header>
-                                            <Grid Margin="2">
+                                    <control:SizeAnimationGrid Height="90" Margin="0,5,0,0" IsEnabled="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                                        <Border BorderThickness="0.5" BorderBrush="White" CornerRadius="5">
+                                            <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition/>
-                                                    <ColumnDefinition Width="40"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Slider x:Name="slider_GpuLayerCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding CommunicatorLLama_ViewModel.GpuLayerCount,Converter={StaticResource GpuLayerCount}}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                                                <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_GpuLayerCount,Converter={StaticResource GpuLayerText}}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                                            </Grid>
-                                        </GroupBox>
-                                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
-                                            <GroupBox.Header>
-                                                <TextBlock Text="ContextSize" Foreground="White" FontSize="10"/>
-                                            </GroupBox.Header>
-                                            <Grid Margin="2">
-                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="10"/>
                                                     <ColumnDefinition/>
-                                                    <ColumnDefinition Width="40"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Slider x:Name="slider_ContextSize" Grid.Column="0" Margin="0,0,10,0" Maximum="16348" Minimum="0" Value="{Binding CommunicatorLLama_ViewModel.ContextSize}" Ticks="512 1024 2048 3072 4096 5120 6144 7168 8192 9216 10240 11264 12288 13312 14336 15360 16384" IsSnapToTickEnabled="True" TickFrequency="16" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                                                <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_ContextSize}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                                            </Grid>
-                                        </GroupBox>
-                                        <GroupBox Grid.Row="1" Grid.ColumnSpan="3" Width="200" BorderThickness="0.1" BorderBrush="White">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="40"/>
+                                                    <RowDefinition />
+                                                </Grid.RowDefinitions>
+                                                <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <TextBlock Text="对话格式:" Margin="0,0,5,0" Foreground="White" VerticalAlignment="Center"/>
+                                                    <ComboBox MinWidth="240" MaxWidth="{Binding MinWidth,RelativeSource={RelativeSource Mode=Self}}" Visibility="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading,FalseToVisibility=Hidden}" HorizontalAlignment="Left" Foreground="White" SelectedItem="{Binding CommunicatorLLama_ViewModel.CurrentInstructTemplate}" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
+                                                    <control:ViewButton Margin="3,0,0,0" Width="20" Height="20" ToolTip="查看" Command="{Binding OpenInstructTemplateFileCommand}">
+                                                        <control:ViewButton.Content>
+                                                            <Viewbox Margin="0,0,2,3">
+                                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type control:ViewButton}}}" Data="M928.842245 512.091074c0-5.006014-0.846274-9.193383-1.086751-9.691733-0.182149-2.480494-1.028423-7.001461-1.815345-9.374508-0.210801-0.590448-0.484024-1.209548-0.724501-1.799996-0.424672-1.360997-0.876973-2.691295-1.390673-3.749394-76.871785-168.137395-242.376213-281.144168-411.782507-281.144168-169.375595 0-334.865697 112.902396-411.388535 280.130072-0.921999 1.815345-1.572822 3.553942-1.981121 5.066389-0.181125 0.49835-0.39295 0.967024-0.558725 1.406023-1.512447 4.430916-1.542122 7.514137-1.421372 6.712889-0.710175 3.251044-1.360997 9.722432-1.360997 9.722432-0.181125 1.949398-0.181125 3.50687 0.030699 5.442966 0 0 0.649799 5.65479 0.968048 6.80294 0.090051 1.602498 0.483001 3.931542 0.951675 6.048763l-0.030699 0c0.408299 1.814322 0.968048 3.568269 1.738597 5.291516 0.393973 1.330298 0.862647 2.570545 1.270946 3.507894 76.976162 168.166047 242.436588 281.20352 411.781484 281.20352 169.436994 0 334.941422-112.945375 410.936233-279.328823 1.177825-2.177596 1.935072-4.233418 2.448772-6.018064 0.2415-0.543376 0.454348-1.027399 0.604774-1.511423 1.331321-3.872191 1.602498-7.227612 1.481747-7.227612l-0.028653 0.029676C928.027693 520.921183 928.842245 516.89959 928.842245 512.091074zM872.717993 514.146896c-0.029676 0.121773-0.091074 0.272199-0.151449 0.393973-0.090051 0.36225-0.240477 0.785899-0.332575 1.209548-68.403926 147.420561-212.830293 246.337431-360.191502 246.337431-146.997935 0-291.168476-98.642624-360.252901-246.578931-0.166799-0.5137-0.287549-0.998747-0.468674-1.481747-0.030699-0.484024-0.12075-0.876973-0.150426-1.150196-0.060375-0.300852-0.12075-0.724501-0.166799-1.088798l0-0.3776c0.166799-0.620124 0.286526-1.239224 0.347924-1.919722 0.12075-0.36225 0.211824-0.710175 0.347924-1.103124C220.132094 360.89042 364.680235 261.928524 512.041444 261.928524c147.420561 0 291.940049 99.051947 360.161826 246.322082 0.060375 0.287549 0.121773 0.530073 0.212848 0.726547 0.060375 0.2415 0.119727 0.484024 0.240477 0.740874 0.151449 1.104147 0.272199 2.192945 0.423649 2.736321C872.899118 513.028423 872.809067 513.572822 872.717993 514.146896zM512.041444 373.060601c-76.598562 0-138.954749 62.325487-138.954749 138.939399 0 76.598562 62.356187 138.954749 138.954749 138.954749 76.598562 0 138.954749-62.356187 138.954749-138.954749C650.996193 435.386088 588.640006 373.060601 512.041444 373.060601zM512.041444 595.372849c-45.935192 0-83.371826-37.406958-83.371826-83.371826 0-45.950542 37.436634-83.356476 83.371826-83.356476 45.964868 0 83.373873 37.406958 83.373873 83.356476C595.414293 557.965891 558.006312 595.372849 512.041444 595.372849z"/>
+                                                            </Viewbox>
+                                                        </control:ViewButton.Content>
+                                                    </control:ViewButton>
+                                                    <control:ViewButton Margin="3,0,0,0" Width="20" Height="20" ToolTip="打开文件夹" Command="{Binding OpenInstructTemplateFolderCommand}">
+                                                        <control:ViewButton.Content>
+                                                            <Viewbox Margin="2">
+                                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type control:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                                            </Viewbox>
+                                                        </control:ViewButton.Content>
+                                                    </control:ViewButton>
+                                                </StackPanel>
+
+                                                <!--<GroupBox  Grid.ColumnSpan="3" Width="200" BorderThickness="0.1" BorderBrush="White">
                                             <GroupBox.Header>
                                                 <TextBlock Text="对话格式" Foreground="White" FontSize="10"/>
                                             </GroupBox.Header>
@@ -159,7 +154,36 @@
                                                     </control:ViewButton.Content>
                                                 </control:ViewButton>
                                             </StackPanel>
-                                        </GroupBox>
+                                        </GroupBox>-->
+
+                                                <GroupBox Margin="5,0,0,5" BorderThickness="0.1" BorderBrush="White" Grid.Row="1">
+                                                    <GroupBox.Header>
+                                                        <TextBlock Text="GpuLayerCount" Foreground="White" FontSize="10"/>
+                                                    </GroupBox.Header>
+                                                    <Grid Margin="2">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition Width="40"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Slider x:Name="slider_GpuLayerCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding CommunicatorLLama_ViewModel.GpuLayerCount,Converter={StaticResource GpuLayerCount}}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_GpuLayerCount,Converter={StaticResource GpuLayerText}}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                                    </Grid>
+                                                </GroupBox>
+                                                <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Row="1" Grid.Column="2" Margin="0,0,5,5">
+                                                    <GroupBox.Header>
+                                                        <TextBlock Text="ContextSize" Foreground="White" FontSize="10"/>
+                                                    </GroupBox.Header>
+                                                    <Grid Margin="2">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition Width="40"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Slider x:Name="slider_ContextSize" Grid.Column="0" Margin="0,0,10,0" Maximum="16348" Minimum="0" Value="{Binding CommunicatorLLama_ViewModel.ContextSize}" Ticks="512 1024 2048 3072 4096 5120 6144 7168 8192 9216 10240 11264 12288 13312 14336 15360 16384" IsSnapToTickEnabled="True" TickFrequency="16" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding Value,ElementName=slider_ContextSize}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                                    </Grid>
+                                                </GroupBox>
+                                            </Grid>
+                                        </Border>
                                     </control:SizeAnimationGrid>
                                     <Grid Margin="0,10,0,0">
                                         <Grid.ColumnDefinitions>
@@ -168,7 +192,18 @@
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
 
-                                        <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" Content="Flash Attention" Foreground="White" IsChecked="{Binding CommunicatorLLama_ViewModel.FlashAttention}"/>
+
+                                        <control:ViewButton Height="25" Width="60" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding CommunicatorLLama_ViewModel.OpenMoreConfigsWindowCommand}">
+                                            <control:ViewButton.Content>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <Viewbox Width="15" Height="15" Margin="0,0,0,0">
+                                                        <Path Fill="White" Data="M784.384 787.456c-59.392 7.168-113.664-32.768-120.832-90.112-7.168-57.344 34.816-110.592 94.208-117.76 59.392-7.168 113.664 32.768 120.832 90.112 7.168 57.344-34.816 110.592-94.208 117.76z m7.168 52.224c89.088-11.264 152.576-90.112 141.312-176.128-11.264-86.016-92.16-147.456-180.224-136.192-89.088 11.264-152.576 90.112-141.312 176.128 10.24 86.016 91.136 147.456 180.224 136.192z m-291.84-84.992c-3.072-3.072-5.12-6.144-6.144-10.24l-6.144-51.2c0-9.216 7.168-17.408 16.384-18.432l28.672-4.096c12.288-2.048 22.528-11.264 25.6-23.552l10.24-36.864c4.096-12.288 0-24.576-9.216-32.768l-22.528-17.408c-8.192-6.144-9.216-17.408-3.072-25.6l30.72-37.888c4.096-4.096 9.216-6.144 14.336-7.168 5.12-1.024 10.24 0 14.336 3.072l22.528 17.408c9.216 7.168 25.6 7.168 34.816 1.024l33.792-19.456c11.264-6.144 17.408-17.408 16.384-29.696l-3.072-28.672c-1.024-5.12 1.024-9.216 4.096-13.312 3.072-4.096 7.168-6.144 12.288-7.168l50.176-6.144c10.24-2.048 19.456 5.12 20.48 14.336l4.096 29.696c1.024 12.288 12.288 22.528 24.576 24.576l37.888 10.24c12.288 4.096 25.6 0 33.792-9.216l17.408-22.528c3.072-4.096 8.192-5.12 13.312-6.144 5.12-1.024 10.24 0 14.336 3.072l38.912 28.672c8.192 6.144 9.216 17.408 3.072 25.6l-17.408 22.528c-8.192 9.216-8.192 24.576-1.024 33.792l19.456 32.768c6.144 11.264 17.408 18.432 30.72 17.408l28.672-4.096c5.12-1.024 10.24 0 13.312 3.072 4.096 3.072 6.144 7.168 7.168 12.288l3.072 48.128c1.024 10.24-5.12 18.432-15.36 20.48l-31.744 6.144c-12.288 2.048-22.528 11.264-25.6 23.552l-10.24 36.864c-4.096 12.288 0 24.576 9.216 32.768l22.528 17.408c8.192 6.144 9.216 17.408 3.072 25.6L977.92 870.4c-6.144 8.192-18.432 9.216-26.624 3.072l-22.528-17.408c-9.216-7.168-25.6-7.168-34.816-1.024l-33.792 19.456c-11.264 5.12-18.432 17.408-17.408 29.696l3.072 28.672c1.024 5.12-1.024 9.216-4.096 13.312-3.072 4.096-7.168 6.144-12.288 7.168l-50.176 6.144c-5.12 1.024-10.24 0-13.312-3.072-4.096-3.072-6.144-7.168-7.168-12.288l-3.072-28.672c-2.048-12.288-11.264-22.528-23.552-24.576l-37.888-10.24c-12.288-4.096-25.6 0-33.792 9.216l-17.408 22.528c-6.144 8.192-18.432 9.216-26.624 3.072l-38.912-28.672c-8.192-6.144-9.216-17.408-3.072-25.6l17.408-22.528c8.192-9.216 8.192-24.576 1.024-33.792l-19.456-32.768c-6.144-11.264-18.432-18.432-30.72-17.408l-29.696 3.072c-4.096 1.024-9.216 0-13.312-3.072zM849.92 64.512H95.232c-52.224 0-95.232 43.008-95.232 95.232v704.512c0 52.224 43.008 95.232 95.232 95.232H496.64V850.944H168.96c-30.72 0-56.32-25.6-56.32-56.32V417.792c0-30.72 25.6-56.32 56.32-56.32h607.232c28.672 0 52.224 21.504 55.296 49.152h112.64V158.72c0-52.224-41.984-94.208-94.208-94.208zM212.992 251.904c0 13.312-10.24 23.552-23.552 23.552h-55.296c-13.312 0-23.552-10.24-23.552-23.552v-50.176c0-13.312 10.24-23.552 23.552-23.552H189.44c13.312 0 23.552 10.24 23.552 23.552v50.176z m251.904 0c0 13.312-10.24 23.552-23.552 23.552H307.2c-13.312 0-23.552-10.24-23.552-23.552v-50.176c0-13.312 10.24-23.552 23.552-23.552h134.144c13.312 0 23.552 10.24 23.552 23.552v50.176z"/>
+                                                    </Viewbox>
+                                                    <TextBlock Margin="3,0,0,0" Text="更多" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                                
+                                            </control:ViewButton.Content>
+                                        </control:ViewButton>
 
 
                                         <control:ViewButton Grid.Column="1" Height="25" Click="Button_Load_Click" IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">

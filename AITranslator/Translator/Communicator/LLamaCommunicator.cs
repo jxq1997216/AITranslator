@@ -128,6 +128,10 @@ namespace AITranslator.Translator.Communicator
                     ContextSize = contextSize,
                     GpuLayerCount = gpuLayerCount,
                     FlashAttention = flashAttention,
+                    //Threads = 0,
+                    //BatchThreads = 0,
+                    //BatchSize = 512,
+                    //RopeFrequencyBase = 0,
                 };
                 model = await LLamaWeights.LoadFromFileAsync(parameters, ctk, progressReporter);
                 Executor = new StatelessExecutor(model, parameters);
