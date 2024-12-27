@@ -87,7 +87,7 @@
                             </GroupBox>
                         </Grid>
 
-                        <GroupBox Grid.Column="1" Margin="5,0,5,10" BorderThickness="0.1" BorderBrush="White">
+                        <GroupBox Grid.Column="1" Margin="5,0,5,5" BorderThickness="0.1" BorderBrush="White">
                             <GroupBox.Header>
                                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                     <TextBlock Text="名词替换" Foreground="White" FontSize="10"/>
@@ -164,55 +164,62 @@
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
-                        <GroupBox Margin="5,0,5,5" BorderThickness="0.1" BorderBrush="White"  Foreground="White" FontSize="10">
-                            <GroupBox.Header>
-                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <TextBlock Text="清理校验" Foreground="White" FontSize="10"/>
-                                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" Cursor="Help" ToolTip="用于校验句子是否需要被清理，不需要翻译&#x0a;清理只在最开始翻译时进行一次&#x0a;并将结果保存到[清理后的数据]中"/>
-                                </StackPanel>
-                            </GroupBox.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <ComboBox x:Name="cb_ClearTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding PromptTemplate}"/>
+                        <Grid Margin="5,0,5,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <GroupBox Margin="0,0,5,0" BorderThickness="0.1" BorderBrush="White"  Foreground="White" FontSize="10">
+                                <GroupBox.Header>
+                                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Text="清理校验" Foreground="White" FontSize="10"/>
+                                        <TextBlock Text=" [?]" Foreground="White" FontSize="10" Cursor="Help" ToolTip="用于校验句子是否需要被清理，不需要翻译&#x0a;清理只在最开始翻译时进行一次&#x0a;并将结果保存到[清理后的数据]中"/>
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="cb_ClearTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding PromptTemplate}"/>
 
-                                <controls:ViewButton Margin="5,0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenPromptTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_PromptTemplate}">
-                                    <controls:ViewButton.Content>
-                                        <Viewbox Margin="3">
-                                            <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
-                                        </Viewbox>
-                                    </controls:ViewButton.Content>
-                                </controls:ViewButton>
-                            </Grid>
-                            <!--<controls:ToggleButton Margin="5" Width="60" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>-->
-                        </GroupBox>
+                                    <controls:ViewButton Margin="5,0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenPromptTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_PromptTemplate}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="3">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                </Grid>
+                                <!--<controls:ToggleButton Margin="5" Width="60" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>-->
+                            </GroupBox>
+                            <GroupBox Margin="5,0,0,0" Grid.Column="1" BorderThickness="0.1" BorderBrush="White"  Foreground="White" FontSize="10">
+                                <GroupBox.Header>
+                                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Text="结果校验" Foreground="White" FontSize="10"/>
+                                        <TextBlock Text=" [?]" Foreground="White" FontSize="10" Cursor="Help" ToolTip="用于校验句子是否翻译成功&#x0a;修改结果校验规则不会对已经被翻译的文本生效"/>
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="cb_VerificationTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding PromptTemplate}"/>
 
-                        <GroupBox Margin="5,0,5,5" BorderThickness="0.1" BorderBrush="White"  Foreground="White" FontSize="10">
-                            <GroupBox.Header>
-                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <TextBlock Text="结果校验" Foreground="White" FontSize="10"/>
-                                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" Cursor="Help" ToolTip="用于校验句子是否翻译成功&#x0a;修改结果校验规则不会对已经被翻译的文本生效"/>
-                                </StackPanel>
-                            </GroupBox.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <ComboBox x:Name="cb_VerificationTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding PromptTemplate}"/>
+                                    <controls:ViewButton Margin="5,0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenPromptTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_PromptTemplate}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="3">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                </Grid>
+                                <!--<controls:ToggleButton Margin="5" Width="60" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>-->
+                            </GroupBox>
 
-                                <controls:ViewButton Margin="5,0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenPromptTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_PromptTemplate}">
-                                    <controls:ViewButton.Content>
-                                        <Viewbox Margin="3">
-                                            <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
-                                        </Viewbox>
-                                    </controls:ViewButton.Content>
-                                </controls:ViewButton>
-                            </Grid>
-                            <!--<controls:ToggleButton Margin="5" Width="60" OnText="英语" OffText="日语" IsChecked="{Binding IsEnglish}"/>-->
-                        </GroupBox>
+                        </Grid>
+
 
                         <Border Visibility="{calc:Binding Error,FalseToVisibility=Collapsed}"  Margin="5,0,5,5" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
                             <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding ErrorMessage}"/>
