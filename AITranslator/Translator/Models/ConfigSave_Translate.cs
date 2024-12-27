@@ -18,10 +18,10 @@ namespace AITranslator.Translator.Models
         /// 文件名称
         /// </summary>
         public string FileName { get; set; }
-        /// <summary>
-        /// 日语/英语
-        /// </summary>
-        public bool IsEnglish { get; set; }
+        ///// <summary>
+        ///// 日语/英语
+        ///// </summary>
+        //public bool IsEnglish { get; set; }
         /// <summary>
         /// 上下文记忆数量
         /// </summary>

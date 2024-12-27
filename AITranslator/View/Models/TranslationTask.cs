@@ -79,6 +79,21 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private string dicName;
         /// <summary>
+        /// 提示词模板
+        /// </summary>
+        [ObservableProperty]
+        private string promptTemplate;
+        /// <summary>
+        /// 替换词模板
+        /// </summary>
+        [ObservableProperty]
+        private string replacesTemplate;
+        /// <summary>
+        /// 校验规则模板
+        /// </summary>
+        [ObservableProperty]
+        private string verificationTemplate;
+        /// <summary>
         /// 文本替换列表
         /// </summary>
         [ObservableProperty]
@@ -88,7 +103,6 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private TaskState state;
-
         /// <summary>
         /// 翻译进度
         /// </summary>

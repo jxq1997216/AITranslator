@@ -91,7 +91,7 @@
                                     <Border Grid.Column="1" BorderThickness="1" IsEnabled="{Binding CommunicatorTGW_ViewModel.IsRomatePlatform}" BorderBrush="{calc:Binding !CommunicatorTGW_ViewModel.IsRomatePlatform ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
                                         <TextBox Text="{Binding CommunicatorTGW_ViewModel.ServerURL}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
                                     </Border>
-                                    <control:ToggleButton Grid.Column="2" Margin="0,0,5,0" Width="65" OnText="1B8" OffText="非1B8" IsChecked="{Binding CommunicatorTGW_ViewModel.IsModel1B8}"/>
+                                    <!--<control:ToggleButton Grid.Column="2" Margin="0,0,5,0" Width="65" OnText="1B8" OffText="非1B8" IsChecked="{Binding CommunicatorTGW_ViewModel.IsModel1B8}"/>-->
                                 </Grid>
                             </StackPanel>
                         </control:SizeAnimationGrid>

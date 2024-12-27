@@ -10,12 +10,28 @@ using System.Threading.Tasks;
 namespace AITranslator.View.Models
 {
     public partial class ViewModel_TaskConfigView : ViewModel_ValidateBase
-    {        /// <summary>
-             /// 是否是英语翻译
-             /// </summary>
-        [ObservableProperty]
-        private bool isEnglish;
+    {
+        ///// <summary>
+        ///// 是否是英语翻译
+        ///// </summary>
+        //[ObservableProperty]
+        //private bool isEnglish;
 
+        /// <summary>
+        /// 提示词模板
+        /// </summary>
+        [ObservableProperty]
+        private Template? promptTemplate;
+        /// <summary>
+        /// 替换词模板
+        /// </summary>
+        [ObservableProperty]
+        private Template? replacesTemplate;
+        /// <summary>
+        /// 校验规则模板
+        /// </summary>
+        [ObservableProperty]
+        private Template? verificationTemplate;
         /// <summary>
         /// 上下文记忆数量
         /// </summary>
@@ -74,7 +90,7 @@ namespace AITranslator.View.Models
             foreach (var replace in Replaces)
                 task.Replaces.Add(replace);
             task.HistoryCount = HistoryCount;
-            task.IsEnglish = IsEnglish;
+            //task.IsEnglish = IsEnglish;
         }
 
         public static ViewModel_TaskConfigView Create(TranslationTask task)
@@ -82,7 +98,7 @@ namespace AITranslator.View.Models
             ViewModel_TaskConfigView vm = new ViewModel_TaskConfigView()
             {
                 HistoryCount = task.HistoryCount,
-                IsEnglish = task.IsEnglish
+                //IsEnglish = task.IsEnglish
             };
             foreach (var replace in task.Replaces)
                 vm.Replaces.Add(replace);

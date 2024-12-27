@@ -19,8 +19,6 @@ namespace AITranslator.Translator.Tools
     public static class ExpandedFuncs
     {
         static Regex japanesePattern = new Regex(@"[\u3040-\u309F\u30A0-\u30FA\u30FD-\u30FF\uFF66-\uFF9F]+");  // 匹配包含日文字符
-        static Regex regex_EnglishPath = new Regex(@"[^\x00-\x7F]+");   //匹配是否为英文路径
-
         /// <summary>
         /// 判断字符串是否包含日文字符
         /// </summary>
@@ -67,7 +65,11 @@ namespace AITranslator.Translator.Tools
             return similarity;
         }
 
-
+        /// <summary>
+        /// 将替换词存储格式转换为Dictionary，用于存储到本地
+        /// </summary>
+        /// <param name="kvs"></param>
+        /// <returns></returns>
         public static Dictionary<string, string> ToReplaceDictionary(this ObservableCollection<KeyValueStr> kvs)
         {
             Dictionary<string, string> Replaces = new Dictionary<string, string>();
@@ -81,6 +83,11 @@ namespace AITranslator.Translator.Tools
             return Replaces;
         }
 
+        /// <summary>
+        /// 将替换词存储格式转换为ObservableCollection，用于加载和显示
+        /// </summary>
+        /// <param name="kvs"></param>
+        /// <returns></returns>
         public static ObservableCollection<KeyValueStr> ToReplaceCollection(this Dictionary<string, string> kvs)
         {
             ObservableCollection<KeyValueStr> result = new ObservableCollection<KeyValueStr>();
@@ -95,14 +102,26 @@ namespace AITranslator.Translator.Tools
         }
 
         static char[] splitechars = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        /// <summary>
+        /// 获取绝对路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static string GetAbsolutePath(this string path)
         {
             List<string> tails = path.Split(splitechars).ToList();
             int t = tails.RemoveAll(p => p == "..");
-            List<string> heads = AppDomain.CurrentDomain.SetupInformation.ApplicationBase.Split(splitechars).ToList();
+            List<string> heads = AppDomain.CurrentDomain.SetupInformation.ApplicationBase!.Split(splitechars).ToList();
             heads.RemoveRange(heads.Count - t - 1, t);
             return string.Join("/", heads) + string.Join("/", tails);
         }
+
+        static Regex regex_EnglishPath = new Regex(@"[^\x00-\x7F]+");   //匹配是否为英文路径
+        /// <summary>
+        /// 检验是否为纯英文路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static bool IsEnglishPath(this string path)
         {
             try
@@ -120,13 +139,20 @@ namespace AITranslator.Translator.Tools
                 return false;
             }
         }
-        public static string ReplaceSlash(this string path)
-        {
-            return path.Replace('/', '\\');
-        }
+        /// <summary>
+        /// 替换反斜杠位斜杠
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string ReplaceSlash(this string path) => path.Replace('/', '\\');
 
-
-
+        /// <summary>
+        /// 捕获异常
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="errorAction"></param>
+        /// <param name="ShowDialog"></param>
+        /// <returns></returns>
         public static bool TryExceptions(Action action, Action<Exception> errorAction = null, bool ShowDialog = true)
         {
             try
