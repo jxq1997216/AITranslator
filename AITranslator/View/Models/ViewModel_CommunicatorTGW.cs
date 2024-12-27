@@ -10,11 +10,11 @@ namespace AITranslator.View.Models
 {
     public partial class ViewModel_CommunicatorTGW : ViewModel_ValidateBase
     {
-        /// <summary>
-        /// 是否为1B8模型
-        /// </summary>
-        [ObservableProperty]
-        private bool isModel1B8;
+        ///// <summary>
+        ///// 是否为1B8模型
+        ///// </summary>
+        //[ObservableProperty]
+        //private bool isModel1B8;
         /// <summary>
         /// 是否是远程平台
         /// </summary>

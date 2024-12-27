@@ -32,11 +32,11 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private bool autoLoadModel;
-        /// <summary>
-        /// 是否为1B8模型
-        /// </summary>
-        [ObservableProperty]
-        private bool isModel1B8;
+        ///// <summary>
+        ///// 是否为1B8模型
+        ///// </summary>
+        //[ObservableProperty]
+        //private bool isModel1B8;
         /// <summary>
         /// 本地LLM模型路径
         /// </summary>

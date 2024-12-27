@@ -21,7 +21,7 @@ namespace AITranslator.Translator.TranslateData
         public string FileName { get; set; }
         public string DicName { get; set; }
 
-        public void GetNotTranslatedData(); 
+        public void GetUntranslatedData(); 
         public void ClearFailedData();
         public double GetProgress();
 

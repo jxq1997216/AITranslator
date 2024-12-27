@@ -71,7 +71,7 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 获取未翻译的内容
         /// </summary>
-        public void GetNotTranslatedData()
+        public void GetUntranslatedData()
         {
             Dic_NotTranslated.Clear();
             foreach (var key in Dic_Cleaned.Keys)

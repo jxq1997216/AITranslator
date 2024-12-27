@@ -17,23 +17,23 @@ namespace AITranslator.Translator.Models
         /// 翻译服务的访问URL
         /// </summary>
         public string ServerURL { get; set; }
-        /// <summary>
-        /// 是否是1B8模型
-        /// </summary>
-        public bool IsModel1B8 { get; set; }
+        ///// <summary>
+        ///// 是否是1B8模型
+        ///// </summary>
+        //public bool IsModel1B8 { get; set; }
 
         public void CopyFromViewModel(ViewModel_CommunicatorTGW vm)
         {
             IsRomatePlatform = vm.IsRomatePlatform;
             ServerURL = vm.ServerURL;
-            IsModel1B8 = vm.IsModel1B8;
+            //IsModel1B8 = vm.IsModel1B8;
         }
 
         public void CopyToViewModel(ViewModel_CommunicatorTGW vm)
         {
             vm.IsRomatePlatform = IsRomatePlatform;
             vm.ServerURL = ServerURL;
-            vm.IsModel1B8 = IsModel1B8;
+            //vm.IsModel1B8 = IsModel1B8;
         }
     }
 }

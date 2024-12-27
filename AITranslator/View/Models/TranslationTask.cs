@@ -99,11 +99,11 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private double speed;
-        /// <summary>
-        /// 是否是英语翻译
-        /// </summary>
-        [ObservableProperty]
-        private bool isEnglish;
+        ///// <summary>
+        ///// 是否是英语翻译
+        ///// </summary>
+        //[ObservableProperty]
+        //private bool isEnglish;
 
         /// <summary>
         /// 上下文记忆数量

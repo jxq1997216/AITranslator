@@ -40,21 +40,21 @@ namespace AITranslator.Translator.Translation
         public KVTranslator(TranslationTask task) : base(task)
         {
             ViewModel vm = ViewModelManager.ViewModel;
-            bool model1B8;
-            switch (vm.CommunicatorType)
-            {
-                case CommunicatorType.LLama:
-                    model1B8 = vm.CommunicatorLLama_ViewModel.IsModel1B8;
-                    break;
-                case CommunicatorType.TGW:
-                    model1B8 = vm.CommunicatorTGW_ViewModel.IsModel1B8;
-                    break;
-                case CommunicatorType.OpenAI:
-                    model1B8 = false;
-                    break;
-                default:
-                    throw ExceptionThrower.InvalidCommunicator;
-            }
+            //bool model1B8;
+            //switch (vm.CommunicatorType)
+            //{
+            //    case CommunicatorType.LLama:
+            //        model1B8 = vm.CommunicatorLLama_ViewModel.IsModel1B8;
+            //        break;
+            //    case CommunicatorType.TGW:
+            //        model1B8 = vm.CommunicatorTGW_ViewModel.IsModel1B8;
+            //        break;
+            //    case CommunicatorType.OpenAI:
+            //        model1B8 = false;
+            //        break;
+            //    default:
+            //        throw ExceptionThrower.InvalidCommunicator;
+            //}
 
             //查找示例对话路径
             string exampleFileName = "固定示例对话";

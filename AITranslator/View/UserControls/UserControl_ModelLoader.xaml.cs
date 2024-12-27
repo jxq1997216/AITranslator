@@ -55,7 +55,7 @@ namespace AITranslator.View.UserControls
                 string result = await LLamaLoader.LoadModel(ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate?.Name);
                 if (string.IsNullOrWhiteSpace(result))
                 {
-                    vm.CommunicatorLLama_ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
+                    //vm.CommunicatorLLama_ViewModel.IsModel1B8 = LLamaLoader.Is1B8;
                     Window_Message.ShowDialog("提示", "加载模型成功");
                 }
                 else
@@ -122,7 +122,7 @@ namespace AITranslator.View.UserControls
                     string result = await LLamaLoader.LoadModel(ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate.Name);
                     if (string.IsNullOrWhiteSpace(result))
                     {
-                        vm.IsModel1B8 = LLamaLoader.Is1B8;
+                        //vm.IsModel1B8 = LLamaLoader.Is1B8;
                         Window_Message.ShowDialog("提示", "加载模型成功");
                     }
                     else

@@ -143,7 +143,7 @@ namespace AITranslator.Translator.Translation
                         CommunicatorType.OpenAI => new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"), ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey),
                         _ => throw ExceptionThrower.InvalidCommunicator,
                     };
-                    TranslateData.GetNotTranslatedData();
+                    TranslateData.GetUntranslatedData();
                     _history.Clear();
                     LoadHistory();
                     Translate();
@@ -172,7 +172,7 @@ namespace AITranslator.Translator.Translation
                                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始第{i + 1}次重翻失败部分");
                                 //重新翻译失败部分
                                 TranslateData.ClearFailedData();
-                                TranslateData.GetNotTranslatedData();
+                                TranslateData.GetUntranslatedData();
                                 Translate();
                                 SaveFiles();
                             }
