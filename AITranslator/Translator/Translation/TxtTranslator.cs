@@ -26,39 +26,8 @@ namespace AITranslator.Translator.Translation
         public TxtTranslateData Data => (TranslateData as TxtTranslateData)!;
         internal override int FailedDataCount => Data.Dic_Failed!.Count;
 
-        string tempFileExtension = ".json";
-        public TxtTranslator(TranslationTask task) : base(task)
-        {
-            //生成PostData
-
-            //设置示例对话,negative_prompt和prompt_with_text
-            if (_translationTask.IsEnglish)
-            {
-                _example = new ExampleDialogue[]
-                {
-                    new("user","将下面的英文文本翻译成中文：Hello"),
-                    new("assistant","你好"),
-                    new("user","将下面的英文文本翻译成中文：「Is everything alright?」"),
-                    new("assistant","「一切都还好么？」"),
-                };
-                prompt_with_text = "将下面的英文文本翻译成中文：";
-                system_prompt = "你是一个英文翻译模型，可以流畅通顺地将英文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
-            }
-            else
-            {
-                _example = new ExampleDialogue[]
-                {
-                    new("user","将下面的日文文本翻译成中文：「ぐふふ……なるほどなァ。　だが、ワシの一存では決められぬなァ……？」"),
-                    new("assistant","「咕呼呼……原来如此啊。 但是这可不能由我一个人做决定……」"),
-                    new("user","将下面的日文文本翻译成中文：敵単体に防御力無視の先行攻撃"),
-                    new("assistant","敌单体无视防御力的先行攻击"),
-                };
-                prompt_with_text = "将下面的日文文本翻译成中文：";
-                system_prompt = "你是一个日文翻译模型，可以流畅通顺地将日文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
-            }
-
-
-        }
+        readonly string tempFileExtension = ".json";
+        public TxtTranslator(TranslationTask task) : base(task) { }
 
         internal override void LoadHistory()
         {
@@ -118,9 +87,10 @@ namespace AITranslator.Translator.Translation
                             //单句翻译
                             string result_single = Translate_NoResetNewline(mergeValues[i], true, 600, 0.2, 0);
                             //检测翻译结果是否通过
-                            if (result_single.Length > mergeValues[i].Length + 100)
+                            if (!Verification(mergeValues[i], result_single, out string error))
                             {
-                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译后字数超过限制，怀疑模型退化，记录到错误列表。");
+                                ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，记录到错误列表。");
                                 Data.Dic_Failed[mergeKeys[i]] = result_single;
                                 SaveFailedFile();
                             }
@@ -142,9 +112,10 @@ namespace AITranslator.Translator.Translation
                         for (int i = 0; i < mergeValues.Count; i++)
                         {
                             string result_single = results[i];
-                            if (result_single.Length > mergeValues[i].Length + 100)
+                            if (!Verification(mergeValues[i], result_single,out string error))
                             {
-                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译后字数超过限制，怀疑模型退化，记录到错误列表。");
+                                ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，记录到错误列表。");
                                 Data.Dic_Failed[mergeKeys[i]] = result_single;
                                 SaveFailedFile();
                             }
@@ -169,6 +140,7 @@ namespace AITranslator.Translator.Translation
 
             }
         }
+
 
         internal override void MergeData()
         {

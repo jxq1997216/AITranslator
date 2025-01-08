@@ -23,5 +23,6 @@
     {"role": "user", "content": "将下面的英文文本翻译成中文：General Armor"},
     {"role": "assistant", "content": "普通装甲"},
     {"role": "user", "content": "将下面的英文文本翻译成中文：Enemy Freeze"},
-    {"role": "assistant", "content": "敌方冻结"}
+    {"role": "assistant", "content": "敌方冻结"},
+    {"role": "user", "content": "将下面的英文文本翻译成中文："}
 ]

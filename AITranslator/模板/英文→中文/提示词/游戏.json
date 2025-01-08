@@ -23,5 +23,6 @@
     {"role": "user", "content": "将这段文本直接翻译成中文，不要进行任何额外的格式修改，如果遇到大量语气词，请直接将语气词保留，这里是你需要翻译的文本：General Armor"},
     {"role": "assistant", "content": "普通装甲"},
     {"role": "user", "content": "将这段文本直接翻译成中文，不要进行任何额外的格式修改，如果遇到大量语气词，请直接将语气词保留，这里是你需要翻译的文本：Enemy Freeze"},
-    {"role": "assistant", "content": "敌方冻结"}
+    {"role": "assistant", "content": "敌方冻结"},
+    {"role": "user", "content": "将这段文本直接翻译成中文，不要进行任何额外的格式修改，如果遇到大量语气词，请直接将语气词保留，这里是你需要翻译的文本："}
 ]

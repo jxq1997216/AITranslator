@@ -3,5 +3,6 @@
     {"role": "user", "content": "将下面的日文文本翻译成中文：「ぐふふ……なるほどなァ。　だが、ワシの一存では決められぬなァ……？」"},
     {"role": "assistant", "content": "「咕呼呼……原来如此啊。 但是这可不能由我一个人做决定……」"},
     {"role": "user", "content": "将下面的日文文本翻译成中文：敵単体に防御力無視の先行攻撃"},
-    {"role": "assistant", "content": "敌单体无视防御力的先行攻击"}
+    {"role": "assistant", "content": "敌单体无视防御力的先行攻击"},
+    {"role": "user", "content": "将下面的日文文本翻译成中文："}
 ]

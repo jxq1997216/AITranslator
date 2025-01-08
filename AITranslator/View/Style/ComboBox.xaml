@@ -74,7 +74,7 @@
                             <ColumnDefinition Width="0.3*" MaxWidth="30"/>
                         </Grid.ColumnDefinitions>
                         <Border  Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="3"/>
-                        <ContentPresenter HorizontalAlignment="Left" Margin="8,3,24,3" x:Name="ContentSite" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False"/>
+                        <ContentPresenter HorizontalAlignment="Left" Margin="{TemplateBinding Width,Converter={StaticResource ComboBoxStyleMargin}}" x:Name="ContentSite" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False"/>
 
                         <!--ToggleButton 已数据绑定到 ComboBox 本身以切换 IsDropDownOpen-->
                         <ToggleButton Grid.Column="0"  Grid.ColumnSpan="2" Template="{StaticResource ComboBoxToggleButton}" x:Name="ToggleButton" Focusable="false" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"/>

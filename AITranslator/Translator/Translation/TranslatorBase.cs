@@ -19,9 +19,19 @@ using System.Diagnostics;
 using System.Windows.Markup;
 using AITranslator.Mail;
 using AITranslator.Translator.PostData;
+using Microsoft.CodeAnalysis.Scripting;
+using AITranslator.Translator.Pretreatment;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using System.IO;
+using AITranslator.Translator.Persistent;
 
 namespace AITranslator.Translator.Translation
 {
+    public sealed class VerificationScriptInput
+    {
+        public string Translated;
+        public string Untranslated;
+    }
     internal class TranslateResult
     {
         public bool IsPause { get; private set; }
@@ -59,21 +69,14 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         internal event EventHandler<TranslateStopEventArgs> Stoped;
 
-        //发送数据包
-        //internal PostDataBase postData;
-
-        /// <summary>
-        /// 对话提示
-        /// </summary>
-        internal string prompt_with_text;
-
-        internal string system_prompt;
         /// <summary>
         /// 翻译线程
         /// </summary>
         Task _task;
 
         internal TranslationTask _translationTask;
+        readonly Script<(bool, string)> _verification;
+        readonly VerificationScriptInput _verificationScriptInput = new VerificationScriptInput();
 
         /// <summary>
         /// 历史上下文
@@ -99,6 +102,8 @@ namespace AITranslator.Translator.Translation
         public TranslatorBase(TranslationTask task)
         {
             _translationTask = task;
+            _example = JsonPersister.Load<ExampleDialogue[]>(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Prompt, task.PromptTemplate));
+            _verification = CSharpScript.Create<(bool, string)>(File.ReadAllText(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Verification, task.VerificationTemplate)), ScriptOptions.Default, globalsType: typeof(VerificationScriptInput));
             //创建Data
             TranslateData = task.TranslateType switch
             {
@@ -295,6 +300,21 @@ namespace AITranslator.Translator.Translation
         }
 
         /// <summary>
+        /// 翻译结果校验
+        /// </summary>
+        /// <param name="source">原始数据</param>
+        /// <param name="translated">翻译后数据</param>
+        /// <param name="error">校验不通过原因</param>
+        /// <returns>校验是否通过</returns>
+        internal bool Verification(string source, string translated, out string error)
+        {
+            _verificationScriptInput.Untranslated = source;
+            _verificationScriptInput.Translated = translated;
+            (bool, string) result = _verification.RunAsync(_verificationScriptInput).Result.ReturnValue;
+            error = result.Item2;
+            return result.Item1;
+        }
+        /// <summary>
         /// 加载历史记录
         /// </summary>
         internal abstract void LoadHistory();
@@ -335,7 +355,7 @@ namespace AITranslator.Translator.Translation
             }
 
             string str_join = string.Join('\n', processed_texts);
-            string str_result = TryTranslate(str_join, prompt_with_text + "\n", useHistory, maxTokens, temperature, frequencyPenalty);
+            string str_result = TryTranslate(str_join, _example[^1].content! + "\n", useHistory, maxTokens, temperature, frequencyPenalty);
 
             //如果返回结果的换行符数量不一致，调用逐句翻译模式
             string[] strs_result = str_result.Split('\n');
@@ -362,13 +382,13 @@ namespace AITranslator.Translator.Translation
             (Dictionary<string, List<double>>, string) result = value.CalculateNewlinePositions(escapeChars);
             Dictionary<string, List<double>> positions = result.Item1;
             string processed_texts = result.Item2;
-            string str_result = TryTranslate(processed_texts, prompt_with_text, useHistory, maxTokens, temperature, frequencyPenalty).InsertNewlines(positions);
+            string str_result = TryTranslate(processed_texts, _example[^1].content!, useHistory, maxTokens, temperature, frequencyPenalty).InsertNewlines(positions);
             return str_result;
         }
 
         internal string Translate_NoResetNewline(string value, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
         {
-            string str_result = TryTranslate(value, prompt_with_text, useHistory, maxTokens, temperature, frequencyPenalty);
+            string str_result = TryTranslate(value, _example[^1].content!, useHistory, maxTokens, temperature, frequencyPenalty);
             return str_result;
         }
 
@@ -384,7 +404,7 @@ namespace AITranslator.Translator.Translation
         /// <exception cref="KnownException">出现的已知错误</exception>
         internal string TryTranslate(string str, string prompt_with_text, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
         {
-            ExampleDialogue[] headers = [new ExampleDialogue("system", system_prompt), .. _example];
+            ExampleDialogue[] headers = _example[..^1];
             ExampleDialogue[] history = useHistory ? _history.ToArray() : Array.Empty<ExampleDialogue>();
 
             PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch

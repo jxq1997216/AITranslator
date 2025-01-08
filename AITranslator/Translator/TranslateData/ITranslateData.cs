@@ -30,7 +30,7 @@ namespace AITranslator.Translator.TranslateData
         /// 替换和清理原始数据
         /// </summary>
         /// <param name="dicName"></param>
-        public abstract static void Clear(string dicName);
+        public abstract static void Clear(string dicName, string clearTemplatePath);
 
         public abstract static bool HasFailedData(string dicName);
     }

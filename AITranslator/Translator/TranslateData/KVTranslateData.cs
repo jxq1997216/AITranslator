@@ -24,9 +24,12 @@ namespace AITranslator.Translator.TranslateData
 
         public string FileName { get; set; }
         public string DicName { get; set; }
-
         /// <summary>
         /// 原始翻译数据
+        /// </summary>
+        public Dictionary<string, string>? Dic_Source;
+        /// <summary>
+        /// 清理后的数据
         /// </summary>
         public Dictionary<string, string>? Dic_Cleaned;
         /// <summary>
@@ -50,6 +53,12 @@ namespace AITranslator.Translator.TranslateData
 
         public void ReloadData()
         {
+            string sourceFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Source);
+            if (File.Exists(sourceFile))
+                Dic_Source = JsonPersister.Load<Dictionary<string, string>>(sourceFile);
+            else
+                throw new KnownException("不存在清理后的文件！");
+
             string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
             if (File.Exists(cleanedFile))
                 Dic_Cleaned = JsonPersister.Load<Dictionary<string, string>>(cleanedFile);
@@ -97,7 +106,7 @@ namespace AITranslator.Translator.TranslateData
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;
         }
 
-        public static void Clear(string dicName)
+        public static void Clear(string dicName,string clearTemplatePath)
         {
             Dictionary<string, string> dic_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -106,24 +115,7 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            //读取屏蔽数据字典
-            string[] array_block;
-            Uri exampleURI = new Uri($"pack://application:,,,/AITranslator;component/{PublicParams.BlockPath}");
-            StreamResourceInfo info = System.Windows.Application.GetResourceStream(exampleURI);
-            using (UnmanagedMemoryStream stream = info.Stream as UnmanagedMemoryStream)
-            {
-                byte[] bytes = new byte[stream.Length];
-                stream.Read(bytes);
-                string block_json = Encoding.UTF8.GetString(bytes);
-                array_block = JsonConvert.DeserializeObject<string[]>(block_json)!;
-            }
-            Dictionary<string, object?> dic_block = array_block.ToDictionary(key => key, value => default(object));
-
-            bool? isEnglish = ViewModelManager.ViewModel.UnfinishedTasks.First(s => s.DicName == dicName)?.IsEnglish;
-            if (!isEnglish.HasValue)
-                throw new KnownException("清理失败：任务列表中找不到此任务");
-
-            dic_source = dic_source.Pretreatment(isEnglish.Value, dic_block);
+            dic_source = dic_source.Pretreatment(clearTemplatePath);
 
             JsonPersister.Save(dic_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
         }

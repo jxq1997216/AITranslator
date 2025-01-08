@@ -23,11 +23,6 @@
   <ItemGroup>
     <None Remove="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
     <None Remove="Window_Main.xaml.cs~RF85b1393.TMP" />
-    <None Remove="内置参数\固定示例对话_en.json" />
-    <None Remove="内置参数\固定示例对话_en_1b8.json" />
-    <None Remove="内置参数\固定示例对话_jp.json" />
-    <None Remove="内置参数\固定示例对话_jp_1b8.json" />
-    <None Remove="内置参数\屏蔽列表.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,7 +41,6 @@
 
   <ItemGroup>
     <Resource Include="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
-    <Resource Include="内置参数\屏蔽列表.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,34 +53,82 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="模板\名词替换\示例模板.json">
+    <None Update="模板\日文→中文\名词替换\空.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\对话格式\Gemma2.csx">
+    <None Update="模板\日文→中文\名词替换\示例模板.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\对话格式\ChatML.csx">
+    <None Update="内置加载器\对话格式\Gemma2.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\提示词\模板_其他_日译中.json">
+    <None Update="内置加载器\对话格式\ChatML.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\提示词\模板_其他_英译中.json">
+    <None Update="模板\日文→中文\提示词\其他.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\提示词\模板_游戏_日译中%281b8%29.json">
+    <None Update="模板\日文→中文\提示词\游戏_1b8.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\提示词\模板_游戏_日译中.json">
+    <None Update="模板\日文→中文\提示词\游戏.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\提示词\模板_游戏_英译中%281b8%29.json">
+    <None Update="模板\日文→中文\校验规则\字幕.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\提示词\模板_游戏_英译中.json">
+    <None Update="模板\日文→中文\校验规则\游戏.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="模板\提示词\默认提示词_日译中.json">
+    <None Update="模板\日文→中文\校验规则\不校验.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\日文→中文\校验规则\文本.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\日文→中文\清理规则\不清理.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\日文→中文\清理规则\游戏.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\日文→中文\清理规则\默认.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\名词替换\示例模板.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\名词替换\空.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\提示词\其他.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\提示词\游戏_1b8.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\提示词\游戏.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\校验规则\不校验.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\校验规则\字幕.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\校验规则\文本.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\校验规则\游戏.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\清理规则\不清理.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\清理规则\游戏.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="模板\英文→中文\清理规则\默认.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

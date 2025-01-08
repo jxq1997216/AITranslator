@@ -35,5 +35,16 @@ namespace AITranslator.View.UserControls
             InitializeComponent();
         }
 
+        private void cb_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is ComboBox cb)
+            {
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1);
+                    Dispatcher.Invoke(() => cb.SelectedIndex = 0);
+                });
+            }
+        }
     }
 }

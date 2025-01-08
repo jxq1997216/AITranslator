@@ -56,7 +56,7 @@ namespace AITranslator.Translator.Persistent
             }
         }
 
-        public static void Save(Dictionary<int, SrtData> datas, string filePath,bool hide = false)
+        public static void Save(ICollection<KeyValuePair<int, SrtData>> datas, string filePath, bool hide = false)
         {
             FileInfo fileInfo = new FileInfo(filePath);
             string fileExtension = fileInfo.Extension;

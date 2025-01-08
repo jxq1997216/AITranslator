@@ -11,12 +11,11 @@ namespace AITranslator.View.Models
 {
     public partial class ViewModel_TaskConfigView : ViewModel_ValidateBase
     {
-        ///// <summary>
-        ///// 是否是英语翻译
-        ///// </summary>
-        //[ObservableProperty]
-        //private bool isEnglish;
-
+        /// <summary>
+        /// 模板文件夹
+        /// </summary>
+        [ObservableProperty]
+        private TemplateDic? templateDic;
         /// <summary>
         /// 提示词模板
         /// </summary>
@@ -26,12 +25,17 @@ namespace AITranslator.View.Models
         /// 替换词模板
         /// </summary>
         [ObservableProperty]
-        private Template? replacesTemplate;
+        private Template? replaceTemplate;
         /// <summary>
         /// 校验规则模板
         /// </summary>
         [ObservableProperty]
         private Template? verificationTemplate;
+        /// <summary>
+        /// 校验规则模板
+        /// </summary>
+        [ObservableProperty]
+        private Template? cleanTemplate;
         /// <summary>
         /// 上下文记忆数量
         /// </summary>

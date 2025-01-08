@@ -1,5 +1,6 @@
 ﻿using AITranslator.Exceptions;
 using AITranslator.Translator.TranslateData;
+using AITranslator.View.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,15 +48,27 @@ namespace AITranslator.Translator.Models
         /// <summary>
         /// 对话格式模板文件的文件夹
         /// </summary>
-        public const string InstructTemplateDataDic = "模板/对话格式";
+        public const string InstructTemplateDic = "内置加载器/对话格式";
+        /// <summary>
+        /// 所有自定义模板所在的文件夹
+        /// </summary>
+        public const string TemplatesDic = "模板";
         /// <summary>
         /// 名词替换模板文件的文件夹
         /// </summary>
-        public const string ReplaceTemplateDataDic = "模板/名词替换";
+        public const string ReplaceTemplateDic = "名词替换";
         /// <summary>
         /// 提示词模板文件的文件夹
         /// </summary>
-        public const string PromptTemplateDataDic = "模板/提示词";
+        public const string PromptTemplateDic = "提示词";
+        /// <summary>
+        /// 清理规则模板文件的文件夹
+        /// </summary>
+        public const string CleanTemplateDic = "清理规则";
+        /// <summary>
+        /// 校验规则模板文件的文件夹
+        /// </summary>
+        public const string VerificationTemplateDic = "校验规则";
         /// <summary>
         /// 翻译后的数据保存的文件夹
         /// </summary>
@@ -125,6 +138,17 @@ namespace AITranslator.Translator.Models
             }
         }
 
+        public static string GetTemplateFilePath(string templateDicName, TemplateType type, string templateName)
+        {
+            return type switch
+            {
+                TemplateType.Replace => $"模板/{templateDicName}/名词替换/{templateName}.json",
+                TemplateType.Prompt => $"模板/{templateDicName}/提示词/{templateName}.json",
+                TemplateType.Clean => $"模板/{templateDicName}/清理规则/{templateName}.csx",
+                TemplateType.Verification => $"模板/{templateDicName}/校验规则/{templateName}.csx",
+                _ => throw new NotSupportedException("不支持的模板类型!"),
+            };
+        }
         public static string GetDicName(string dicName)
         {
             return $"{TranslatedDataDic}/{dicName}";

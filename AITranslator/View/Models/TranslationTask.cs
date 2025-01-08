@@ -79,6 +79,16 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private string dicName;
         /// <summary>
+        /// 翻译模板目录
+        /// </summary>
+        [ObservableProperty]
+        private string templateDic;
+        /// <summary>
+        /// 清理模板
+        /// </summary>
+        [ObservableProperty]
+        private string cleanTemplate;
+        /// <summary>
         /// 提示词模板
         /// </summary>
         [ObservableProperty]
@@ -87,7 +97,7 @@ namespace AITranslator.View.Models
         /// 替换词模板
         /// </summary>
         [ObservableProperty]
-        private string replacesTemplate;
+        private string replaceTemplate;
         /// <summary>
         /// 校验规则模板
         /// </summary>
@@ -250,13 +260,13 @@ namespace AITranslator.View.Models
                     switch (TranslateType)
                     {
                         case TranslateDataType.KV:
-                            KVTranslateData.Clear(DicName);
+                            KVTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
                             break;
                         case TranslateDataType.Srt:
-                            SrtTranslateData.Clear(DicName);
+                            SrtTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
                             break;
                         case TranslateDataType.Txt:
-                            TxtTranslateData.Clear(DicName);
+                            TxtTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
                             break;
                         default:
                             throw new KnownException("不支持的翻译文件类型");
@@ -361,7 +371,11 @@ namespace AITranslator.View.Models
                     ConfigSave_Translate config = new ConfigSave_Translate()
                     {
                         FileName = FileName,
-                        IsEnglish = IsEnglish,
+                        TemplateDic = TemplateDic,
+                        CleanTemplate = CleanTemplate,
+                        PromptTemplate = PromptTemplate,
+                        ReplaceTemplate = ReplaceTemplate,
+                        VerificationTemplate = VerificationTemplate,
                         HistoryCount = HistoryCount,
                         TranslateType = TranslateType,
                         Replaces = Replaces.ToReplaceDictionary(),
@@ -393,7 +407,11 @@ namespace AITranslator.View.Models
             //读取配置文件
             ConfigSave_Translate config = JsonPersister.Load<ConfigSave_Translate>(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Config));
             FileName = config.FileName;
-            IsEnglish = config.IsEnglish;
+            TemplateDic = config.TemplateDic;
+            CleanTemplate = config.CleanTemplate;
+            PromptTemplate = config.PromptTemplate;
+            ReplaceTemplate = config.ReplaceTemplate;
+            VerificationTemplate = config.VerificationTemplate;
             HistoryCount = config.HistoryCount;
             TranslateType = config.TranslateType;
             Replaces = config.Replaces.ToReplaceCollection();

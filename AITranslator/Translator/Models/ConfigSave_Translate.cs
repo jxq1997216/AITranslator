@@ -18,10 +18,26 @@ namespace AITranslator.Translator.Models
         /// 文件名称
         /// </summary>
         public string FileName { get; set; }
-        ///// <summary>
-        ///// 日语/英语
-        ///// </summary>
-        //public bool IsEnglish { get; set; }
+        /// <summary>
+        /// 翻译模板目录
+        /// </summary>
+        public string TemplateDic { get; set; }
+        /// <summary>
+        /// 名词替换模板
+        /// </summary>
+        public string ReplaceTemplate { get; set; }
+        /// <summary>
+        /// 清理模板
+        /// </summary>
+        public string CleanTemplate { get; set; }
+        /// <summary>
+        /// 提示词模板
+        /// </summary>
+        public string PromptTemplate { get; set; }
+        /// <summary>
+        /// 校验规则模板
+        /// </summary>
+        public string VerificationTemplate { get; set; }
         /// <summary>
         /// 上下文记忆数量
         /// </summary>

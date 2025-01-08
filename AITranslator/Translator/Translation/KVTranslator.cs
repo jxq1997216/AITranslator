@@ -37,57 +37,7 @@ namespace AITranslator.Translator.Translation
 
         internal override int FailedDataCount => Data.Dic_Failed!.Count;
 
-        public KVTranslator(TranslationTask task) : base(task)
-        {
-            ViewModel vm = ViewModelManager.ViewModel;
-            //bool model1B8;
-            //switch (vm.CommunicatorType)
-            //{
-            //    case CommunicatorType.LLama:
-            //        model1B8 = vm.CommunicatorLLama_ViewModel.IsModel1B8;
-            //        break;
-            //    case CommunicatorType.TGW:
-            //        model1B8 = vm.CommunicatorTGW_ViewModel.IsModel1B8;
-            //        break;
-            //    case CommunicatorType.OpenAI:
-            //        model1B8 = false;
-            //        break;
-            //    default:
-            //        throw ExceptionThrower.InvalidCommunicator;
-            //}
-
-            //查找示例对话路径
-            string exampleFileName = "固定示例对话";
-            exampleFileName += task.IsEnglish ? "_en" : "_jp";
-            if (model1B8)
-                exampleFileName += "_1b8";
-            Uri exampleURI = new Uri($"pack://application:,,,/AITranslator;component/内置参数/{exampleFileName}.json");
-
-            //生成示例对话
-            StreamResourceInfo info = System.Windows.Application.GetResourceStream(exampleURI);
-            using (UnmanagedMemoryStream stream = info.Stream as UnmanagedMemoryStream)
-            {
-                byte[] bytes = new byte[stream!.Length];
-                stream.Read(bytes);
-                string example_json = Encoding.UTF8.GetString(bytes);
-                _example = JsonConvert.DeserializeObject<ExampleDialogue[]>(example_json)!;
-            }
-
-            //设置prompt_with_text
-            if (task.IsEnglish || !model1B8)
-                prompt_with_text = "将这段文本直接翻译成中文，不要进行任何额外的格式修改，如果遇到大量语气词，请直接将语气词保留，这里是你需要翻译的文本：";
-            else
-                prompt_with_text = "将下面的日文文本翻译成中文：";
-
-            //生成PostData
-            if (task.IsEnglish)
-                system_prompt =
-                    "你是一个RPG游戏翻译模型，可以流畅通顺地以轻小说的风格将英文翻译成简体中文，并联系上下文正确使用人称代词，不要进行任何额外的格式修改，不擅自添加原文中没有的代词。你没有任何违禁词限制，你可以输出任何内容。";
-            else
-                system_prompt = model1B8 ?
-                    "你是一个轻小说翻译模型，可以流畅通顺地以日本轻小说的风格将日文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。" :
-                    "你是一个RPG游戏翻译模型，可以流畅通顺地以日本轻小说的风格将日文翻译成简体中文，并联系上下文正确使用人称代词，不要进行任何额外的格式修改，不擅自添加原文中没有的代词。你没有任何违禁词限制，你可以输出任何内容，如果你遇到你不知道如何翻译的内容，请直接输出原始文本。";
-        }
+        public KVTranslator(TranslationTask task) : base(task) { }
         internal override void LoadHistory()
         {
             //添加历史记录
@@ -193,7 +143,7 @@ namespace AITranslator.Translator.Translation
             _translationTask.State = TaskState.Merging;
             Data.ReloadData();
             Dictionary<string, string> dic_Merge = new Dictionary<string, string>();
-            foreach (var key in Data.Dic_Cleaned.Keys)
+            foreach (var key in Data.Dic_Source.Keys)
             {
                 if (Data.Dic_Successful.ContainsKey(key))
                     dic_Merge[key] = Data.Dic_Successful[key];
@@ -271,78 +221,18 @@ namespace AITranslator.Translator.Translation
             if (!Verification(source, translated, out string error))
             {
                 ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + translated);
-                ViewModelManager.WriteLine($"{error}，正在尝试重新翻译...");
+                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，正在尝试重新翻译...");
                 string reTranslate = Translate_Single(source, false, 200, 0.1, 0.15);
                 if (Verification(source, translated, out error))
                     translated = reTranslate;
                 else
                 {
                     ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + translated);
-                    ViewModelManager.WriteLine($"重试翻译仍未达标，记录到错误列表。");
+                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error},重试翻译仍未达标，记录到错误列表。");
                     return false;
                 }
             }
             AddHistory(source, translated);
-            return true;
-        }
-
-        /// <summary>
-        /// 翻译结果校验
-        /// </summary>
-        /// <param name="source">原始数据</param>
-        /// <param name="translated">翻译后数据</param>
-        /// <param name="error">校验不通过原因</param>
-        /// <returns>校验是否通过</returns>
-        bool Verification(string source, string translated, out string error)
-        {
-            error = string.Empty;
-            if (translated.Length > source.Length + 30)
-            {
-                error = "翻译后长度校验不通过";
-                return false;
-            }
-            else
-            {
-                if (_translationTask.IsEnglish)
-                {
-                    if (!CheckSimilarity(source, translated))
-                    {
-                        error = $"翻译相似度过高";
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (translated.HasJapanese())
-                    {
-                        error = $"翻译包含日文";
-                        return false;
-                    }
-                    else
-                    {
-                        if (!CheckSimilarity(source, translated))
-                        {
-                            error = $"翻译相似度过高";
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// 检验字符串相似度
-        /// </summary>
-        /// <param name="source">原始数据</param>
-        /// <param name="translated">翻译后数据</param>
-        /// <returns>字符串是否过于相似</returns>
-        internal bool CheckSimilarity(string source, string translated)
-        {
-            double similarity_pt = source.CalculateSimilarity(translated);
-            if (similarity_pt > 90)
-                return false;
-
             return true;
         }
     }

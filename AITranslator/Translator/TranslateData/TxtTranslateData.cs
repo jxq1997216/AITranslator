@@ -1,6 +1,7 @@
 ﻿using AITranslator.Exceptions;
 using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
+using AITranslator.Translator.Pretreatment;
 using AITranslator.Translator.Translation;
 using System;
 using System.Collections.Generic;
@@ -40,7 +41,7 @@ namespace AITranslator.Translator.TranslateData
         public Dictionary<int, string> Dic_NotTranslated = new Dictionary<int, string>();
 
 
-        public TxtTranslateData(string dicName,string fileName)
+        public TxtTranslateData(string dicName, string fileName)
         {
             DicName = dicName;
             FileName = fileName;
@@ -98,7 +99,7 @@ namespace AITranslator.Translator.TranslateData
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)List_Cleaned.Count * 100;
         }
 
-        public static void Clear(string dicName)
+        public static void Clear(string dicName, string clearTemplatePath)
         {
             List<string> list_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -107,12 +108,7 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            ////替换名词
-            //for (int i = 0; i < list_source.Count; i++)
-            //{
-            //    foreach (var replace in replaces)
-            //        list_source[i] = list_source[i].Replace(replace.Key, replace.Value);
-            //}
+            list_source = list_source.Pretreatment(clearTemplatePath);
 
             TxtPersister.Save(list_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
         }

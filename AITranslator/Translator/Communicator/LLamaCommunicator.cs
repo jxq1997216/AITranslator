@@ -26,7 +26,7 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 
 namespace AITranslator.Translator.Communicator
 {
-    public sealed class CSXScriptInput
+    public sealed class InstructScriptInput
     {
         public List<Message> Messages = new List<Message>();
     }
@@ -56,15 +56,15 @@ namespace AITranslator.Translator.Communicator
         {
             if (string.IsNullOrWhiteSpace(templateName))
                 return "请创建并选择对话模板！";
-            string templateFilePath = PublicParams.InstructTemplateDataDic + $"/{templateName}.csx";
+            string templateFilePath = PublicParams.InstructTemplateDic + $"/{templateName}.csx";
             if (!File.Exists(templateFilePath))
                 return "当前对话模板不存在！";
             try
             {
-                Script = CSharpScript.Create<string>(File.ReadAllText(templateFilePath), ScriptOptions.Default.WithReferences(typeof(Message).Assembly, typeof(StringBuilder).Assembly), globalsType: typeof(CSXScriptInput));
+                Script = CSharpScript.Create<string>(File.ReadAllText(templateFilePath), ScriptOptions.Default.WithReferences(typeof(Message).Assembly), globalsType: typeof(InstructScriptInput));
                 List<Message> restmessages = [new(AuthorRole.System, "1"), new(AuthorRole.User, "2"), new(AuthorRole.Assistant, "3"), new(AuthorRole.User, "4")];
-                CSXScriptInput testGloableClass = new CSXScriptInput() { Messages = restmessages };
-                _ = LLamaLoader.Script.RunAsync(testGloableClass).Result.ReturnValue;
+                InstructScriptInput testGloableClass = new InstructScriptInput() { Messages = restmessages };
+                _ = Script.RunAsync(testGloableClass).Result.ReturnValue;
             }
             catch (CompilationErrorException error)
             {
@@ -200,6 +200,11 @@ namespace AITranslator.Translator.Communicator
                 {
                     Temperature = (float)_postData.temperature,
                     AlphaFrequency = (float)_postData.frequency_penalty,
+                    //AlphaPresence = 1f,
+
+                    //RepeatPenalty = 1f,
+                    //TopK = 40,
+                    //TopP = 0.9f,
                 },
 
                 AntiPrompts = _postData.stop,
@@ -213,7 +218,7 @@ namespace AITranslator.Translator.Communicator
                 try
                 {
                     List<Message> messages = [.. _headers, .. _histories, new(AuthorRole.User, inputText)];
-                    CSXScriptInput gloableClass = new CSXScriptInput() { Messages = messages };
+                    InstructScriptInput gloableClass = new InstructScriptInput() { Messages = messages };
                     string data = LLamaLoader.Script.RunAsync(gloableClass).Result.ReturnValue;
                     sw.Restart();
                     List<string> resultText = LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token).ToList();

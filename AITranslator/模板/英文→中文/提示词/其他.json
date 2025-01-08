@@ -3,5 +3,6 @@
     {"role": "user", "content": "将下面的英文文本翻译成中文：Hello"},
     {"role": "assistant", "content": "你好"},
     {"role": "user", "content": "将下面的英文文本翻译成中文：「Is everything alright?」"},
-    {"role": "assistant", "content": "「一切都还好么？」"}
+    {"role": "assistant", "content": "「一切都还好么？」"},
+    {"role": "user", "content": "将下面的英文文本翻译成中文："}
 ]
