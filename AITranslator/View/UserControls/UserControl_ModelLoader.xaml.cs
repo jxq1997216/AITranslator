@@ -31,7 +31,6 @@ namespace AITranslator.View.UserControls
     {
         double openAIHeight;
         double llamaHeight;
-        double tgwHeight;
         double llamaUnLoadHeightAdd = 95;
         double animOffset = 73;
 
@@ -45,7 +44,6 @@ namespace AITranslator.View.UserControls
         {
             gb_main.Height = 0;
             llamaHeight = gd_LLama.Height + animOffset;
-            tgwHeight = gd_TGW.Height + animOffset;
             openAIHeight = gd_OpemAI.Height + animOffset;
             ViewModel vm = ViewModelManager.ViewModel;
             if (vm.CommunicatorType == CommunicatorType.LLama && vm.CommunicatorLLama_ViewModel.AutoLoadModel)
@@ -70,7 +68,6 @@ namespace AITranslator.View.UserControls
             tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorType switch
             {
                 CommunicatorType.LLama => ViewModelManager.ViewModel.CommunicatorLLama_ViewModel,
-                CommunicatorType.TGW => ViewModelManager.ViewModel.CommunicatorTGW_ViewModel,
                 CommunicatorType.OpenAI => ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel,
                 _ => throw ExceptionThrower.InvalidCommunicator,
             };
@@ -141,14 +138,9 @@ namespace AITranslator.View.UserControls
             ViewModel_ValidateBase vm = ViewModelManager.ViewModel.CommunicatorType switch
             {
                 CommunicatorType.LLama => ViewModelManager.ViewModel.CommunicatorLLama_ViewModel,
-                CommunicatorType.TGW => ViewModelManager.ViewModel.CommunicatorTGW_ViewModel,
                 CommunicatorType.OpenAI => ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel,
                 _ => throw ExceptionThrower.InvalidCommunicator,
             };
-
-            //如果不是远程服务器，设置服务地址为本地
-            if (vm is ViewModel_CommunicatorTGW vm_TGW && !vm_TGW.IsRomatePlatform)
-                vm_TGW.ServerURL = "http://127.0.0.1:5000";
 
 
             //校验配置参数有没有错误
@@ -160,7 +152,6 @@ namespace AITranslator.View.UserControls
                     double height = ViewModelManager.ViewModel.CommunicatorType switch
                     {
                         CommunicatorType.LLama =>llamaHeight,
-                        CommunicatorType.TGW => tgwHeight,
                         CommunicatorType.OpenAI => openAIHeight,
                         _ => throw ExceptionThrower.InvalidCommunicator,
                     };
@@ -174,9 +165,6 @@ namespace AITranslator.View.UserControls
             {
                 case CommunicatorType.LLama:
                     AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
-                    break;
-                case CommunicatorType.TGW:
-                    AnimateMainHeight(tgwHeight + tb_error.ActualHeight);
                     break;
                 case CommunicatorType.OpenAI:
                     AnimateMainHeight(openAIHeight + tb_error.ActualHeight);
@@ -194,10 +182,6 @@ namespace AITranslator.View.UserControls
                 case CommunicatorType.LLama:
                     AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
                     tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
-                    break;
-                case CommunicatorType.TGW:
-                    AnimateMainHeight(tgwHeight + tb_error.ActualHeight);
-                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorTGW_ViewModel;
                     break;
                 case CommunicatorType.OpenAI:
                     AnimateMainHeight(openAIHeight + tb_error.ActualHeight);
@@ -239,10 +223,6 @@ namespace AITranslator.View.UserControls
                 case CommunicatorType.LLama:
                     AnimateMainHeight(llamaHeight);
                     tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
-                    break;
-                case CommunicatorType.TGW:
-                    AnimateMainHeight(tgwHeight);
-                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorTGW_ViewModel;
                     break;
                 case CommunicatorType.OpenAI:
                     AnimateMainHeight(openAIHeight);

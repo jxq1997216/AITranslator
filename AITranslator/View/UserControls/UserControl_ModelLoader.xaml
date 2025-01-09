@@ -14,7 +14,7 @@
         <StackPanel>
             <CheckBox x:Name="cb_CfgVisible" Margin="-5" Height="24" Style="{StaticResource CheckButton}" Checked="cb_CfgVisible_Checked" Unchecked="cb_CfgVisible_Unchecked">
                 <CheckBox.Content>
-                    <MultiBinding Converter="{StaticResource CommunicatorTypeToString}" ConverterParameter="正在使用TGW模型通讯器 正在使用OpenAI模型通讯器 未加载模型 加载模型中... 已加载模型">
+                    <MultiBinding Converter="{StaticResource CommunicatorTypeToString}" ConverterParameter="正在使用OpenAI模型通讯器 未加载模型 加载模型中... 已加载模型">
                         <Binding Path="CommunicatorType"/>
                         <Binding Path="CommunicatorLLama_ViewModel.ModelLoaded"/>
                         <Binding Path="CommunicatorLLama_ViewModel.ModelLoading"/>
@@ -29,17 +29,17 @@
                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                             <ComboBox Foreground="White" SelectionChanged="ComboBox_CommunicatorType_SelectionChanged" IsEnabled="{calc:Binding '!CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading and ActiveTask == null and !ManualTranslating'}" SelectedIndex="{Binding CommunicatorType,Converter={StaticResource CommunicatorTypeToIndex},Mode=TwoWay}">
                                 <ComboBoxItem Content="内置加载器"/>
-                                <ComboBoxItem Content="TGW"/>
                                 <ComboBoxItem Content="OpenAI"/>
                             </ComboBox>
                             <!--<control:ToggleButton Width="38" Height="14" FontSize="8" Margin="5,0,0,0" OnText="外置" OffText="内置"   IsChecked="{Binding IsOpenAILoader}" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked"/>-->
                         </StackPanel>
                     </GroupBox.Header>
                     <StackPanel Margin="5,10,5,5">
-                        <control:SizeAnimationGrid x:Name="gd_OpemAI" Height="90" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.OpenAI'}" Visibility="{calc:Binding '!(Opacity == 0)',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
+                        <control:SizeAnimationGrid x:Name="gd_OpemAI" Height="210" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.OpenAI'}" Visibility="{calc:Binding '!(Opacity == 0)',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
                             <StackPanel>
                                 <Grid IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
                                     <Grid.RowDefinitions>
+                                        <RowDefinition/>
                                         <RowDefinition/>
                                         <RowDefinition/>
                                         <RowDefinition/>
@@ -75,26 +75,14 @@
                                             <TextBox Text="{Binding CommunicatorOpenAI_ViewModel.Model}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
                                         </Border>
                                     </Grid>
+
                                 </Grid>
+                                <GroupBox Header="额外参数" Foreground="White" BorderThickness="0.1" Height="110" Padding="0,2">
+                                    <TextBox Text="{Binding CommunicatorOpenAI_ViewModel.ExpendedParams}" Foreground="White" CaretBrush="White" BorderThickness="0" Background="Transparent" AcceptsReturn="True" TextWrapping="Wrap" FontSize="10"/>
+                                </GroupBox>
                             </StackPanel>
                         </control:SizeAnimationGrid>
 
-                        <control:SizeAnimationGrid x:Name="gd_TGW" Height="30" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.TGW'}" Visibility="{calc:Binding '!(Opacity == 0)',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
-                            <StackPanel>
-                                <Grid IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <control:ToggleButton Margin="0,0,5,0" Width="60" OnText="远程" OffText="本地" IsChecked="{Binding CommunicatorTGW_ViewModel.IsRomatePlatform}"/>
-                                    <Border Grid.Column="1" BorderThickness="1" IsEnabled="{Binding CommunicatorTGW_ViewModel.IsRomatePlatform}" BorderBrush="{calc:Binding !CommunicatorTGW_ViewModel.IsRomatePlatform ? media:Brushes.Gray : media:Brushes.White}" Height="25" CornerRadius="12.5" >
-                                        <TextBox Text="{Binding CommunicatorTGW_ViewModel.ServerURL}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
-                                    </Border>
-                                    <!--<control:ToggleButton Grid.Column="2" Margin="0,0,5,0" Width="65" OnText="1B8" OffText="非1B8" IsChecked="{Binding CommunicatorTGW_ViewModel.IsModel1B8}"/>-->
-                                </Grid>
-                            </StackPanel>
-                        </control:SizeAnimationGrid>
                         <control:SizeAnimationGrid x:Name="gd_LLama" Height="160" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.LLama'}" Visibility="{calc:Binding 'Opacity != 0',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
                             <StackPanel>
                                 <StackPanel Margin="2,0">
@@ -116,11 +104,18 @@
                                                 </Grid.RowDefinitions>
                                                 <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                                                     <TextBlock Text="对话格式:" Margin="0,0,5,0" Foreground="White" VerticalAlignment="Center"/>
-                                                    <ComboBox MinWidth="240" MaxWidth="{Binding MinWidth,RelativeSource={RelativeSource Mode=Self}}" Visibility="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading,FalseToVisibility=Hidden}" HorizontalAlignment="Left" Foreground="White" SelectedItem="{Binding CommunicatorLLama_ViewModel.CurrentInstructTemplate}" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
-                                                    <control:ViewButton Margin="3,0,0,0" Width="20" Height="20" ToolTip="查看" Command="{Binding OpenInstructTemplateFileCommand}">
+                                                    <ComboBox Width="220" Visibility="{calc:Binding !CommunicatorLLama_ViewModel.ModelLoaded and !CommunicatorLLama_ViewModel.ModelLoading,FalseToVisibility=Hidden}" HorizontalAlignment="Left" Foreground="White" SelectedItem="{Binding CommunicatorLLama_ViewModel.CurrentInstructTemplate}" DisplayMemberPath="Name" ItemsSource="{Binding InstructTemplate}"/>
+                                                    <control:ViewButton Margin="5,0,0,0" Width="20" Height="20" ToolTip="查看" Command="{Binding TestInstructTemplateCommand}">
                                                         <control:ViewButton.Content>
                                                             <Viewbox Margin="0,0,2,3">
                                                                 <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type control:ViewButton}}}" Data="M928.842245 512.091074c0-5.006014-0.846274-9.193383-1.086751-9.691733-0.182149-2.480494-1.028423-7.001461-1.815345-9.374508-0.210801-0.590448-0.484024-1.209548-0.724501-1.799996-0.424672-1.360997-0.876973-2.691295-1.390673-3.749394-76.871785-168.137395-242.376213-281.144168-411.782507-281.144168-169.375595 0-334.865697 112.902396-411.388535 280.130072-0.921999 1.815345-1.572822 3.553942-1.981121 5.066389-0.181125 0.49835-0.39295 0.967024-0.558725 1.406023-1.512447 4.430916-1.542122 7.514137-1.421372 6.712889-0.710175 3.251044-1.360997 9.722432-1.360997 9.722432-0.181125 1.949398-0.181125 3.50687 0.030699 5.442966 0 0 0.649799 5.65479 0.968048 6.80294 0.090051 1.602498 0.483001 3.931542 0.951675 6.048763l-0.030699 0c0.408299 1.814322 0.968048 3.568269 1.738597 5.291516 0.393973 1.330298 0.862647 2.570545 1.270946 3.507894 76.976162 168.166047 242.436588 281.20352 411.781484 281.20352 169.436994 0 334.941422-112.945375 410.936233-279.328823 1.177825-2.177596 1.935072-4.233418 2.448772-6.018064 0.2415-0.543376 0.454348-1.027399 0.604774-1.511423 1.331321-3.872191 1.602498-7.227612 1.481747-7.227612l-0.028653 0.029676C928.027693 520.921183 928.842245 516.89959 928.842245 512.091074zM872.717993 514.146896c-0.029676 0.121773-0.091074 0.272199-0.151449 0.393973-0.090051 0.36225-0.240477 0.785899-0.332575 1.209548-68.403926 147.420561-212.830293 246.337431-360.191502 246.337431-146.997935 0-291.168476-98.642624-360.252901-246.578931-0.166799-0.5137-0.287549-0.998747-0.468674-1.481747-0.030699-0.484024-0.12075-0.876973-0.150426-1.150196-0.060375-0.300852-0.12075-0.724501-0.166799-1.088798l0-0.3776c0.166799-0.620124 0.286526-1.239224 0.347924-1.919722 0.12075-0.36225 0.211824-0.710175 0.347924-1.103124C220.132094 360.89042 364.680235 261.928524 512.041444 261.928524c147.420561 0 291.940049 99.051947 360.161826 246.322082 0.060375 0.287549 0.121773 0.530073 0.212848 0.726547 0.060375 0.2415 0.119727 0.484024 0.240477 0.740874 0.151449 1.104147 0.272199 2.192945 0.423649 2.736321C872.899118 513.028423 872.809067 513.572822 872.717993 514.146896zM512.041444 373.060601c-76.598562 0-138.954749 62.325487-138.954749 138.939399 0 76.598562 62.356187 138.954749 138.954749 138.954749 76.598562 0 138.954749-62.356187 138.954749-138.954749C650.996193 435.386088 588.640006 373.060601 512.041444 373.060601zM512.041444 595.372849c-45.935192 0-83.371826-37.406958-83.371826-83.371826 0-45.950542 37.436634-83.356476 83.371826-83.356476 45.964868 0 83.373873 37.406958 83.373873 83.356476C595.414293 557.965891 558.006312 595.372849 512.041444 595.372849z"/>
+                                                            </Viewbox>
+                                                        </control:ViewButton.Content>
+                                                    </control:ViewButton>
+                                                    <control:ViewButton Margin="3,0,0,0" Width="20" Height="20" ToolTip="查看" Command="{Binding OpenInstructTemplateFileCommand}">
+                                                        <control:ViewButton.Content>
+                                                            <Viewbox Margin="3">
+                                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type control:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
                                                             </Viewbox>
                                                         </control:ViewButton.Content>
                                                     </control:ViewButton>
@@ -227,7 +222,7 @@
                         </control:SizeAnimationGrid>
                         <Border x:Name="tb_error" Visibility="{calc:Binding Error,FalseToVisibility=Collapsed}"  Margin="5,5,5,0" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
                             <Border.DataContext>
-                                <vm:ViewModel_CommunicatorTGW/>
+                                <vm:ViewModel_CommunicatorLLama/>
                             </Border.DataContext>
                             <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding ErrorMessage}"/>
                         </Border>

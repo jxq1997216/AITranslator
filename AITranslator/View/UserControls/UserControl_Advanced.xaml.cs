@@ -24,9 +24,9 @@ namespace AITranslator.View.UserControls
     /// <summary>
     /// UserControl_LogsView.xaml 的交互逻辑
     /// </summary>
-    public partial class UserControl_SetView : UserControl
+    public partial class UserControl_Advanced : UserControl
     {
-        public UserControl_SetView()
+        public UserControl_Advanced()
         {
             InitializeComponent();
         }
@@ -38,28 +38,6 @@ namespace AITranslator.View.UserControls
                 ViewModel_SetView viewModel_SetView = ViewModel_SetView.Create();
                 DataContext = viewModel_SetView;
             }
-        }
-
-        Regex re_Num = new Regex("[^0-9]+");
-        public void NumberInput(object sender, TextCompositionEventArgs e)
-        {
-            e.Handled = re_Num.IsMatch(e.Text);
-        }
-
-        public void EnableSet()
-        {
-            bool saveResult = ExpandedFuncs.TryExceptions(() => (DataContext as ViewModel_SetView)!.Enable(), (err) =>
-            {
-                string errorInfo = string.Empty;
-                if (err is KnownException)
-                    errorInfo = err.Message;
-                else
-                    errorInfo = err.ToString();
-                Window_Message.ShowDialog("错误", $"应用失败:{errorInfo}");
-            });
-
-            if (saveResult)
-                Window_Message.ShowDialog("提示", "应用成功");
         }
 
         private void cb_templateDic_SelectionChanged(object sender, SelectionChangedEventArgs e)

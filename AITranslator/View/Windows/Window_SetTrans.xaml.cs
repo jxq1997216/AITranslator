@@ -141,5 +141,16 @@ namespace AITranslator.View.Windows
                 return;
             _vm.Replaces.Move(index, index + 1);
         }
+
+        private void cb_templateDic_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cb_ReplacesTemplate is not null)
+            {
+                cb_PromptTemplate.SelectedIndex = 0;
+                cb_CleanTemplate.SelectedIndex = 0;
+                cb_VerificationTemplate.SelectedIndex = 0;
+                cb_ReplacesTemplate.SelectedIndex = 0;
+            }
+        }
     }
 }

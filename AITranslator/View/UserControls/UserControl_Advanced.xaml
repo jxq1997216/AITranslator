@@ -1,0 +1,239 @@
+﻿<UserControl x:Class="AITranslator.View.UserControls.UserControl_Advanced"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AITranslator.View.UserControls"
+             xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+             xmlns:media ="clr-namespace:System.Windows.Media;assembly=PresentationCore" 
+             xmlns:controls="clr-namespace:AITranslator.View.Controls"
+             xmlns:vm="clr-namespace:AITranslator.View.Models"
+             xmlns:pros="clr-namespace:AITranslator.View.Properties"
+             mc:Ignorable="d" 
+             d:DesignHeight="550" d:DesignWidth="350">
+    <UserControl.DataContext>
+        <vm:ViewModel_SetView/>
+    </UserControl.DataContext>
+    <ScrollViewer  Margin="5" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <GroupBox Grid.Column="1" Margin="0,0,5,10" BorderThickness="0.1" BorderBrush="White" Foreground="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="默认模板" Foreground="White"/>
+                        <TextBlock Text=" [?]" Foreground="White" Cursor="Help" ToolTip="当您创建一个新任务时，会判断翻译文件的类型，并根据默认模板，提前配置好翻译参数"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="0,10,0,0">
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="源类型" FontSize="11" Margin="2,-1,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" SelectedIndex="0" Foreground="White">
+                            <ComboBoxItem Content="MTool  (*.json)"/>
+                            <ComboBoxItem Content="T++  (csv文件夹)"/>
+                            <ComboBoxItem Content="字幕  (*.srt)"/>
+                            <ComboBoxItem Content="文本  (*.txt)"/>
+                        </ComboBox>
+                    </Grid>
+                    <Rectangle Margin="-5,8,-5,5" Height="1" Fill="Gray"/>
+
+                    <GroupBox Margin="0,0,0,0" BorderThickness="0.1" BorderBrush="White">
+                        <GroupBox.Header>
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock Text="上下文记忆" Foreground="White" FontSize="10"/>
+                                <TextBlock Text=" [?]" Foreground="White" Cursor="Help" FontSize="10" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <Grid Margin="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="slider_HistoryCount" Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding HistoryCount}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                            <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding Value, ElementName=slider_HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </GroupBox>
+
+                    <Rectangle Margin="-5,8,-5,9" Height="1" Fill="Gray"/>
+
+                    <ComboBox x:Name="cb_templateDic" Width="100" FontSize="12"  Foreground="White" SelectedItem="{Binding TemplateDic}" DisplayMemberPath="Name" ItemsSource="{Binding Path=TemplateDics,Source={x:Static vm:ViewModelManager.ViewModel}}" SelectionChanged="cb_templateDic_SelectionChanged"/>
+
+                    <Grid Margin="0,15,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="15"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Rectangle Grid.Column="1" Width="1" Grid.RowSpan="3" Margin="0,8,0,3" Fill="Gray"/>
+                        <Rectangle Grid.Row="1" Height="1" Margin="10,0,0,0" Fill="Gray"/>
+                        <Rectangle Grid.Row="1" Grid.Column="2" Height="1" Margin="0,0,10,0" Fill="Gray"/>
+                        <StackPanel >
+                            <StackPanel Margin="20,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <TextBlock Text="提示词" Foreground="White" FontSize="10"/>
+                                <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于生成和模型的对话&#x0a;不同的提示词会导致模型输出不同的结果"/>
+                            </StackPanel>
+                            <ComboBox x:Name="cb_PromptTemplate" Margin="5" Width="120" Foreground="White" DisplayMemberPath="Name" SelectedItem="{Binding PromptTemplate}" ItemsSource="{Binding Path=SelectedItem.PromptTemplate,ElementName=cb_templateDic}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" >
+                            <StackPanel Margin="20,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                                <TextBlock Text="清理校验" Foreground="White" FontSize="10"/>
+                                <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于校验句子是否需要被清理，不需要翻译&#x0a;清理只在最开始翻译时进行一次&#x0a;并将结果保存到[清理后的数据]中"/>
+                            </StackPanel>
+                            <ComboBox x:Name="cb_CleanTemplate" Margin="5" Width="120" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding CleanTemplate}" ItemsSource="{Binding Path=SelectedItem.CleanTemplate,ElementName=cb_templateDic}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="0" Grid.Row="2"  >
+                            <StackPanel Margin="20,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal" >
+                                <TextBlock Text="结果校验" Foreground="White" FontSize="10"/>
+                                <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于校验句子是否翻译成功&#x0a;修改结果校验规则不会对已经被翻译的文本生效"/>
+                            </StackPanel>
+                            <ComboBox x:Name="cb_VerificationTemplate" Margin="5" Width="120" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding VerificationTemplate}" ItemsSource="{Binding Path=SelectedItem.VerificationTemplate,ElementName=cb_templateDic}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Grid.Row="2">
+                            <StackPanel Margin="20,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal" >
+                                <TextBlock Text="名词替换" Foreground="White" FontSize="10"/>
+                                <TextBlock Text=" [?]" Foreground="White" FontSize="10" Cursor="Help" ToolTip="翻译时将部分名词替换成你想要的&#x0a;修改替换词不会对已经被翻译的文本生效"/>
+                            </StackPanel>
+                            <ComboBox x:Name="cb_ReplacesTemplate" Width="120" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding ReplaceTemplate}" ItemsSource="{Binding Path=SelectedItem.ReplaceTemplate,ElementName=cb_templateDic}"/>
+                        </StackPanel>
+                    </Grid>
+
+
+                </StackPanel>
+
+            </GroupBox>
+            <GroupBox Margin="0,0,5,10" BorderThickness="0.1" Header="初次翻译" Foreground="White">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
+                            <GroupBox.Header>
+                                <TextBlock Text="MaxTokens" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="0" Value="{Binding Temperature,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedDecimal" CaretBrush="White" Text="{Binding Value,ElementName=slider_Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Temperature" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding Value,ElementName=slider_FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Frequency Penalty" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding Value,ElementName=slider_FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2" Grid.Row="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Presence Penalty" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding Value,ElementName=slider_FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="4">
+                            <GroupBox.Header>
+                                <TextBlock Text="Top P" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding Value,ElementName=slider_FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                    <Rectangle Height="1" Fill="Gray" Margin="-5,10,-5,5"/>
+                    <TextBlock Text="终结符"/>
+                    <Rectangle Height="1" Margin="0,5,160,5" Fill="Gray"/>
+                    <TextBox Background="Transparent" BorderThickness="0" AcceptsReturn="True" Foreground="White" TextWrapping="Wrap" CaretBrush="White" MinHeight="30"/>
+                </StackPanel>
+              
+            </GroupBox>
+            <GroupBox Margin="0,0,5,0" BorderThickness="0.1" Header="重试翻译" Foreground="White">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
+                        <GroupBox.Header>
+                            <TextBlock Text="Temperature" Foreground="White" FontSize="10"/>
+                        </GroupBox.Header>
+                        <Grid Margin="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="slider_Temperature2" Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="0" Value="{Binding Temperature,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                            <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedDecimal" CaretBrush="White" Text="{Binding Value,ElementName=slider_Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
+                        <GroupBox.Header>
+                            <TextBlock Text="Frequency Penalty" Foreground="White" FontSize="10"/>
+                        </GroupBox.Header>
+                        <Grid Margin="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="slider_FrequencyPenalty2" Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:UserControl_ManualTranslateView}}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                            <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding Value,ElementName=slider_FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </GroupBox>
+
+                </Grid>
+
+            </GroupBox>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -73,7 +73,7 @@
 
                         <GroupBox Margin="5,0,5,10" BorderThickness="0.1" BorderBrush="White" Padding="0,5">
                             <GroupBox.Header>
-                                <ComboBox x:Name="cb_templateDic" MinWidth="80" FontSize="12" MaxWidth="320" Margin="5,0" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding Path=TemplateDics,Source={x:Static vm:ViewModelManager.ViewModel}}"/>
+                                <ComboBox x:Name="cb_templateDic" MinWidth="80" FontSize="12" MaxWidth="320" Margin="5,0" Foreground="White" SelectedItem="{Binding TemplateDic}" DisplayMemberPath="Name" ItemsSource="{Binding Path=TemplateDics,Source={x:Static vm:ViewModelManager.ViewModel}}" SelectionChanged="cb_templateDic_SelectionChanged"/>
                             </GroupBox.Header>
                             <StackPanel>
                                 <Grid Margin="0,0,0,5">
@@ -89,7 +89,7 @@
                                                 <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于生成和模型的对话&#x0a;不同的提示词会导致模型输出不同的结果"/>
                                             </StackPanel>
                                         </GroupBox.Header>
-                                        <ComboBox Margin="5" Width="95" Foreground="White" DisplayMemberPath="Name" SelectedItem="{Binding PromptTemplate}" ItemsSource="{Binding Path=SelectedItem.PromptTemplate,ElementName=cb_templateDic}"/>
+                                        <ComboBox x:Name="cb_PromptTemplate" Margin="5" Width="95" Foreground="White" DisplayMemberPath="Name" SelectedItem="{Binding PromptTemplate}" ItemsSource="{Binding Path=SelectedItem.PromptTemplate,ElementName=cb_templateDic}"/>
                                     </GroupBox>
                                     <GroupBox Grid.Column="1" Margin="2.5,0,2.5,0" BorderThickness="0.1" BorderBrush="White"  Foreground="White" FontSize="12">
                                         <GroupBox.Header>
@@ -98,7 +98,7 @@
                                                 <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于校验句子是否需要被清理，不需要翻译&#x0a;清理只在最开始翻译时进行一次&#x0a;并将结果保存到[清理后的数据]中"/>
                                             </StackPanel>
                                         </GroupBox.Header>
-                                        <ComboBox Margin="5" Width="95" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding CleanTemplate}" ItemsSource="{Binding Path=SelectedItem.CleanTemplate,ElementName=cb_templateDic}"/>
+                                        <ComboBox x:Name="cb_CleanTemplate" Margin="5" Width="95" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding CleanTemplate}" ItemsSource="{Binding Path=SelectedItem.CleanTemplate,ElementName=cb_templateDic}"/>
                                     </GroupBox>
                                     <GroupBox Grid.Column="2" Margin="5,0,0,0"  BorderThickness="0.1" BorderBrush="White"  Foreground="White" FontSize="12">
                                         <GroupBox.Header>
@@ -107,7 +107,7 @@
                                                 <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于校验句子是否翻译成功&#x0a;修改结果校验规则不会对已经被翻译的文本生效"/>
                                             </StackPanel>
                                         </GroupBox.Header>
-                                        <ComboBox Margin="5" Width="95" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding VerificationTemplate}" ItemsSource="{Binding Path=SelectedItem.VerificationTemplate,ElementName=cb_templateDic}"/>
+                                        <ComboBox x:Name="cb_VerificationTemplate" Margin="5" Width="95" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding VerificationTemplate}" ItemsSource="{Binding Path=SelectedItem.VerificationTemplate,ElementName=cb_templateDic}"/>
                                     </GroupBox>
 
                                 </Grid>

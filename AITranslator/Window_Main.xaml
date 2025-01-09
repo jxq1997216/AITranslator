@@ -102,23 +102,18 @@
                         <Border DockPanel.Dock="Left" BorderThickness="0,0,1,0"  BorderBrush="Black">
                             <StackPanel Width="50">
                                 <controls:SidebarRadioButton x:Name="rb_TranslatingView" ToolTip="未完成" IsChecked="True" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
-                                    <Viewbox Margin="8,8,12,12">
+                                    <Viewbox Margin="7.5,8,12.5,12">
                                         <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M512 141.211a370.789 370.789 0 1 1 0 741.578 370.789 370.789 0 0 1 0-741.578z m-185.394 324.44a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z m185.394 0a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z m185.394 0a46.349 46.349 0 1 0 0 92.698 46.349 46.349 0 0 0 0-92.698z"/>
                                     </Viewbox>
                                 </controls:SidebarRadioButton>
                                 <controls:SidebarRadioButton x:Name="rb_CompletedView" ToolTip="已完成" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
-                                    <Viewbox Margin="12">
+                                    <Viewbox Margin="11,12,13,12">
                                         <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M512.54272 72.54016c-242.0736 0-438.30272 196.89984-438.30272 439.79776s196.22912 439.79776 438.30272 439.79776c242.06336 0 438.30272-196.89984 438.30272-439.79776S754.6112 72.54016 512.54272 72.54016zM706.65216 433.42336l-208.61952 209.85344 0-0.02048c-6.30784 6.3488-14.98624 10.25024-24.6272 10.25024-9.6 0-18.31424-3.9424-24.60672-10.25024L310.1952 503.66976c-6.28736-6.2976-10.16832-15.0016-10.16832-24.62208 0-19.3024 15.5904-34.91328 34.76992-34.91328 9.62048 0 18.31936 3.92192 24.6272 10.25024l113.98144 114.81088 184.01792-185.088c6.29248-6.3232 15.0272-10.21952 24.62208-10.21952 19.18464 0 34.75456 15.616 34.75456 34.87232C716.8 418.39616 712.91904 427.11552 706.65216 433.42336z"/>
                                     </Viewbox>
                                 </controls:SidebarRadioButton>
                                 <controls:SidebarRadioButton x:Name="rb_ManualTranslate" ToolTip="手动翻译" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
                                     <Viewbox Margin="12">
                                         <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M937.660412 568.916081h-386.647514c-21.912756 0-39.064096 18.840875-39.064096 42.59676v369.85456c0 23.858281 17.15134 42.494364 39.064096 42.494364h386.647514c21.963954 0 39.115294-18.738479 39.115294-42.494364v-369.85456c0-23.755885-18.892073-42.59676-39.115294-42.59676z m-30.872411 385.213969h-325.005088v-315.379858h325.005088v315.379858zM512 42.497948c0-23.755885-17.15134-42.494364-39.115294-42.494364H86.185994C64.375634 0.003584 47.224294 18.742062 47.224294 42.497948v369.956956c-0.102396 23.858281 18.636083 42.59676 38.9617 42.596761h386.647514c21.963954 0 39.115294-18.840875 39.115294-42.596761V42.497948zM388.10077 942.047315c-130.862162-11.775547-231.005506-98.095423-238.582814-240.579538h59.236119c10.64919 0 16.89535-11.877943 10.956378-20.581607l-97.737037-145.402402a13.311488 13.311488 0 0 0-21.912756 0L2.272425 680.937368a13.209091 13.209091 0 0 0 11.007576 20.581608h60.720862c6.041367 185.336865 137.722698 305.498638 306.369005 322.393987 21.912756 1.689535 42.289572-17.048944 42.289572-40.958423a40.702433 40.702433 0 0 0-34.55867-40.856027zM1010.668801 281.592743h-64.765506C922.864182 120.216556 799.579328 15.209398 643.578934 0.10598c-21.81036-1.689535-42.187176 17.048944-42.187176 40.958423 1.535941 20.428014 15.564201 39.166492 34.30268 40.856027 116.731506 11.775547 210.321503 81.148876 233.104625 199.672313h-53.50194c-10.64919 0-16.89535 11.775547-11.007576 20.581607l97.788235 145.402402c2.508703 3.737456 6.655744 5.631783 10.597992 5.785378v0.102396a13.51628 13.51628 0 0 0 11.314764-5.836576l97.634641-145.351204a13.260289 13.260289 0 0 0-10.956378-20.684003z"/>
-                                    </Viewbox>
-                                </controls:SidebarRadioButton>
-                                <controls:SidebarRadioButton x:Name="rb_LogView" ToolTip="日志" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
-                                    <Viewbox Margin="10,10,13,13">
-                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M410.3 187.1h209.4c18.5 0 33.4-14.4 33.4-32.1v-53.9c0-17.7-15-32.1-33.4-32.1H410.3c-18.5 0-33.4 14.4-33.4 32.1V155c0 17.7 15 32.1 33.4 32.1zM787.7 132.8H680.8v35.8c0 22-18.5 39.8-41.4 39.8H390.7c-22.9 0-41.4-17.8-41.4-39.8v-35.8H242.4c-58.7 0-106.2 45.7-106.2 102v610.6c0 56.3 47.6 102 106.2 102h545.2c58.7 0 106.2-45.7 106.2-102V234.8c0.1-56.3-47.5-102-106.1-102z m-27.5 592.3H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z m0-168.6H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z m0-168.6H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z"/>
                                     </Viewbox>
                                 </controls:SidebarRadioButton>
                                 <controls:SidebarRadioButton x:Name="rb_SetView" ToolTip="设置" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
@@ -129,6 +124,16 @@
                                 <controls:SidebarRadioButton x:Name="rb_Template" ToolTip="模板" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
                                     <Viewbox Margin="10,8,10,12">
                                         <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M213.333333 128h85.333334v85.333333H213.333333v213.333334a85.333333 85.333333 0 0 1-85.333333 85.333333 85.333333 85.333333 0 0 1 85.333333 85.333333v213.333334h85.333334v85.333333H213.333333c-45.653333-11.52-85.333333-38.4-85.333333-85.333333v-170.666667a85.333333 85.333333 0 0 0-85.333333-85.333333H0v-85.333334h42.666667a85.333333 85.333333 0 0 0 85.333333-85.333333V213.333333a85.333333 85.333333 0 0 1 85.333333-85.333333m597.333334 0a85.333333 85.333333 0 0 1 85.333333 85.333333v170.666667a85.333333 85.333333 0 0 0 85.333333 85.333333h42.666667v85.333334h-42.666667a85.333333 85.333333 0 0 0-85.333333 85.333333v170.666667a85.333333 85.333333 0 0 1-85.333333 85.333333h-85.333334v-85.333333h85.333334v-213.333334a85.333333 85.333333 0 0 1 85.333333-85.333333 85.333333 85.333333 0 0 1-85.333333-85.333333V213.333333h-85.333334V128h85.333334m-298.666667 512a42.666667 42.666667 0 0 1 42.666667 42.666667 42.666667 42.666667 0 0 1-42.666667 42.666666 42.666667 42.666667 0 0 1-42.666667-42.666666 42.666667 42.666667 0 0 1 42.666667-42.666667m-170.666667 0a42.666667 42.666667 0 0 1 42.666667 42.666667 42.666667 42.666667 0 0 1-42.666667 42.666666 42.666667 42.666667 0 0 1-42.666666-42.666666 42.666667 42.666667 0 0 1 42.666666-42.666667m341.333334 0a42.666667 42.666667 0 0 1 42.666666 42.666667 42.666667 42.666667 0 0 1-42.666666 42.666666 42.666667 42.666667 0 0 1-42.666667-42.666666 42.666667 42.666667 0 0 1 42.666667-42.666667z"/>
+                                    </Viewbox>
+                                </controls:SidebarRadioButton>
+                                <controls:SidebarRadioButton x:Name="rb_Advanced" ToolTip="高级参数" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
+                                    <Viewbox Margin="8.5,10,11.5,10">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M64 127.712C64 92.512 92.864 64 128.288 64h255.424C419.232 64 448 92.8 448 127.712V896.32c0 35.2-28.864 63.712-64.288 63.712H128.32C92.768 960 64 931.2 64 896.288V127.68z m64 32.32v703.936c0 17.728 14.272 32.032 31.904 32.032h192.192c17.408 0 31.904-14.336 31.904-32V160c0-17.696-14.272-32-31.904-32H159.904C142.496 128 128 142.336 128 160z m384-31.744C512 92.768 540.704 64 576.192 64h319.616C931.264 64 960 92.864 960 128.288v255.424c0 35.52-28.704 64.288-64.192 64.288h-319.616A64.288 64.288 0 0 1 512 383.712V128.32z m64 31.616v192.192a32 32 0 0 0 31.84 31.904h256.32c17.28 0 31.84-14.272 31.84-31.904V159.904A32 32 0 0 0 864.16 128h-256.32c-17.28 0-31.84 14.272-31.84 31.904z m-64 416.288c0-35.456 28.704-64.192 64.192-64.192h319.616c35.456 0 64.192 28.704 64.192 64.192v319.616A64.16 64.16 0 0 1 895.808 960h-319.616A64.16 64.16 0 0 1 512 895.808v-319.616z m64 31.68v256.288c0 17.28 14.272 31.84 31.84 31.84h256.32c17.28 0 31.84-14.272 31.84-31.84v-256.32c0-17.28-14.272-31.84-31.84-31.84h-256.32c-17.28 0-31.84 14.272-31.84 31.84z"/>
+                                    </Viewbox>
+                                </controls:SidebarRadioButton>
+                                <controls:SidebarRadioButton x:Name="rb_LogView" ToolTip="日志" Height="{Binding ActualWidth, RelativeSource={RelativeSource Mode=Self}}">
+                                    <Viewbox Margin="9.5,10,13.5,13">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:SidebarRadioButton}}}" Data="M410.3 187.1h209.4c18.5 0 33.4-14.4 33.4-32.1v-53.9c0-17.7-15-32.1-33.4-32.1H410.3c-18.5 0-33.4 14.4-33.4 32.1V155c0 17.7 15 32.1 33.4 32.1zM787.7 132.8H680.8v35.8c0 22-18.5 39.8-41.4 39.8H390.7c-22.9 0-41.4-17.8-41.4-39.8v-35.8H242.4c-58.7 0-106.2 45.7-106.2 102v610.6c0 56.3 47.6 102 106.2 102h545.2c58.7 0 106.2-45.7 106.2-102V234.8c0.1-56.3-47.5-102-106.1-102z m-27.5 592.3H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z m0-168.6H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z m0-168.6H291.4c-14.8 0-26.8-11.5-26.8-25.7s12-25.7 26.8-25.7h468.9c14.8 0 26.8 11.5 26.8 25.7s-12.1 25.7-26.9 25.7z"/>
                                     </Viewbox>
                                 </controls:SidebarRadioButton>
                             </StackPanel>
@@ -144,6 +149,7 @@
                                         <Binding ElementName="rb_LogView" Path="IsChecked"/>
                                         <Binding ElementName="rb_SetView" Path="IsChecked"/>
                                         <Binding ElementName="rb_Template" Path="IsChecked"/>
+                                        <Binding ElementName="rb_Advanced" Path="IsChecked"/>
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
@@ -184,6 +190,43 @@
                                     </controls:ViewButton.Content>
                                 </controls:ViewButton>
                             </StackPanel>
+
+                            <ComboBox x:Name="cb_templateDic" Width="128" Height="32" Margin="0,0,10,0" Visibility="{calc:Binding IsChecked,ElementName=rb_Template,FalseToVisibility=Collapsed}" HorizontalAlignment="Right" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding TemplateDics}"/>
+
+                            <controls:ViewButton Margin="0,0,10,0" Width="64" Height="32" ToolTip="清空" Command="{Binding ClearLogsCommand}" HorizontalAlignment="Right" Visibility="{calc:Binding IsChecked,ElementName=rb_LogView,FalseToVisibility=Collapsed}">
+                                <controls:ViewButton.Content>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Viewbox Width="12" Height="12" Margin="0,0,5,0">
+                                            <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:ViewButton}}}" Data="M921.173333 905.728l-56.021333-330.922667h18.901333a27.733333 27.733333 0 0 0 27.52-28.16V338.773333a27.733333 27.733333 0 0 0-27.52-28.16h-260.010666V113.493333A27.733333 27.733333 0 0 0 596.565333 85.333333h-169.130666a27.733333 27.733333 0 0 0-27.477334 28.16v197.12H139.904a27.733333 27.733333 0 0 0-27.477333 28.16v207.872c0 15.616 12.288 28.16 27.477333 28.16h18.944L102.826667 905.728a27.733333 27.733333 0 0 0 27.050666 32.938667h764.245334a27.989333 27.989333 0 0 0 27.050666-32.938667zM186.453333 386.389333h287.488v-225.28h76.117334v225.28h287.488v112.64H186.453333v-112.64z m494.677334 476.458667v-168.917333a8.576 8.576 0 0 0-8.448-8.661334h-50.773334a8.576 8.576 0 0 0-8.448 8.661334v168.96H410.538667v-168.96a8.576 8.576 0 0 0-8.490667-8.661334H351.317333a8.576 8.576 0 0 0-8.448 8.661334v168.96H185.173333l47.658667-281.6H791.04l47.701333 281.6h-157.610666z"/>
+                                        </Viewbox>
+                                        <TextBlock VerticalAlignment="Center" Text="清空"/>
+                                    </StackPanel>
+                                </controls:ViewButton.Content>
+                            </controls:ViewButton>
+
+
+                            <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_Advanced,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" ToolTip="重置" Command="{Binding ClearLogsCommand}">
+                                    <controls:ViewButton.Content>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Viewbox Width="16" Height="16" Margin="0">
+                                                <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:ViewButton}}}" Data="M502.714987 58.258904l-126.531056-54.617723a52.797131 52.797131 0 0 0-41.873587 96.855428A447.865322 447.865322 0 0 0 392.02307 946.707184a61.535967 61.535967 0 0 0 13.83649 1.820591 52.797131 52.797131 0 0 0 13.65443-103.773672 342.453118 342.453118 0 0 1-31.678278-651.771485l-8.374718 19.480321a52.615072 52.615072 0 0 0 27.855039 69.182448 51.522718 51.522718 0 0 0 20.572675 4.369418A52.797131 52.797131 0 0 0 476.498481 254.882703L530.205907 127.441352a52.979191 52.979191 0 0 0-27.49092-69.182448zM962.960326 509.765407A448.775617 448.775617 0 0 0 643.992829 68.090094a52.797131 52.797131 0 1 0-30.403866 101.042786A342.635177 342.635177 0 0 1 674.578753 801.059925a52.615072 52.615072 0 0 0-92.30395-50.612422l-71.913335 117.246043a52.433013 52.433013 0 0 0 17.295612 72.82363l117.063985 72.823629a52.797131 52.797131 0 1 0 54.617722-89.755123l-16.021198-10.013249A448.593558 448.593558 0 0 0 962.960326 509.765407z"/>
+                                            </Viewbox>
+                                        </StackPanel>
+                                    </controls:ViewButton.Content>
+                                </controls:ViewButton>
+                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="应用" Click="Button_EnableSet_Click">
+                                    <controls:ViewButton.Content>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Viewbox Width="12" Height="12" Margin="0,0,5,0">
+                                                <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:ViewButton}}}" Data="M112.64 112.64h286.72v81.92h-204.8v634.88h634.88v-256h81.92v337.92H112.64V112.64zM928.1024 199.68l-397.9776 475.3408L290.304 435.2 348.16 377.2928l176.5376 176.4864L865.28 147.0976 928.1024 199.68z"/>
+                                            </Viewbox>
+                                            <TextBlock VerticalAlignment="Center" Text="应用"/>
+                                        </StackPanel>
+                                    </controls:ViewButton.Content>
+                                </controls:ViewButton>
+                            </StackPanel>
+
                         </Grid>
 
                         <Grid DockPanel.Dock="Bottom">
@@ -197,12 +240,14 @@
 
                             <uc:UserControl_SetView x:Name="uc_Set" Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_SetView,FalseToVisibility=Collapsed}"/>
 
-                            <uc:UserControl_Template x:Name="uc_Template" Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_Template,FalseToVisibility=Collapsed}" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
+                            <uc:UserControl_Template Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_Template,FalseToVisibility=Collapsed}" DataContext="{Binding SelectedItem,ElementName=cb_templateDic}"/>
+
+                            <uc:UserControl_Advanced Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_Advanced,FalseToVisibility=Collapsed}"/>
                         </Grid>
                     </DockPanel>
                     <!--模型加载区-->
                     <uc:UserControl_ModelLoader VerticalAlignment="Bottom" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
-                </Grid>
+                </Grid> 
             </Grid>
         </Grid>
     </Border>

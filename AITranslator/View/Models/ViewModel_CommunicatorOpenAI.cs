@@ -29,6 +29,12 @@ namespace AITranslator.View.Models
         [Url(ErrorMessage = "请输入有效的远程URL！")]
         [ObservableProperty]
         private string serverURL = "http://127.0.0.1:5000";
+
+        /// <summary>
+        /// 额外的配置参数
+        /// </summary>
+        [ObservableProperty]
+        private string expendedParams = "123";
         public override bool ValidateError()
         {
             ICollection<ValidationResult> results = new List<ValidationResult>();

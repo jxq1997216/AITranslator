@@ -15,192 +15,150 @@
         <vm:ViewModel/>
     </UserControl.DataContext>-->
     <ScrollViewer  Margin="5" VerticalScrollBarVisibility="Auto">
-        <GroupBox BorderThickness="0.1" BorderBrush="White" Padding="0,5" Cursor="">
-            <GroupBox.Header>
-                <ComboBox x:Name="cb_templateDic" MinWidth="100" MaxWidth="320" Margin="5,0" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding TemplateDics}"/>
-            </GroupBox.Header>
-            <StackPanel>
-                <GroupBox BorderThickness="0.1" BorderBrush="White">
-                    <GroupBox.Header>
-                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Text="名词替换模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
-                            <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置名词替换的模板,被翻译的文本会先查找和替换对应的名词后再进行翻译"/>
-                        </StackPanel>
-                    </GroupBox.Header>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="cb_ReplaceTemplate" Margin="5" Foreground="White" DisplayMemberPath="Name" DataContext="{Binding SelectedItem,ElementName=cb_templateDic}" ItemsSource="{Binding ReplaceTemplate}" DataContextChanged="cb_DataContextChanged"/>
+        <StackPanel Margin="0,0,5,0">
+            <GroupBox BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="名词替换模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
+                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置名词替换的模板,被翻译的文本会先查找和替换对应的名词后再进行翻译"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="cb_ReplaceTemplate" Margin="5" Foreground="White" DisplayMemberPath="Name" ItemsSource="{Binding ReplaceTemplate}" DataContextChanged="cb_DataContextChanged"/>
 
-                        <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
 
-                            <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenReplaceTemplateFileCommand}">
-                                <Button.CommandParameter>
-                                    <MultiBinding Converter="{StaticResource TemplatePath}">
-                                        <Binding ElementName="cb_templateDic" Path="Text"/>
-                                        <Binding ElementName="cb_ReplaceTemplate" Path="Text"/>
-                                    </MultiBinding>
-                                </Button.CommandParameter>
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="3">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                            <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenReplaceTemplateFolderCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="2">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
-                <GroupBox BorderThickness="0.1" BorderBrush="White">
-                    <GroupBox.Header>
-                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Text="提示词模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
-                            <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置提示词的模板,在这里你可以自定义要翻译的语言类型(当然模型本身得支持才行)"/>
-                        </StackPanel>
-                    </GroupBox.Header>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="cb_PromptTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" DataContext="{Binding SelectedItem,ElementName=cb_templateDic}" ItemsSource="{Binding PromptTemplate}" DataContextChanged="cb_DataContextChanged"/>
+                        <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenReplaceTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_ReplaceTemplate}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="3">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                        <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenReplaceTemplateFolderCommand}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="2">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <GroupBox BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="提示词模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
+                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置提示词的模板,在这里你可以自定义要翻译的语言类型(当然模型本身得支持才行)"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="cb_PromptTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding PromptTemplate}" DataContextChanged="cb_DataContextChanged"/>
+                    <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenPromptTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_PromptTemplate}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="3">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                        <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenPromptTemplateFolderCommand}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="2">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <GroupBox BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="清理模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
+                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置清理规则,源文件中符合清理条件的文本会被清理掉，减少翻译占用"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="cb_CleanTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding CleanTemplate}" DataContextChanged="cb_DataContextChanged"/>
 
-                        <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenPromptTemplateFileCommand}">
-                                <Button.CommandParameter>
-                                    <MultiBinding Converter="{StaticResource TemplatePath}">
-                                        <Binding ElementName="cb_templateDic" Path="Text"/>
-                                        <Binding ElementName="cb_PromptTemplate" Path="Text"/>
-                                    </MultiBinding>
-                                </Button.CommandParameter>
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="3">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                            <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenPromptTemplateFolderCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="2">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
-                <GroupBox BorderThickness="0.1" BorderBrush="White">
-                    <GroupBox.Header>
-                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Text="清理模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
-                            <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置清理规则,源文件中符合清理条件的文本会被清理掉，减少翻译占用"/>
-                        </StackPanel>
-                    </GroupBox.Header>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="cb_CleanTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" DataContext="{Binding SelectedItem,ElementName=cb_templateDic}" ItemsSource="{Binding CleanTemplate}" DataContextChanged="cb_DataContextChanged"/>
+                    <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="测试" Command="{Binding TestCleanTemplateCommand}" CommandParameter="{Binding Text,ElementName=cb_CleanTemplate}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="0,0,3.5,3">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M704 128a32 32 0 0 1 0 64h-21.333333v160.789333a10.666667 10.666667 0 0 0 1.088 4.693334l180.874666 369.6c28.48 58.218667 4.384 128.490667-53.813333 156.970666A117.333333 117.333333 0 0 1 759.242667 896H264.746667c-64.8 0-117.333333-52.533333-117.333334-117.333333a117.333333 117.333333 0 0 1 11.946667-51.573334l180.874667-369.621333a10.666667 10.666667 0 0 0 1.088-4.693333V192h-21.333334a32 32 0 0 1-31.946666-30.122667L288 160a32 32 0 0 1 32-32z m51.968 522.666667H268.010667l-51.157334 104.554666A53.333333 53.333333 0 0 0 264.757333 832H759.253333a53.333333 53.333333 0 0 0 47.893334-76.778667L755.978667 650.666667zM618.666667 192H405.333333v160.789333a74.666667 74.666667 0 0 1-7.594666 32.821334L299.328 586.666667h425.322667l-98.389334-201.066667A74.666667 74.666667 0 0 1 618.666667 352.8V192z"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                        <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenCleanTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_CleanTemplate}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="3">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                        <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenCleanTemplateFolderCommand}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="2">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            <GroupBox BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="校验模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
+                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置校验规则,翻译结果中不符合校验规则的文本会被重新翻译"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="cb_VerificationTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" ItemsSource="{Binding VerificationTemplate}" DataContextChanged="cb_DataContextChanged"/>
 
-                        <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="测试" Command="{Binding TestCleanTemplateCommand}">
-                                <Button.CommandParameter>
-                                    <MultiBinding Converter="{StaticResource TemplatePath}">
-                                        <Binding ElementName="cb_templateDic" Path="Text"/>
-                                        <Binding ElementName="cb_CleanTemplate" Path="Text"/>
-                                    </MultiBinding>
-                                </Button.CommandParameter>
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="0,0,3.5,3">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M704 128a32 32 0 0 1 0 64h-21.333333v160.789333a10.666667 10.666667 0 0 0 1.088 4.693334l180.874666 369.6c28.48 58.218667 4.384 128.490667-53.813333 156.970666A117.333333 117.333333 0 0 1 759.242667 896H264.746667c-64.8 0-117.333333-52.533333-117.333334-117.333333a117.333333 117.333333 0 0 1 11.946667-51.573334l180.874667-369.621333a10.666667 10.666667 0 0 0 1.088-4.693333V192h-21.333334a32 32 0 0 1-31.946666-30.122667L288 160a32 32 0 0 1 32-32z m51.968 522.666667H268.010667l-51.157334 104.554666A53.333333 53.333333 0 0 0 264.757333 832H759.253333a53.333333 53.333333 0 0 0 47.893334-76.778667L755.978667 650.666667zM618.666667 192H405.333333v160.789333a74.666667 74.666667 0 0 1-7.594666 32.821334L299.328 586.666667h425.322667l-98.389334-201.066667A74.666667 74.666667 0 0 1 618.666667 352.8V192z"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                            <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenCleanTemplateFileCommand}">
-                                <Button.CommandParameter>
-                                    <MultiBinding Converter="{StaticResource TemplatePath}">
-                                        <Binding ElementName="cb_templateDic" Path="Text"/>
-                                        <Binding ElementName="cb_CleanTemplate" Path="Text"/>
-                                    </MultiBinding>
-                                </Button.CommandParameter>
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="3">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                            <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenCleanTemplateFolderCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="2">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
-                <GroupBox BorderThickness="0.1" BorderBrush="White">
-                    <GroupBox.Header>
-                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Text="校验模板" Foreground="White" FontSize="10" VerticalAlignment="Center"/>
-                            <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="这里可以配置校验规则,翻译结果中不符合校验规则的文本会被重新翻译"/>
-                        </StackPanel>
-                    </GroupBox.Header>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="cb_VerificationTemplate" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" DataContext="{Binding SelectedItem,ElementName=cb_templateDic}" ItemsSource="{Binding VerificationTemplate}" DataContextChanged="cb_DataContextChanged"/>
+                    <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="测试" Command="{Binding TestVerificationTemplateCommand}" CommandParameter="{Binding Text,ElementName=cb_VerificationTemplate}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="0,0,3.5,3">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M704 128a32 32 0 0 1 0 64h-21.333333v160.789333a10.666667 10.666667 0 0 0 1.088 4.693334l180.874666 369.6c28.48 58.218667 4.384 128.490667-53.813333 156.970666A117.333333 117.333333 0 0 1 759.242667 896H264.746667c-64.8 0-117.333333-52.533333-117.333334-117.333333a117.333333 117.333333 0 0 1 11.946667-51.573334l180.874667-369.621333a10.666667 10.666667 0 0 0 1.088-4.693333V192h-21.333334a32 32 0 0 1-31.946666-30.122667L288 160a32 32 0 0 1 32-32z m51.968 522.666667H268.010667l-51.157334 104.554666A53.333333 53.333333 0 0 0 264.757333 832H759.253333a53.333333 53.333333 0 0 0 47.893334-76.778667L755.978667 650.666667zM618.666667 192H405.333333v160.789333a74.666667 74.666667 0 0 1-7.594666 32.821334L299.328 586.666667h425.322667l-98.389334-201.066667A74.666667 74.666667 0 0 1 618.666667 352.8V192z"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                        <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenVerificationTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_VerificationTemplate}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="3">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                        <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenVerificationTemplateFolderCommand}">
+                            <controls:ViewButton.Content>
+                                <Viewbox Margin="2">
+                                    <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                </Viewbox>
+                            </controls:ViewButton.Content>
+                        </controls:ViewButton>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+        </StackPanel>
 
-                        <StackPanel Margin="0,0,5,0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="测试" Command="{Binding TestVerificationTemplateCommand}">
-                                <Button.CommandParameter>
-                                    <MultiBinding Converter="{StaticResource TemplatePath}">
-                                        <Binding ElementName="cb_templateDic" Path="Text"/>
-                                        <Binding ElementName="cb_VerificationTemplate" Path="Text"/>
-                                    </MultiBinding>
-                                </Button.CommandParameter>
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="0,0,3.5,3">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M704 128a32 32 0 0 1 0 64h-21.333333v160.789333a10.666667 10.666667 0 0 0 1.088 4.693334l180.874666 369.6c28.48 58.218667 4.384 128.490667-53.813333 156.970666A117.333333 117.333333 0 0 1 759.242667 896H264.746667c-64.8 0-117.333333-52.533333-117.333334-117.333333a117.333333 117.333333 0 0 1 11.946667-51.573334l180.874667-369.621333a10.666667 10.666667 0 0 0 1.088-4.693333V192h-21.333334a32 32 0 0 1-31.946666-30.122667L288 160a32 32 0 0 1 32-32z m51.968 522.666667H268.010667l-51.157334 104.554666A53.333333 53.333333 0 0 0 264.757333 832H759.253333a53.333333 53.333333 0 0 0 47.893334-76.778667L755.978667 650.666667zM618.666667 192H405.333333v160.789333a74.666667 74.666667 0 0 1-7.594666 32.821334L299.328 586.666667h425.322667l-98.389334-201.066667A74.666667 74.666667 0 0 1 618.666667 352.8V192z"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                            <controls:ViewButton Margin="0,0,5,0" Width="24" Height="24" ToolTip="打开文件" Command="{Binding OpenVerificationTemplateFileCommand}">
-                                <Button.CommandParameter>
-                                    <MultiBinding Converter="{StaticResource TemplatePath}">
-                                        <Binding ElementName="cb_templateDic" Path="Text"/>
-                                        <Binding ElementName="cb_VerificationTemplate" Path="Text"/>
-                                    </MultiBinding>
-                                </Button.CommandParameter>
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="3">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                            <controls:ViewButton  Width="24" Height="24" ToolTip="打开文件夹" Command="{Binding OpenVerificationTemplateFolderCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
-                                <controls:ViewButton.Content>
-                                    <Viewbox Margin="2">
-                                        <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
-                                    </Viewbox>
-                                </controls:ViewButton.Content>
-                            </controls:ViewButton>
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
-
-            </StackPanel>
-        </GroupBox>
     </ScrollViewer>
 </UserControl>

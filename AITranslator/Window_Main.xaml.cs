@@ -1,4 +1,5 @@
 ﻿using AITranslator.Translator.Models;
+using AITranslator.Translator.PostData;
 using AITranslator.Translator.Tools;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
@@ -35,7 +36,8 @@ namespace AITranslator
             ViewModel vm = ViewModelManager.ViewModel;
             vm.Dispatcher = Dispatcher;
             vm.Consoles.CollectionChanged += Consoles_CollectionChanged;
-            Task.Factory.StartNew(CheckFileChanged, TaskCreationOptions.LongRunning);
+            CheckTemplateChanged();
+            Task.Factory.StartNew(CheckTemplateChangedCycle, TaskCreationOptions.LongRunning);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -62,8 +64,6 @@ namespace AITranslator
         {
             try
             {
-                //提前加载对话列表
-                CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate);
                 //加载配置信息
                 ViewModelManager.LoadBaseConfig();
 
@@ -177,25 +177,31 @@ namespace AITranslator
             uc_Set.EnableSet();
         }
 
-        void CheckFileChanged()
+        void CheckTemplateChangedCycle()
         {
             while (true)
             {
-                CheckDicChanged();
-                foreach (var templateDic in ViewModelManager.ViewModel.TemplateDics)
-                {
-                    CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.ReplaceTemplateDic}", "*.json", TemplateType.Replace, templateDic.ReplaceTemplate);
-                    CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.PromptTemplateDic}", "*.json", TemplateType.Prompt, templateDic.PromptTemplate);
-                    CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.CleanTemplateDic}", "*.csx", TemplateType.Clean, templateDic.CleanTemplate);
-                    CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.VerificationTemplateDic}", "*.csx", TemplateType.Verification, templateDic.VerificationTemplate);
-                }
-                CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate);
-                
-                if (ViewModelManager.ViewModel.InstructTemplate.Count > 0 &&
-                    ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
-                    ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate = ViewModelManager.ViewModel.InstructTemplate[0];
-                Thread.Sleep(1000);
+                CheckTemplateChanged();
+                Thread.Sleep(2000);
             }
+        }
+
+        void CheckTemplateChanged()
+        {
+            CheckDicChanged();
+            foreach (var templateDic in ViewModelManager.ViewModel.TemplateDics)
+            {
+                CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.ReplaceTemplateDic}", "*.json", TemplateType.Replace, templateDic.ReplaceTemplate);
+                CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.PromptTemplateDic}", "*.json", TemplateType.Prompt, templateDic.PromptTemplate);
+                CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.CleanTemplateDic}", "*.csx", TemplateType.Clean, templateDic.CleanTemplate);
+                CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.VerificationTemplateDic}", "*.csx", TemplateType.Verification, templateDic.VerificationTemplate);
+            }
+            CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate);
+
+            if (ViewModelManager.ViewModel.InstructTemplate.Count > 0 &&
+                ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
+                ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate = ViewModelManager.ViewModel.InstructTemplate[0];
+
         }
 
         void CheckFileChanged(string dicName, string extension, TemplateType templateType, ObservableCollection<Template> templates)

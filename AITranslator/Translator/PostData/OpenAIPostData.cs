@@ -13,6 +13,6 @@ namespace AITranslator.Translator.PostData
     /// </summary>
     public class OpenAIPostData : PostDataBase
     {
-        public string model { get; set; }
+        //public string model { get; set; }
     }
 }

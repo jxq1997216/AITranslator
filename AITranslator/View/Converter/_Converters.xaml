@@ -19,7 +19,6 @@
     <converter:TaskStateToEnableConverter x:Key="TaskStateToEnable"/>
     <converter:TaskStateToSpeedVisibilityConverter x:Key="TaskStateToSpeedVisibility"/>
     <converter:ViewTitleConverter x:Key="ViewTitle"/>
-    <converter:TemplatePathConverter x:Key="TemplatePath"/>
     <converter:ComboBoxStyleMarginConverter x:Key="ComboBoxStyleMargin"/>
     
 </ResourceDictionary>

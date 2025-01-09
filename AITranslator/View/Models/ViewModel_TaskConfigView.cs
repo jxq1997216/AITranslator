@@ -14,26 +14,31 @@ namespace AITranslator.View.Models
         /// <summary>
         /// 模板文件夹
         /// </summary>
+        [Required(ErrorMessage = "必须选择模板文件夹")]
         [ObservableProperty]
         private TemplateDic? templateDic;
         /// <summary>
         /// 提示词模板
         /// </summary>
+        [Required(ErrorMessage = "必须选择提示词模板")]
         [ObservableProperty]
         private Template? promptTemplate;
         /// <summary>
         /// 替换词模板
         /// </summary>
+        [Required(ErrorMessage = "必须选择替换词模板")]
         [ObservableProperty]
         private Template? replaceTemplate;
         /// <summary>
         /// 校验规则模板
         /// </summary>
+        [Required(ErrorMessage = "必须选择校验规则模板")]
         [ObservableProperty]
         private Template? verificationTemplate;
         /// <summary>
-        /// 校验规则模板
+        /// 清理规则模板
         /// </summary>
+        [Required(ErrorMessage = "必须选择清理规则模板")]
         [ObservableProperty]
         private Template? cleanTemplate;
         /// <summary>

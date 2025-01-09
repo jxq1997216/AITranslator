@@ -41,7 +41,6 @@ namespace AITranslator.View.Models
             save.Set.CopyFromViewModel(ViewModel.SetView_ViewModel);
             save.CommunicatorLLama.CopyFromViewModel(ViewModel.CommunicatorLLama_ViewModel);
             save.CommunicatorOpenAI.CopyFromViewModel(ViewModel.CommunicatorOpenAI_ViewModel);
-            save.CommunicatorTGW.CopyFromViewModel(ViewModel.CommunicatorTGW_ViewModel);
 
             JsonPersister.Save(save, PublicParams.ConfigPath_LoadModel, true);
         }
@@ -59,7 +58,6 @@ namespace AITranslator.View.Models
                 save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
                 save.CommunicatorLLama.CopyToViewModel(ViewModel.CommunicatorLLama_ViewModel);
                 save.CommunicatorOpenAI.CopyToViewModel(ViewModel.CommunicatorOpenAI_ViewModel);
-                save.CommunicatorTGW.CopyToViewModel(ViewModel.CommunicatorTGW_ViewModel);
             }
             else
                 SaveBaseConfig();

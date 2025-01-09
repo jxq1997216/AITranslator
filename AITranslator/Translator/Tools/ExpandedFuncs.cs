@@ -4,6 +4,7 @@ using AITranslator.View.Windows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -158,6 +159,15 @@ namespace AITranslator.Translator.Tools
                 return false;
             }
             return true;
+        }
+
+        public static void OpenFileUseDefaultSoft(string filePath)
+        {
+            Process process = new Process();
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
+            processStartInfo.UseShellExecute = true;
+            process.StartInfo = processStartInfo;
+            process.Start();
         }
     }
 }

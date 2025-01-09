@@ -144,7 +144,6 @@ namespace AITranslator.Translator.Translation
                     _communicator = ViewModelManager.ViewModel.CommunicatorType switch
                     {
                         CommunicatorType.LLama => new LLamaCommunicator(),
-                        CommunicatorType.TGW => new TGWCommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorTGW_ViewModel.ServerURL + "/v1/chat/completions")),
                         CommunicatorType.OpenAI => new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"), ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey),
                         _ => throw ExceptionThrower.InvalidCommunicator,
                     };
@@ -410,7 +409,6 @@ namespace AITranslator.Translator.Translation
             PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
             {
                 CommunicatorType.LLama => new LLamaPostData(),
-                CommunicatorType.TGW => new TGWPostData(),
                 CommunicatorType.OpenAI => new OpenAIPostData() { model = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model },
                 _ => throw ExceptionThrower.InvalidCommunicator,
             };

@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Xml.Linq;
 using static LLama.Common.ChatHistory;
 using Path = System.IO.Path;
 
@@ -39,7 +40,6 @@ namespace AITranslator.View.Models
     public enum CommunicatorType
     {
         LLama,
-        TGW,
         OpenAI
     }
     /// <summary>
@@ -108,11 +108,6 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private ViewModel_CommunicatorLLama communicatorLLama_ViewModel = new ViewModel_CommunicatorLLama();
         /// <summary>
-        /// TGW模型加载器ViewModel
-        /// </summary>
-        [ObservableProperty]
-        private ViewModel_CommunicatorTGW communicatorTGW_ViewModel = new ViewModel_CommunicatorTGW();
-        /// <summary>
         /// OpenAI模型加载器ViewModel
         /// </summary>
         [ObservableProperty]
@@ -122,7 +117,11 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private ViewModel_SetView setView_ViewModel = new ViewModel_SetView();
-
+        /// <summary>
+        /// 高级参数界面的ViewModel
+        /// </summary>
+        [ObservableProperty]
+        private ViewModel_AdvancedView advancedView_ViewModel = new ViewModel_AdvancedView();
         //UI线程
         internal Dispatcher Dispatcher;
 
@@ -267,6 +266,11 @@ namespace AITranslator.View.Models
             window_CheckUpdate.ShowDialog();
         }
 
+        [RelayCommand]
+        private void ClearLogs()
+        {
+            Consoles.Clear();
+        }
 
         [RelayCommand]
         private void OpenInstructTemplateFolder()
@@ -277,6 +281,18 @@ namespace AITranslator.View.Models
 
         [RelayCommand]
         private void OpenInstructTemplateFile()
+        {
+            if (ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
+            {
+                Window_Message.ShowDialog("提示", "请先选择对话格式");
+                return;
+            }
+            string path = Path.GetFullPath($"{PublicParams.InstructTemplateDic}\\{ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate.Name}.csx");
+            Process.Start("explorer.exe", path);
+        }
+
+        [RelayCommand]
+        private void TestInstructTemplate()
         {
             try
             {
@@ -311,92 +327,7 @@ namespace AITranslator.View.Models
             }
         }
 
-        [RelayCommand]
-        private void OpenReplaceTemplateFolder(string dicName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{dicName}\\{PublicParams.ReplaceTemplateDic}");
-            Process.Start("explorer.exe", path);
-        }
-
-        [RelayCommand]
-        private void OpenReplaceTemplateFile(string fileName)
-        {
-            string[] param = fileName.Split('|');
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{param[0]}\\{PublicParams.ReplaceTemplateDic}\\{param[1]}.json");
-            OpenFileUseDefaultSoft(path);
-        }
-
-        [RelayCommand]
-        private void OpenPromptTemplateFolder(string dicName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{dicName}\\{PublicParams.PromptTemplateDic}");
-            Process.Start("explorer.exe", path);
-        }
-
-        [RelayCommand]
-        private void OpenPromptTemplateFile(string fileName)
-        {
-            string[] param = fileName.Split('|');
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{param[0]}\\{PublicParams.PromptTemplateDic}\\{param[1]}.json");
-            OpenFileUseDefaultSoft(path);
-        }
-        [RelayCommand]
-        private void OpenCleanTemplateFolder(string dicName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{dicName}\\{PublicParams.CleanTemplateDic}");
-            Process.Start("explorer.exe", path);
-        }
-
-        [RelayCommand]
-        private void OpenCleanTemplateFile(string fileName)
-        {
-            string[] param = fileName.Split('|');
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{param[0]}\\{PublicParams.CleanTemplateDic}\\{param[1]}.csx");
-            OpenFileUseDefaultSoft(path);
-        }
-
-        [RelayCommand]
-        private void TestCleanTemplate(string fileName)
-        {
-            string[] param = fileName.Split('|');
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{param[0]}\\{PublicParams.CleanTemplateDic}\\{param[1]}.csx");
-            Window_TestCleanTemplate testWindow = new Window_TestCleanTemplate(path);
-            testWindow.Owner = Window_Message.DefaultOwner;
-            testWindow.ShowDialog();
-        }
-
-        [RelayCommand]
-        private void OpenVerificationTemplateFolder(string dicName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{dicName}\\{PublicParams.VerificationTemplateDic}");
-            Process.Start("explorer.exe", path);
-        }
-
-        [RelayCommand]
-        private void OpenVerificationTemplateFile(string fileName)
-        {
-            string[] param = fileName.Split('|');
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{param[0]}\\{PublicParams.VerificationTemplateDic}\\{param[1]}.csx");
-            OpenFileUseDefaultSoft(path);
-        }
-
-        [RelayCommand]
-        private void TestVerificationTemplate(string fileName)
-        {
-            string[] param = fileName.Split('|');
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{param[0]}\\{PublicParams.VerificationTemplateDic}\\{param[1]}.csx");
-            Window_TestVerificationTemplate testWindow = new Window_TestVerificationTemplate(path);
-            testWindow.Owner = Window_Message.DefaultOwner;
-            testWindow.ShowDialog();
-        }
         
-        void OpenFileUseDefaultSoft(string filePath)
-        {
-            Process process = new Process();
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
-            processStartInfo.UseShellExecute = true;
-            process.StartInfo = processStartInfo;
-            process.Start();
-        }
+
     }
 }

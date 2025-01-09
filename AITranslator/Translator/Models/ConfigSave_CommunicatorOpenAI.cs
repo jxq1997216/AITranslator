@@ -22,11 +22,17 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public string ServerURL { get; set; }
 
+        /// <summary>
+        /// 额外的参数
+        /// </summary>
+        public string ExpendedParams { get; set; }
+
         public void CopyFromViewModel(ViewModel_CommunicatorOpenAI vm)
         {
             Model = vm.Model;
             ApiKey = vm.ApiKey;
             ServerURL = vm.ServerURL;
+            ExpendedParams = vm.ExpendedParams;
         }
 
         public void CopyToViewModel(ViewModel_CommunicatorOpenAI vm)
@@ -34,6 +40,7 @@ namespace AITranslator.Translator.Models
             vm.Model = Model;
             vm.ApiKey = ApiKey;
             vm.ServerURL = ServerURL;
+            vm.ExpendedParams = ExpendedParams;
         }
     }
 }
