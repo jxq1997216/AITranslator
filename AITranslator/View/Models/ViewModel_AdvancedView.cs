@@ -58,6 +58,31 @@ namespace AITranslator.View.Models
         [Range(typeof(int), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
         [ObservableProperty]
         private int historyCount = 5;
+        /// <summary>
+        /// 初次翻译的参数
+        /// </summary>
+        [ObservableProperty]
+        private ViewModel_TranslatePrams translatePrams_First = new ViewModel_TranslatePrams();
+        /// <summary>
+        /// 重试翻译的参数
+        /// </summary>
+        [ObservableProperty]
+        private ViewModel_TranslatePrams translatePrams_Retry = new ViewModel_TranslatePrams();
+
+        public static ViewModel_DefaultTemplate Create(ViewModel_DefaultTemplate source)
+        {
+            return new ViewModel_DefaultTemplate
+            {
+                TemplateDic = source.TemplateDic,
+                PromptTemplate = source.PromptTemplate,
+                ReplaceTemplate = source.ReplaceTemplate,
+                VerificationTemplate = source.VerificationTemplate,
+                CleanTemplate = source.CleanTemplate,
+                HistoryCount = source.HistoryCount,
+                TranslatePrams_First = ViewModel_TranslatePrams.Create(source.TranslatePrams_First),
+                TranslatePrams_Retry = ViewModel_TranslatePrams.Create(source.TranslatePrams_Retry),
+            };
+        }
     }
     public partial class ViewModel_TranslatePrams : ObservableValidator
     {
@@ -91,6 +116,19 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private ObservableCollection<string> stops = new ObservableCollection<string>();
+
+        public static ViewModel_TranslatePrams Create(ViewModel_TranslatePrams source)
+        {
+            return new ViewModel_TranslatePrams
+            {
+                MaxTokens = source.MaxTokens,
+                Temperature = source.Temperature,
+                FrequencyPenalty = source.FrequencyPenalty,
+                PresencePenalty = source.PresencePenalty,
+                TopP = source.TopP,
+                Stops = new ObservableCollection<string>(source.Stops ?? new ObservableCollection<string>()),
+            };
+        }
     }
     /// <summary>
     /// 用于界面绑定的ViewModel
@@ -101,45 +139,31 @@ namespace AITranslator.View.Models
         /// MTool导出待翻译文件的默认模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_DefaultTemplate template_MTool;
+        private ViewModel_DefaultTemplate template_MTool = new ViewModel_DefaultTemplate();
         /// <summary>
         /// Translator++导出待翻译文件的默认模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_DefaultTemplate template_Tpp;
+        private ViewModel_DefaultTemplate template_Tpp = new ViewModel_DefaultTemplate();
         /// <summary>
         /// 字幕文件的默认模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_DefaultTemplate template_Srt;
+        private ViewModel_DefaultTemplate template_Srt = new ViewModel_DefaultTemplate();
         /// <summary>
         /// 文本文件的默认模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_DefaultTemplate template_Txt;
-        /// <summary>
-        /// 初次翻译的参数
-        /// </summary>
-        [ObservableProperty]
-        private ViewModel_TranslatePrams translatePrams_First;
-        /// <summary>
-        /// 重试翻译的参数
-        /// </summary>
-        [ObservableProperty]
-        private ViewModel_TranslatePrams translatePrams_Retry;
+        private ViewModel_DefaultTemplate template_Txt = new ViewModel_DefaultTemplate();
+
 
         public void Enable()
         {
             ViewModel_AdvancedView vm = ViewModelManager.ViewModel.AdvancedView_ViewModel;
-            vm.EnableEmail = EnableEmail;
-            vm.EmailAddress = EmailAddress;
-            vm.EmailPassword = EmailPassword;
-            vm.SmtpAddress = SmtpAddress;
-            vm.SmtpPort = SmtpPort;
-            vm.AutoShutdown = AutoShutdown;
-            vm.SmtpUseSSL = SmtpUseSSL;
-            vm.TranslateFailedAgain = TranslateFailedAgain;
-            vm.TranslateFailedTimes = TranslateFailedTimes;
+            vm.Template_MTool = ViewModel_DefaultTemplate.Create(Template_MTool);
+            vm.Template_Tpp = ViewModel_DefaultTemplate.Create(Template_Tpp);
+            vm.Template_Srt = ViewModel_DefaultTemplate.Create(Template_Srt);
+            vm.Template_Txt = ViewModel_DefaultTemplate.Create(Template_Txt);
             ViewModelManager.SaveBaseConfig();
         }
 
@@ -148,24 +172,15 @@ namespace AITranslator.View.Models
             ViewModel_AdvancedView vm = ViewModelManager.ViewModel.AdvancedView_ViewModel;
             return new ViewModel_AdvancedView
             {
-                EnableEmail = vm.EnableEmail,
-                EmailAddress = vm.EmailAddress,
-                EmailPassword = vm.EmailPassword,
-                SmtpAddress = vm.SmtpAddress,
-                SmtpPort = vm.SmtpPort,
-                AutoShutdown = vm.AutoShutdown,
-                SmtpUseSSL = vm.SmtpUseSSL,
-                TranslateFailedAgain = vm.TranslateFailedAgain,
-                TranslateFailedTimes = vm.TranslateFailedTimes,
+                Template_MTool = ViewModel_DefaultTemplate.Create(vm.Template_MTool),
+                Template_Tpp = ViewModel_DefaultTemplate.Create(vm.Template_Tpp),
+                Template_Srt = ViewModel_DefaultTemplate.Create(vm.Template_Srt),
+                Template_Txt = ViewModel_DefaultTemplate.Create(vm.Template_Txt),
             };
         }
 
-        [RelayCommand]
-        private void SendTestMail()
+        public void Reset()
         {
-            bool result = SmtpMailSender.SendTest(EmailAddress, EmailPassword, SmtpAddress, SmtpPort, SmtpUseSSL, out string error);
-            if (!result)
-                Window_Message.ShowDialog("错误", $"发送测试邮件失败:{error}\r\n请检查网络是否通畅，或输入信息是否有误");
         }
     }
 }

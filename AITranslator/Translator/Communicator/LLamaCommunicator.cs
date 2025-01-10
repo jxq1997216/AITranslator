@@ -200,11 +200,8 @@ namespace AITranslator.Translator.Communicator
                 {
                     Temperature = (float)_postData.temperature,
                     AlphaFrequency = (float)_postData.frequency_penalty,
-                    AlphaPresence = 1f,
-                    
-                    RepeatPenalty = 1f,
-                    TopK = 40,
-                    TopP = 0.9f,
+                    AlphaPresence = (float)_postData.presence_penalty,
+                    TopP = (float)_postData.top_p,
                 },
 
                 AntiPrompts = _postData.stop,

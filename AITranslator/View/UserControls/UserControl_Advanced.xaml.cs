@@ -35,10 +35,43 @@ namespace AITranslator.View.UserControls
         {
             if ((bool)e.NewValue)
             {
-                ViewModel_SetView viewModel_SetView = ViewModel_SetView.Create();
+                ViewModel_AdvancedView viewModel_SetView = ViewModel_AdvancedView.Create();
                 DataContext = viewModel_SetView;
             }
         }
+
+        public void EnableAdvanced()
+        {
+            bool saveResult = ExpandedFuncs.TryExceptions(() => (DataContext as ViewModel_AdvancedView)!.Enable(), (err) =>
+            {
+                string errorInfo = string.Empty;
+                if (err is KnownException)
+                    errorInfo = err.Message;
+                else
+                    errorInfo = err.ToString();
+                Window_Message.ShowDialog("错误", $"应用失败:{errorInfo}");
+            });
+
+            if (saveResult)
+                Window_Message.ShowDialog("提示", "应用成功");
+        }
+
+        public void ResetAdvanced()
+        {
+            bool saveResult = ExpandedFuncs.TryExceptions(() => (DataContext as ViewModel_AdvancedView)!.Enable(), (err) =>
+            {
+                string errorInfo = string.Empty;
+                if (err is KnownException)
+                    errorInfo = err.Message;
+                else
+                    errorInfo = err.ToString();
+                Window_Message.ShowDialog("错误", $"应用失败:{errorInfo}");
+            });
+
+            if (saveResult)
+                Window_Message.ShowDialog("提示", "应用成功");
+        }
+
 
         private void cb_templateDic_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

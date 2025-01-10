@@ -206,7 +206,7 @@
 
 
                             <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_Advanced,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" ToolTip="重置" Command="{Binding ClearLogsCommand}">
+                                <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" ToolTip="重置" Click="Button_ResetAdvanced_Click">
                                     <controls:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Viewbox Width="16" Height="16" Margin="0">
@@ -215,7 +215,7 @@
                                         </StackPanel>
                                     </controls:ViewButton.Content>
                                 </controls:ViewButton>
-                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="应用" Click="Button_EnableSet_Click">
+                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="应用" Click="Button_EnableAdvanced_Click">
                                     <controls:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Viewbox Width="12" Height="12" Margin="0,0,5,0">
@@ -242,7 +242,7 @@
 
                             <uc:UserControl_Template Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_Template,FalseToVisibility=Collapsed}" DataContext="{Binding SelectedItem,ElementName=cb_templateDic}"/>
 
-                            <uc:UserControl_Advanced Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_Advanced,FalseToVisibility=Collapsed}"/>
+                            <uc:UserControl_Advanced x:Name="uc_Advanced" Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_Advanced,FalseToVisibility=Collapsed}"/>
                         </Grid>
                     </DockPanel>
                     <!--模型加载区-->

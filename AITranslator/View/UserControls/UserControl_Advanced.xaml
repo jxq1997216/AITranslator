@@ -10,9 +10,9 @@
              xmlns:vm="clr-namespace:AITranslator.View.Models"
              xmlns:pros="clr-namespace:AITranslator.View.Properties"
              mc:Ignorable="d" 
-             d:DesignHeight="550" d:DesignWidth="350">
+             d:DesignHeight="550" d:DesignWidth="350" IsVisibleChanged="UserControl_IsVisibleChanged">
     <UserControl.DataContext>
-        <vm:ViewModel_SetView/>
+        <vm:ViewModel_AdvancedView/>
     </UserControl.DataContext>
     <ScrollViewer  Margin="5" VerticalScrollBarVisibility="Auto">
         <StackPanel>
@@ -103,10 +103,7 @@
                             <ComboBox x:Name="cb_ReplacesTemplate" Width="120" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding ReplaceTemplate}" ItemsSource="{Binding Path=SelectedItem.ReplaceTemplate,ElementName=cb_templateDic}"/>
                         </StackPanel>
                     </Grid>
-
-
                 </StackPanel>
-
             </GroupBox>
             <GroupBox Margin="0,0,5,10" BorderThickness="0.1" Header="初次翻译" Foreground="White">
                 <StackPanel>

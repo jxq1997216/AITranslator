@@ -172,10 +172,12 @@ namespace AITranslator
         }
 
 
-        private void Button_EnableSet_Click(object sender, RoutedEventArgs e)
-        {
-            uc_Set.EnableSet();
-        }
+        private void Button_EnableSet_Click(object sender, RoutedEventArgs e) => uc_Set.EnableSet();
+
+        private void Button_EnableAdvanced_Click(object sender, RoutedEventArgs e) => uc_Advanced.EnableAdvanced();
+
+        private void Button_ResetAdvanced_Click(object sender, RoutedEventArgs e) => uc_Advanced.ResetAdvanced();
+
 
         void CheckTemplateChangedCycle()
         {
@@ -269,5 +271,7 @@ namespace AITranslator
               ShowDialog: false);
             }
         }
+
+
     }
 }

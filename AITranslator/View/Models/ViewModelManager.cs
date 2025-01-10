@@ -39,6 +39,7 @@ namespace AITranslator.View.Models
                 CommunicatorType = ViewModel.CommunicatorType,
             };
             save.Set.CopyFromViewModel(ViewModel.SetView_ViewModel);
+            save.Advanced.CopyFromViewModel(ViewModel.AdvancedView_ViewModel);
             save.CommunicatorLLama.CopyFromViewModel(ViewModel.CommunicatorLLama_ViewModel);
             save.CommunicatorOpenAI.CopyFromViewModel(ViewModel.CommunicatorOpenAI_ViewModel);
 
@@ -56,6 +57,7 @@ namespace AITranslator.View.Models
                 ViewModel.AgreedStatement = save.AgreedStatement;
                 ViewModel.CommunicatorType = save.CommunicatorType;
                 save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
+                save.Advanced.CopyToViewModel(ViewModel.AdvancedView_ViewModel);
                 save.CommunicatorLLama.CopyToViewModel(ViewModel.CommunicatorLLama_ViewModel);
                 save.CommunicatorOpenAI.CopyToViewModel(ViewModel.CommunicatorOpenAI_ViewModel);
             }
