@@ -12,6 +12,7 @@ namespace AITranslator.Translator.TranslateData
     {
         Unknow,
         KV,
+        Tpp,
         Srt,
         Txt
     };

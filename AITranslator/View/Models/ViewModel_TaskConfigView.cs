@@ -1,9 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AITranslator.Translator.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -99,7 +102,11 @@ namespace AITranslator.View.Models
             foreach (var replace in Replaces)
                 task.Replaces.Add(replace);
             task.HistoryCount = HistoryCount;
-            //task.IsEnglish = IsEnglish;
+            task.TemplateDic = TemplateDic?.Name;
+            task.PromptTemplate = PromptTemplate?.Name;
+            task.CleanTemplate = CleanTemplate?.Name;
+            task.ReplaceTemplate = ReplaceTemplate?.Name;
+            task.VerificationTemplate = VerificationTemplate?.Name;
         }
 
         public static ViewModel_TaskConfigView Create(TranslationTask task)
@@ -107,8 +114,27 @@ namespace AITranslator.View.Models
             ViewModel_TaskConfigView vm = new ViewModel_TaskConfigView()
             {
                 HistoryCount = task.HistoryCount,
-                //IsEnglish = task.IsEnglish
             };
+            if (Directory.Exists($"{PublicParams.TemplatesDic}/{task.TemplateDic}"))
+            {
+                vm.TemplateDic = ViewModelManager.ViewModel.TemplateDics.FirstOrDefault(s => s.Name == task.TemplateDic);
+
+                if (vm.TemplateDic is not null)
+                {
+                    if (File.Exists(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Prompt, task.PromptTemplate)))
+                        vm.PromptTemplate = vm.TemplateDic.PromptTemplate.FirstOrDefault(s => s.Name == task.PromptTemplate);
+
+                    if (File.Exists(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Clean, task.CleanTemplate)))
+                        vm.CleanTemplate = vm.TemplateDic.CleanTemplate.FirstOrDefault(s => s.Name == task.CleanTemplate);
+
+                    if (File.Exists(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Replace, task.ReplaceTemplate)))
+                        vm.ReplaceTemplate = vm.TemplateDic.ReplaceTemplate.FirstOrDefault(s => s.Name == task.ReplaceTemplate);
+
+                    if (File.Exists(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Verification, task.VerificationTemplate)))
+                        vm.VerificationTemplate = vm.TemplateDic.VerificationTemplate.FirstOrDefault(s => s.Name == task.VerificationTemplate);
+                }
+            }
+
             foreach (var replace in task.Replaces)
                 vm.Replaces.Add(replace);
             return vm;

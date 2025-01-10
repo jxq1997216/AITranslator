@@ -206,6 +206,7 @@
 
 
                             <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_Advanced,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <ComboBox  Height="32" Width="135" Margin="0,0,4,0" Foreground="White" DisplayMemberPath="Description" SelectedItem="{Binding CurrentTranslateType,ElementName=uc_Advanced}" ItemsSource="{Binding TranslateTypes,ElementName=uc_Advanced}" SelectionChanged="ComboBox_Advanced_SelectionChanged"/>
                                 <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" ToolTip="重置" Click="Button_ResetAdvanced_Click">
                                     <controls:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -227,6 +228,16 @@
                                 </controls:ViewButton>
                             </StackPanel>
 
+                            <controls:ViewButton Margin="0,0,10,0" Width="64" Height="32" ToolTip="设置" HorizontalAlignment="Right" Visibility="{calc:Binding IsChecked,ElementName=rb_ManualTranslate,FalseToVisibility=Collapsed}" Click="Button_SetManualParams_Click">
+                                <controls:ViewButton.Content>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Viewbox Width="13" Height="13" Margin="0,0,5,0">
+                                            <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:ViewButton}}}" Data="M784.384 787.456c-59.392 7.168-113.664-32.768-120.832-90.112-7.168-57.344 34.816-110.592 94.208-117.76 59.392-7.168 113.664 32.768 120.832 90.112 7.168 57.344-34.816 110.592-94.208 117.76z m7.168 52.224c89.088-11.264 152.576-90.112 141.312-176.128-11.264-86.016-92.16-147.456-180.224-136.192-89.088 11.264-152.576 90.112-141.312 176.128 10.24 86.016 91.136 147.456 180.224 136.192z m-291.84-84.992c-3.072-3.072-5.12-6.144-6.144-10.24l-6.144-51.2c0-9.216 7.168-17.408 16.384-18.432l28.672-4.096c12.288-2.048 22.528-11.264 25.6-23.552l10.24-36.864c4.096-12.288 0-24.576-9.216-32.768l-22.528-17.408c-8.192-6.144-9.216-17.408-3.072-25.6l30.72-37.888c4.096-4.096 9.216-6.144 14.336-7.168 5.12-1.024 10.24 0 14.336 3.072l22.528 17.408c9.216 7.168 25.6 7.168 34.816 1.024l33.792-19.456c11.264-6.144 17.408-17.408 16.384-29.696l-3.072-28.672c-1.024-5.12 1.024-9.216 4.096-13.312 3.072-4.096 7.168-6.144 12.288-7.168l50.176-6.144c10.24-2.048 19.456 5.12 20.48 14.336l4.096 29.696c1.024 12.288 12.288 22.528 24.576 24.576l37.888 10.24c12.288 4.096 25.6 0 33.792-9.216l17.408-22.528c3.072-4.096 8.192-5.12 13.312-6.144 5.12-1.024 10.24 0 14.336 3.072l38.912 28.672c8.192 6.144 9.216 17.408 3.072 25.6l-17.408 22.528c-8.192 9.216-8.192 24.576-1.024 33.792l19.456 32.768c6.144 11.264 17.408 18.432 30.72 17.408l28.672-4.096c5.12-1.024 10.24 0 13.312 3.072 4.096 3.072 6.144 7.168 7.168 12.288l3.072 48.128c1.024 10.24-5.12 18.432-15.36 20.48l-31.744 6.144c-12.288 2.048-22.528 11.264-25.6 23.552l-10.24 36.864c-4.096 12.288 0 24.576 9.216 32.768l22.528 17.408c8.192 6.144 9.216 17.408 3.072 25.6L977.92 870.4c-6.144 8.192-18.432 9.216-26.624 3.072l-22.528-17.408c-9.216-7.168-25.6-7.168-34.816-1.024l-33.792 19.456c-11.264 5.12-18.432 17.408-17.408 29.696l3.072 28.672c1.024 5.12-1.024 9.216-4.096 13.312-3.072 4.096-7.168 6.144-12.288 7.168l-50.176 6.144c-5.12 1.024-10.24 0-13.312-3.072-4.096-3.072-6.144-7.168-7.168-12.288l-3.072-28.672c-2.048-12.288-11.264-22.528-23.552-24.576l-37.888-10.24c-12.288-4.096-25.6 0-33.792 9.216l-17.408 22.528c-6.144 8.192-18.432 9.216-26.624 3.072l-38.912-28.672c-8.192-6.144-9.216-17.408-3.072-25.6l17.408-22.528c8.192-9.216 8.192-24.576 1.024-33.792l-19.456-32.768c-6.144-11.264-18.432-18.432-30.72-17.408l-29.696 3.072c-4.096 1.024-9.216 0-13.312-3.072zM849.92 64.512H95.232c-52.224 0-95.232 43.008-95.232 95.232v704.512c0 52.224 43.008 95.232 95.232 95.232H496.64V850.944H168.96c-30.72 0-56.32-25.6-56.32-56.32V417.792c0-30.72 25.6-56.32 56.32-56.32h607.232c28.672 0 52.224 21.504 55.296 49.152h112.64V158.72c0-52.224-41.984-94.208-94.208-94.208zM212.992 251.904c0 13.312-10.24 23.552-23.552 23.552h-55.296c-13.312 0-23.552-10.24-23.552-23.552v-50.176c0-13.312 10.24-23.552 23.552-23.552H189.44c13.312 0 23.552 10.24 23.552 23.552v50.176z m251.904 0c0 13.312-10.24 23.552-23.552 23.552H307.2c-13.312 0-23.552-10.24-23.552-23.552v-50.176c0-13.312 10.24-23.552 23.552-23.552h134.144c13.312 0 23.552 10.24 23.552 23.552v50.176z"/>
+                                        </Viewbox>
+                                        <TextBlock VerticalAlignment="Center" Text="设置"/>
+                                    </StackPanel>
+                                </controls:ViewButton.Content>
+                            </controls:ViewButton>
                         </Grid>
 
                         <Grid DockPanel.Dock="Bottom">
@@ -234,7 +245,7 @@
 
                             <uc:UserControl_CompletedView Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_CompletedView,FalseToVisibility=Collapsed}"  DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
 
-                            <uc:UserControl_ManualTranslateView Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_ManualTranslate,FalseToVisibility=Collapsed}"  DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
+                            <uc:UserControl_ManualTranslateView x:Name="uc_ManualTranslate" Background="#80000000" Visibility="{calc:Binding IsChecked,ElementName=rb_ManualTranslate,FalseToVisibility=Collapsed}"  DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
 
                             <uc:UserControl_LogsView x:Name="uc_Logs" Background="#BB000000" Visibility="{calc:Binding IsChecked,ElementName=rb_LogView,FalseToVisibility=Collapsed}"  DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
 
@@ -247,7 +258,7 @@
                     </DockPanel>
                     <!--模型加载区-->
                     <uc:UserControl_ModelLoader VerticalAlignment="Bottom" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
-                </Grid> 
+                </Grid>
             </Grid>
         </Grid>
     </Border>

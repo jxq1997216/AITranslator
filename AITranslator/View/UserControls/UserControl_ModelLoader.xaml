@@ -36,8 +36,8 @@
                     </GroupBox.Header>
                     <StackPanel Margin="5,10,5,5">
                         <control:SizeAnimationGrid x:Name="gd_OpemAI" Height="210" IsEnabled="{calc:Binding 'CommunicatorType == vm:CommunicatorType.OpenAI'}" Visibility="{calc:Binding '!(Opacity == 0)',RelativeSource={RelativeSource Mode=Self},FalseToVisibility=Collapsed}">
-                            <StackPanel>
-                                <Grid IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
+                            <StackPanel IsEnabled="{calc:Binding 'ActiveTask == null and !ManualTranslating'}">
+                                <Grid >
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
                                         <RowDefinition/>
@@ -75,7 +75,6 @@
                                             <TextBox Text="{Binding CommunicatorOpenAI_ViewModel.Model}" Foreground="White" InputMethod.IsInputMethodEnabled="False" VerticalAlignment="Center" CaretBrush="White" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="10"/>
                                         </Border>
                                     </Grid>
-
                                 </Grid>
                                 <GroupBox Header="额外参数" Foreground="White" BorderThickness="0.1" Height="110" Padding="0,2">
                                     <TextBox Text="{Binding CommunicatorOpenAI_ViewModel.ExpendedParams}" Foreground="White" CaretBrush="White" BorderThickness="0" Background="Transparent" AcceptsReturn="True" TextWrapping="Wrap" FontSize="10"/>

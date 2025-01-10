@@ -1,6 +1,7 @@
 ﻿using AITranslator.Translator.Models;
 using AITranslator.Translator.PostData;
 using AITranslator.Translator.Tools;
+using AITranslator.Translator.TranslateData;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using System.Collections.ObjectModel;
@@ -177,7 +178,10 @@ namespace AITranslator
         private void Button_EnableAdvanced_Click(object sender, RoutedEventArgs e) => uc_Advanced.EnableAdvanced();
 
         private void Button_ResetAdvanced_Click(object sender, RoutedEventArgs e) => uc_Advanced.ResetAdvanced();
-
+        private void ComboBox_Advanced_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            uc_Advanced.UpdataContext();
+        }
 
         void CheckTemplateChangedCycle()
         {
@@ -273,5 +277,12 @@ namespace AITranslator
         }
 
 
+        private void Button_SetManualParams_Click(object sender, RoutedEventArgs e)
+        {
+            Window_SetManualParams setWindow = new Window_SetManualParams();
+            setWindow.DataContext = uc_ManualTranslate;
+            setWindow.Owner = this;
+            setWindow.ShowDialog();
+        }
     }
 }

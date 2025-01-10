@@ -144,24 +144,33 @@ namespace AITranslator.View.Models
 
         public TranslationTask() { }
 
+        /// <summary>
+        /// 创建一个全新的翻译项目
+        /// </summary>
+        /// <param name="file"></param>
+        /// <exception cref="KnownException"></exception>
         public TranslationTask(FileInfo file)
         {
+            ViewModel_DefaultTemplate? defaultTemplate;
             switch (file.Extension)
             {
                 case ".json":
                     TranslateType = TranslateDataType.KV;
+                    defaultTemplate = ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_MTool;
                     Dictionary<string, string> kvSource = JsonPersister.Load<Dictionary<string, string>>(file.FullName);
                     DicName = CreateRandomDic();
                     JsonPersister.Save(kvSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
                     break;
                 case ".srt":
                     TranslateType = TranslateDataType.Srt;
+                    defaultTemplate = ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Srt;
                     Dictionary<int, SrtData> srtSource = SrtPersister.Load(file.FullName);
                     DicName = CreateRandomDic();
                     SrtPersister.Save(srtSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
                     break;
                 case ".txt":
                     TranslateType = TranslateDataType.Txt;
+                    defaultTemplate = ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Txt;
                     List<string> txtSource = TxtPersister.Load(file.FullName);
                     DicName = CreateRandomDic();
                     TxtPersister.Save(txtSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
@@ -171,11 +180,35 @@ namespace AITranslator.View.Models
             }
 
             FileName = file.Name;
+            TemplateDic = defaultTemplate.TemplateDic?.Name;
+            if (TemplateDic is null)
+                throw new DicNotFoundException("模板文件夹未设置，请先前往高级参数设置此类翻译任务的模板文件夹");
+
+            PromptTemplate = defaultTemplate.PromptTemplate?.Name;
+            if (PromptTemplate is null)
+                throw new DicNotFoundException("提示词模板未设置，请先前往高级参数设置此类翻译任务的提示词模板");
+
+            CleanTemplate = defaultTemplate.CleanTemplate?.Name;
+            if (CleanTemplate is null)
+                throw new DicNotFoundException("清理模板未设置，请先前往高级参数设置此类翻译任务的清理模板");
+
+            VerificationTemplate = defaultTemplate.VerificationTemplate?.Name;
+            if (VerificationTemplate is null)
+                throw new DicNotFoundException("校验模板未设置，请先前往高级参数设置此类翻译任务的校验模板");
+
+            ReplaceTemplate = defaultTemplate.ReplaceTemplate?.Name;
+            if (ReplaceTemplate is null)
+                throw new DicNotFoundException("名词替换模板未设置，请先前往高级参数设置此类翻译任务的名词替换模板");
+
             State = TaskState.Initialized;
             //创建配置文件
             SaveConfig();
         }
 
+        /// <summary>
+        /// 从已经存在的文件夹中读取生成翻译任务
+        /// </summary>
+        /// <param name="dic"></param>
         public TranslationTask(DirectoryInfo dic)
         {
             DicName = dic.Name;

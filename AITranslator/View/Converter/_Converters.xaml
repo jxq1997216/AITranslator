@@ -20,5 +20,6 @@
     <converter:TaskStateToSpeedVisibilityConverter x:Key="TaskStateToSpeedVisibility"/>
     <converter:ViewTitleConverter x:Key="ViewTitle"/>
     <converter:ComboBoxStyleMarginConverter x:Key="ComboBoxStyleMargin"/>
+    <converter:TranslateStopsParamsConverter x:Key="TranslateStopsParams"/>
     
 </ResourceDictionary>

@@ -21,12 +21,16 @@ namespace AITranslator.Translator.Communicator
         HttpClient _client;
         Uri _url;
         string _api_key;
+        string _modelName;
+        string _expendedParams;
         CancellationTokenSource _cts;
-        public OpenAICommunicator(Uri url, string api_key)
+        public OpenAICommunicator(Uri url, string api_key, string modelName, string expendedParams)
         {
             _cts = new CancellationTokenSource();
             _url = url;
             _api_key = api_key;
+            _modelName = modelName;
+            _expendedParams = expendedParams;
             _client = new HttpClient()
             {
                 Timeout = TimeSpan.FromMinutes(10)
@@ -37,11 +41,13 @@ namespace AITranslator.Translator.Communicator
         public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText, out double speed)
         {
             speed = 0;
-            OpenAIPostData _PostData = postData as OpenAIPostData;
 
             List<ExampleDialogue> exampleDialogues = [.. headers, .. histories];
             exampleDialogues.Add(new("user", inputText));
-            _PostData.messages = exampleDialogues.ToArray();
+            postData.messages = exampleDialogues.ToArray();
+            postData.model = _modelName;
+
+            PostDataNormal postDataNormal = new PostDataNormal() { Base = postData, Expended = _expendedParams };
 
             CancellationToken token = _cts.Token;
             string str_result = string.Empty;
@@ -51,7 +57,7 @@ namespace AITranslator.Translator.Communicator
             {
                 try
                 {
-                    string sendJson = JsonConvert.SerializeObject(_PostData);
+                    string sendJson = postDataNormal.ToString();
                     using (StringContent httpContent = new StringContent(sendJson, Encoding.UTF8, "application/json"))
                     {
                         sw.Restart();

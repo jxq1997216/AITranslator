@@ -78,9 +78,9 @@ namespace AITranslator.Translator.Translation
                 {
                     string[] results;
                     if (mergeValues.Count == 1)//进行单句翻译
-                        results = new string[] { Translate_Single(mergeValues[0], true, 200, 0.6, 0) };
+                        results = new string[] { Translate_Single(mergeValues[0], true, false) };
                     else //进行合并翻译
-                        results = Translate_Mult(mergeValues, true, 350, 0.6, 0);
+                        results = Translate_Mult(mergeValues, true);
 
                     if (results == null)//如果合并翻译失败,则逐条翻译
                     {
@@ -88,7 +88,7 @@ namespace AITranslator.Translator.Translation
                         for (int i = 0; i < mergeValues.Count; i++)
                         {
                             //单句翻译
-                            string result_single = Translate_Single(mergeValues[i], true, 200, 0.6, 0);
+                            string result_single = Translate_Single(mergeValues[i], true, false);
                             //检测翻译结果是否通过
                             if (ResultVerification(mergeValues[i], ref result_single))
                             {
@@ -222,7 +222,7 @@ namespace AITranslator.Translator.Translation
             {
                 ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + translated);
                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，正在尝试重新翻译...");
-                string reTranslate = Translate_Single(source, false, 200, 0.1, 0.15);
+                string reTranslate = Translate_Single(source, false, true);
                 if (Verification(source, translated, out error))
                     translated = reTranslate;
                 else

@@ -1,0 +1,141 @@
+﻿<Window x:Class="AITranslator.View.Windows.Window_SetManualParams"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
+        xmlns:pros="clr-namespace:AITranslator.View.Properties"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:controls="clr-namespace:AITranslator.View.Controls"
+        mc:Ignorable="d"
+        Title="Set ManualTranslate" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
+    <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="1" Color="#FF21252D"/>
+                <GradientStop Offset="0" Color="#FF273146"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FF6B6C6D"/>
+                <GradientStop Offset="1" Color="#FF464646"/>
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Grid>
+            <Grid.Clip>
+                <RectangleGeometry Rect="0 0 318 1000" RadiusX="9" RadiusY="9"></RectangleGeometry>
+            </Grid.Clip>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid Background="#FF191D25" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                    <TextBlock Margin="10,3,0,0" Grid.ColumnSpan="2" Text="{Binding Title,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" FontFamily="{StaticResource English}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12" Foreground="#FFD2D9DC"/>
+                    <StackPanel Margin="5,0,2,0" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
+                        <Button Style="{StaticResource TitleBarButton}" Click="Button_Close_Click">
+                            <Label Content="×" Margin="-5" Foreground="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="12"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Margin="5" Grid.Row="1">
+                    <StackPanel>
+                        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="White" Text="人设"/>
+                        <Border Margin="5,0,5,10" Padding="1,5" MinHeight="60" Grid.Column="1" BorderThickness="1" BorderBrush="White" CornerRadius="12.5" >
+                            <TextBox Foreground="White" TextWrapping="Wrap" Text="{Binding SystemPrompt}" CaretBrush="White" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" Margin="5,0" BorderThickness="0" Background="Transparent"/>
+                        </Border>
+                        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="White" Text="提示词"/>
+                        <Border Margin="5,0,5,10" Grid.Column="1" Padding="1,5" MinHeight="28" BorderThickness="1" BorderBrush="White" Height="25" CornerRadius="12.5" >
+                            <TextBox Foreground="White" Text="{Binding UserPrompt}" CaretBrush="White" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" Margin="5,0" BorderThickness="0" Background="Transparent"/>
+                        </Border>
+                        <StackPanel Margin="0,5,0,0" DataContext="{Binding TranslatePrams}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="5"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="5"/>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="5"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
+                                    <GroupBox.Header>
+                                        <TextBlock Text="MaxTokens" Foreground="White" FontSize="10"/>
+                                    </GroupBox.Header>
+                                    <Grid Margin="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="8192" Minimum="1" Value="{Binding MaxTokens}" Ticks="16 32 64 128 256 512 1024 1536 2048 2560 3072 3584 4096 4608 5120 5632 6114 6656 7168 7680 8192" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                        <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding MaxTokens}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
+                                    <GroupBox.Header>
+                                        <TextBlock Text="Temperature" Foreground="White" FontSize="10"/>
+                                    </GroupBox.Header>
+                                    <Grid Margin="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="0" Value="{Binding Temperature}" Ticks="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                        <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedDecimal" CaretBrush="White" Text="{Binding Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="2">
+                                    <GroupBox.Header>
+                                        <TextBlock Text="Frequency Penalty" Foreground="White" FontSize="10"/>
+                                    </GroupBox.Header>
+                                    <Grid Margin="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                        <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2" Grid.Row="2">
+                                    <GroupBox.Header>
+                                        <TextBlock Text="Presence Penalty" Foreground="White" FontSize="10"/>
+                                    </GroupBox.Header>
+                                    <Grid Margin="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding PresencePenalty}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                        <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding PresencePenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="4">
+                                    <GroupBox.Header>
+                                        <TextBlock Text="Top P" Foreground="White" FontSize="10"/>
+                                    </GroupBox.Header>
+                                    <Grid Margin="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="1" Minimum="0" Value="{Binding TopP}" Ticks="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                        <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding TopP}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                                    </Grid>
+                                </GroupBox>
+                            </Grid>
+                            <Rectangle Height="1" Fill="Gray" Margin="-5,10,-5,5"/>
+                            <TextBlock Margin="5,0,0,0" Text="终结符" Foreground="White"/>
+                            <Rectangle  Height="1" Margin="5,5,160,5" Fill="Gray"/>
+                            <TextBox Margin="5,0,0,0" Background="Transparent" BorderThickness="0" AcceptsReturn="True" Foreground="White" TextWrapping="Wrap" CaretBrush="White" MinHeight="30" Text="{Binding Stops,Converter={StaticResource TranslateStopsParams}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

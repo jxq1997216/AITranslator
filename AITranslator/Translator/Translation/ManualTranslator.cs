@@ -19,7 +19,11 @@ namespace AITranslator.Translator.Translation
             _communicator = ViewModelManager.ViewModel.CommunicatorType switch
             {
                 CommunicatorType.LLama => new LLamaCommunicator(),
-                CommunicatorType.OpenAI => new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"), ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey),
+                CommunicatorType.OpenAI => new OpenAICommunicator(
+                    new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"),
+                    ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey,
+                    ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model,
+                    ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ExpendedParams),
                 _ => throw ExceptionThrower.InvalidCommunicator,
             };
         }
@@ -36,21 +40,20 @@ namespace AITranslator.Translator.Translation
         /// <param name="frequencyPenalty">频率惩罚</param>
         /// <returns>翻译完成的字符串</returns>
         /// <exception cref="KnownException">出现的已知错误</exception>
-        public string Translate(string str, double temperature, double frequency_penalty)
+        public string Translate(string str, string systemPrompt, string userPrompt, ViewModel_TranslatePrams param)
         {
-            PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
-            {
-                CommunicatorType.LLama => new LLamaPostData(),
-                CommunicatorType.OpenAI => new OpenAIPostData() { model = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model },
-                _ => throw ExceptionThrower.InvalidCommunicator,
-            };
+            PostDataBase postData = new PostDataBase();
 
-            postData.temperature = temperature;
-            postData.frequency_penalty = frequency_penalty;
+            ExampleDialogue[] examples = [new ExampleDialogue("system", systemPrompt)];
+            postData.max_tokens = (int)param.MaxTokens;
+            postData.temperature = param.Temperature;
+            postData.frequency_penalty = param.FrequencyPenalty;
+            postData.presence_penalty = param.PresencePenalty;
+            postData.top_p = param.TopP;
+            postData.stop = new string[param.Stops.Count];
+            param.Stops.CopyTo(postData.stop, 0);
 
-            postData.max_tokens = str.Length;
-
-            string str_result = _communicator.Translate(postData, Array.Empty<ExampleDialogue>(), Array.Empty<ExampleDialogue>(), $"将下面的文本翻译成中文：{str}",out double speed);
+            string str_result = _communicator.Translate(postData, examples, Array.Empty<ExampleDialogue>(), $"{userPrompt}{str}", out double speed);
             return str_result;
         }
         public void Dispose()

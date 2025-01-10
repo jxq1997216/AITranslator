@@ -50,6 +50,12 @@ namespace AITranslator.Translator.Translation
         }
     }
 
+    public enum TryTranslateType
+    {
+        Mult,
+        Single,
+        Retry
+    }
     public abstract class TranslatorBase
     {
         /// <summary>
@@ -144,7 +150,11 @@ namespace AITranslator.Translator.Translation
                     _communicator = ViewModelManager.ViewModel.CommunicatorType switch
                     {
                         CommunicatorType.LLama => new LLamaCommunicator(),
-                        CommunicatorType.OpenAI => new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"), ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey),
+                        CommunicatorType.OpenAI => new OpenAICommunicator(
+                            new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"),
+                            ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey,
+                            ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model,
+                            ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ExpendedParams),
                         _ => throw ExceptionThrower.InvalidCommunicator,
                     };
                     TranslateData.GetUntranslatedData();
@@ -342,7 +352,7 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         /// <param name="mergeValues">合并后的待翻译字符串列表</param>
         /// <returns>翻译完成的字符串列表</returns>
-        internal string[] Translate_Mult(List<string> mergeValues, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
+        internal string[] Translate_Mult(List<string> mergeValues, bool useHistory)
         {
             List<Dictionary<string, List<double>>> positions_list = new List<Dictionary<string, List<double>>>();
             List<string> processed_texts = new List<string>();
@@ -354,7 +364,7 @@ namespace AITranslator.Translator.Translation
             }
 
             string str_join = string.Join('\n', processed_texts);
-            string str_result = TryTranslate(str_join, _example[^1].content! + "\n", useHistory, maxTokens, temperature, frequencyPenalty);
+            string str_result = TryTranslate(str_join, _example[^1].content! + "\n", useHistory, TryTranslateType.Mult);
 
             //如果返回结果的换行符数量不一致，调用逐句翻译模式
             string[] strs_result = str_result.Split('\n');
@@ -376,18 +386,18 @@ namespace AITranslator.Translator.Translation
         /// <param name="temperature">温度</param>
         /// <param name="frequencyPenalty">频率惩罚</param>
         /// <returns>翻译完成的字符串</returns>
-        internal string Translate_Single(string value, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
+        internal string Translate_Single(string value, bool useHistory, bool retry)
         {
             (Dictionary<string, List<double>>, string) result = value.CalculateNewlinePositions(escapeChars);
             Dictionary<string, List<double>> positions = result.Item1;
             string processed_texts = result.Item2;
-            string str_result = TryTranslate(processed_texts, _example[^1].content!, useHistory, maxTokens, temperature, frequencyPenalty).InsertNewlines(positions);
+            string str_result = TryTranslate(processed_texts, _example[^1].content!, useHistory, retry ? TryTranslateType.Retry : TryTranslateType.Single).InsertNewlines(positions);
             return str_result;
         }
 
-        internal string Translate_NoResetNewline(string value, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
+        internal string Translate_NoResetNewline(string value, bool useHistory, TryTranslateType type)
         {
-            string str_result = TryTranslate(value, _example[^1].content!, useHistory, maxTokens, temperature, frequencyPenalty);
+            string str_result = TryTranslate(value, _example[^1].content!, useHistory, type);
             return str_result;
         }
 
@@ -401,26 +411,53 @@ namespace AITranslator.Translator.Translation
         /// <param name="frequencyPenalty">频率惩罚</param>
         /// <returns>翻译完成的字符串</returns>
         /// <exception cref="KnownException">出现的已知错误</exception>
-        internal string TryTranslate(string str, string prompt_with_text, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
+        internal string TryTranslate(string str, string prompt_with_text, bool useHistory, TryTranslateType type)
         {
             ExampleDialogue[] headers = _example[..^1];
-            ExampleDialogue[] history = useHistory ? _history.ToArray() : Array.Empty<ExampleDialogue>();
+            ExampleDialogue[] histories = useHistory ? _history.ToArray() : Array.Empty<ExampleDialogue>();
 
-            PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
-            {
-                CommunicatorType.LLama => new LLamaPostData(),
-                CommunicatorType.OpenAI => new OpenAIPostData() { model = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model },
-                _ => throw ExceptionThrower.InvalidCommunicator,
-            };
+         
+            ViewModel_TranslatePrams? param = GetTranslatePrams(type);
+            if (param is null)
+                throw new KnownException("未配置翻译参数！请先前往高级参数配置翻译所需的参数");
 
+            PostDataBase postData = new PostDataBase();
+            postData.temperature = param.Temperature;
+            postData.frequency_penalty = param.FrequencyPenalty;
+            postData.max_tokens = (int)param.MaxTokens;
+            postData.top_p = param.TopP;
+            postData.presence_penalty = param.PresencePenalty;
+            postData.stop = param.Stops.ToArray();
 
-            postData.temperature = temperature;
-            postData.frequency_penalty = frequencyPenalty;
-            postData.max_tokens = maxTokens;
-
-            string str_result = _communicator.Translate(postData, headers, history, $"{prompt_with_text}{str}", out double speed);
+            string str_result = _communicator.Translate(postData, headers, histories, $"{prompt_with_text}{str}", out double speed);
             _translationTask.Speed = speed;
             return str_result;
+        }
+
+        ViewModel_TranslatePrams? GetTranslatePrams(TryTranslateType type)
+        {
+
+            ViewModel_DefaultTemplate? defaultTemplate = Type switch
+            {
+                TranslateDataType.KV => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_MTool,
+                TranslateDataType.Tpp => null,
+                TranslateDataType.Srt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Srt,
+                TranslateDataType.Txt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Txt,
+                _ => null
+            };
+
+            if (defaultTemplate is null)
+                return null;
+
+            ViewModel_TranslatePrams? transParams = type switch
+            {
+                TryTranslateType.Single => defaultTemplate.TranslatePrams_FirstSingle,
+                TryTranslateType.Mult => defaultTemplate.TranslatePrams_FirstMult,
+                TryTranslateType.Retry => defaultTemplate.TranslatePrams_Retry,
+                _ => null,
+            };
+
+            return transParams;
         }
     }
 }

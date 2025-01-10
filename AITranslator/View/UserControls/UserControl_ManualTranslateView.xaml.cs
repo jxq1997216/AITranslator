@@ -27,15 +27,20 @@ namespace AITranslator.View.UserControls
     public partial class UserControl_ManualTranslateView : UserControl
     {
         /// <summary>
-        /// 温度
+        /// 人设
         /// </summary>
         [ObservableProperty]
-        private double temperature = 0.7;
+        private string systemPrompt = "你是一个翻译模型，可以流畅通顺地将任何语言翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
         /// <summary>
-        /// 频率惩罚
+        /// 提示词
         /// </summary>
         [ObservableProperty]
-        private double frequencyPenalty;
+        private string userPrompt = "将下面的文本翻译成中文：";
+        /// <summary>
+        /// 手动翻译的参数
+        /// </summary>
+        [ObservableProperty]
+        private ViewModel_TranslatePrams translatePrams = new ViewModel_TranslatePrams(200, 0.7, 0, "\n###", "\n\n", "[PAD151645]", "<|im_end|>");
 
         public UserControl_ManualTranslateView()
         {
@@ -53,7 +58,7 @@ namespace AITranslator.View.UserControls
             try
             {
                 _translator = new ManualTranslator();
-                tb_output.Text = await Task.Run(() => _translator.Translate(input, Temperature, FrequencyPenalty));
+                tb_output.Text = await Task.Run(() => _translator.Translate(input, SystemPrompt, UserPrompt, TranslatePrams));
             }
             catch (KnownException err)
             {

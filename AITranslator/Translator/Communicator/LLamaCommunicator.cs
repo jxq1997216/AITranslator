@@ -49,6 +49,13 @@ namespace AITranslator.Translator.Communicator
             else
                 llamaPath += "llama.dll";
             NativeLibraryConfig.LLama.WithLibrary(llamaPath);
+            NativeLibraryConfig.LLama.WithLogCallback(PrintLog);
+        }
+
+
+        static void PrintLog(LLamaLogLevel level, string message)
+        {
+            Debug.Write(message);
         }
 
         static CancellationTokenSource _cts;
@@ -180,7 +187,6 @@ namespace AITranslator.Translator.Communicator
         public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText, out double speed)
         {
             speed = 0;
-            LLamaPostData _postData = (postData as LLamaPostData)!;
             CancellationToken token = _cts.Token;
 
             Message[] _headers = new Message[headers.Length];
@@ -194,19 +200,7 @@ namespace AITranslator.Translator.Communicator
                 _histories.Add(ExampleDialogueToMessage(history));
 
 
-            InferenceParams inferenceParams = new InferenceParams
-            {
-                SamplingPipeline = new DefaultSamplingPipeline
-                {
-                    Temperature = (float)_postData.temperature,
-                    AlphaFrequency = (float)_postData.frequency_penalty,
-                    AlphaPresence = (float)_postData.presence_penalty,
-                    TopP = (float)_postData.top_p,
-                },
-
-                AntiPrompts = _postData.stop,
-                MaxTokens = _postData.max_tokens,
-            };
+            InferenceParams inferenceParams = new PostDataNormal() { Base = postData }.ToInferenceParams();
 
             string str = string.Empty;
             bool noKvSlotError = false;

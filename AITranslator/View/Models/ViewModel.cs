@@ -122,6 +122,7 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private ViewModel_AdvancedView advancedView_ViewModel = new ViewModel_AdvancedView();
+
         //UI线程
         internal Dispatcher Dispatcher;
 

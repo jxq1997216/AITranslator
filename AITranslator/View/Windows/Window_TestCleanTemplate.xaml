@@ -9,7 +9,7 @@
         xmlns:controls="clr-namespace:AITranslator.View.Controls"
         mc:Ignorable="d"
         DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
-        Title="Confirm Clear" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
+        Title="Test" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
     <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">

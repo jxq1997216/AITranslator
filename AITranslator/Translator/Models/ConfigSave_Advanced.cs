@@ -10,6 +10,7 @@ using System.Net.Mail;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace AITranslator.Translator.Models
 {
@@ -40,9 +41,13 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public int HistoryCount { get; set; }
         /// <summary>
-        /// 初次翻译的参数
+        /// 合并翻译的参数
         /// </summary>
-        public ConfigSave_TranslatePrams TranslatePrams_First { get; set; } = new ConfigSave_TranslatePrams();
+        public ConfigSave_TranslatePrams TranslatePrams_FirstMult { get; set; } = new ConfigSave_TranslatePrams();
+        /// <summary>
+        /// 逐句翻译的参数
+        /// </summary>
+        public ConfigSave_TranslatePrams TranslatePrams_FirstSingle { get; set; } = new ConfigSave_TranslatePrams();
         /// <summary>
         /// 重试翻译的参数
         /// </summary>
@@ -56,27 +61,21 @@ namespace AITranslator.Translator.Models
             VerificationTemplate = vm.VerificationTemplate?.Name;
             CleanTemplate = vm.CleanTemplate?.Name;
             HistoryCount = vm.HistoryCount;
-            TranslatePrams_First.CopyFromViewModel(vm.TranslatePrams_First);
+            TranslatePrams_FirstMult.CopyFromViewModel(vm.TranslatePrams_FirstMult);
+            TranslatePrams_FirstSingle.CopyFromViewModel(vm.TranslatePrams_FirstSingle);
             TranslatePrams_Retry.CopyFromViewModel(vm.TranslatePrams_Retry);
         }
 
-        public void CopyToViewModel(ViewModel_DefaultTemplate vm,
-            string defaultTemplateDic,
-            string defaultPrompt,
-            string defaultReplace,
-            string defaultVerification,
-            string defaultClean,
-            double defaultFirstTemperature,
-            double defaultFirstFrequencyPenalty,
-            double defaultRetryTemperature,
-            double defaultRetryFrequencyPenalty
-            )
+        public void CopyToViewModel(ViewModel_DefaultTemplate vm)
         {
-            TranslatePrams_First.CopyToViewModel(vm.TranslatePrams_First, defaultFirstTemperature, defaultFirstFrequencyPenalty);
-            TranslatePrams_Retry.CopyToViewModel(vm.TranslatePrams_Retry, defaultRetryTemperature, defaultRetryFrequencyPenalty);
+            TranslatePrams_FirstMult.CopyToViewModel(vm.TranslatePrams_FirstMult);
+            TranslatePrams_FirstSingle.CopyToViewModel(vm.TranslatePrams_FirstSingle);
+            TranslatePrams_Retry.CopyToViewModel(vm.TranslatePrams_Retry);
+            if (HistoryCount is default(int))
+                HistoryCount = vm._defaultHistoryCount;
             vm.HistoryCount = HistoryCount;
             if (TemplateDic is null)
-                TemplateDic = defaultTemplateDic;
+                TemplateDic = vm._defaultTemplateDic;
             if (!Directory.Exists($"{PublicParams.TemplatesDic}/{TemplateDic}"))
             {
                 vm.TemplateDic = null;
@@ -97,10 +96,10 @@ namespace AITranslator.Translator.Models
                 return;
             }
 
-            vm.PromptTemplate = CopyDefaultTemplateViewModel(PromptTemplate, defaultPrompt, TemplateType.Prompt, vm.TemplateDic.PromptTemplate);
-            vm.ReplaceTemplate = CopyDefaultTemplateViewModel(ReplaceTemplate, defaultReplace, TemplateType.Replace, vm.TemplateDic.ReplaceTemplate);
-            vm.VerificationTemplate = CopyDefaultTemplateViewModel(VerificationTemplate, defaultVerification, TemplateType.Verification, vm.TemplateDic.VerificationTemplate);
-            vm.CleanTemplate = CopyDefaultTemplateViewModel(CleanTemplate, defaultClean, TemplateType.Clean, vm.TemplateDic.CleanTemplate);
+            vm.PromptTemplate = CopyDefaultTemplateViewModel(PromptTemplate, vm._defaultPrompt, TemplateType.Prompt, vm.TemplateDic.PromptTemplate);
+            vm.ReplaceTemplate = CopyDefaultTemplateViewModel(ReplaceTemplate, vm._defaultReplace, TemplateType.Replace, vm.TemplateDic.ReplaceTemplate);
+            vm.VerificationTemplate = CopyDefaultTemplateViewModel(VerificationTemplate, vm._defaultVerification, TemplateType.Verification, vm.TemplateDic.VerificationTemplate);
+            vm.CleanTemplate = CopyDefaultTemplateViewModel(CleanTemplate, vm._defaultClean, TemplateType.Clean, vm.TemplateDic.CleanTemplate);
         }
 
         Template? CopyDefaultTemplateViewModel(string? templateName, string defaultTemplate, TemplateType type, ObservableCollection<Template> templates)
@@ -150,18 +149,25 @@ namespace AITranslator.Translator.Models
             TopP = vm.TopP;
             Stops = vm.Stops.ToArray();
         }
-        public void CopyToViewModel(ViewModel_TranslatePrams vm, double defaultTemperature, double defaultFrequencyPenalty)
+        public void CopyToViewModel(ViewModel_TranslatePrams vm)
         {
+            if (MaxTokens is default(uint))
+                MaxTokens = vm._defaultMaxTokens;
             vm.MaxTokens = MaxTokens;
+
             if (Temperature is default(double))
-                Temperature = defaultTemperature;
+                Temperature = vm._defaultTemperature;
             vm.Temperature = Temperature;
+
             if (FrequencyPenalty is default(double))
-                FrequencyPenalty = defaultFrequencyPenalty;
+                FrequencyPenalty = vm._defaultFrequencyPenalty;
             vm.FrequencyPenalty = FrequencyPenalty;
+
             vm.PresencePenalty = PresencePenalty;
             vm.TopP = TopP;
-            vm.Stops = new ObservableCollection<string>(Stops ?? Array.Empty<string>());
+            if (Stops is null)
+                Stops = vm._defaultStops;
+            vm.Stops = new ObservableCollection<string>(Stops);
         }
     }
     public class ConfigSave_Advanced
@@ -194,10 +200,10 @@ namespace AITranslator.Translator.Models
 
         public void CopyToViewModel(ViewModel_AdvancedView vm)
         {
-            Template_MTool.CopyToViewModel(vm.Template_MTool, "日文→中文", "游戏", "空", "游戏", "游戏", 0.6, 0, 0.1, 0.15);
-            Template_Tpp.CopyToViewModel(vm.Template_Tpp, "日文→中文", "游戏", "空", "游戏", "游戏", 0.6, 0, 0.1, 0.15);
-            Template_Srt.CopyToViewModel(vm.Template_Srt, "日文→中文", "其他", "空", "字幕", "默认", 0.6, 0, 0.1, 0.15);
-            Template_Txt.CopyToViewModel(vm.Template_Txt, "日文→中文", "其他", "空", "文本", "不清理", 0.2, 0, 0.2, 0);
+            Template_MTool.CopyToViewModel(vm.Template_MTool);
+            Template_Tpp.CopyToViewModel(vm.Template_Tpp);
+            Template_Srt.CopyToViewModel(vm.Template_Srt);
+            Template_Txt.CopyToViewModel(vm.Template_Txt);
         }
     }
 }

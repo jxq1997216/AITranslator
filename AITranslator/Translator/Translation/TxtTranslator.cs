@@ -71,11 +71,11 @@ namespace AITranslator.Translator.Translation
                     string[] results;
                     string sourceData;
                     if (mergeValues.Count == 1)//进行单句翻译
-                        results = new string[] { Translate_NoResetNewline(mergeValues[0], true, 600, 0.2, 0) };
+                        results = new string[] { Translate_NoResetNewline(mergeValues[0], true, TryTranslateType.Single) };
                     else
                     {
                         sourceData = string.Join('\n', mergeValues);
-                        string result_mult = Translate_NoResetNewline(sourceData, true, 1024, 0.2, 0);
+                        string result_mult = Translate_NoResetNewline(sourceData, true, TryTranslateType.Mult);
                         results = result_mult.Split('\n');
                     }
 
@@ -85,13 +85,13 @@ namespace AITranslator.Translator.Translation
                         for (int i = 0; i < mergeValues.Count; i++)
                         {
                             //单句翻译
-                            string result_single = Translate_NoResetNewline(mergeValues[i], true, 600, 0.2, 0);
+                            string result_single = Translate_NoResetNewline(mergeValues[i], true, TryTranslateType.Single);
                             //检测翻译结果是否通过
                             if (!Verification(mergeValues[i], result_single, out string error))
                             {
                                 ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
                                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，正在尝试重新翻译...");
-                                result_single = Translate_NoResetNewline(mergeValues[i], true, 600, 0.1, 0);
+                                result_single = Translate_NoResetNewline(mergeValues[i], true, TryTranslateType.Retry);
                                 if (!Verification(mergeValues[i], result_single, out error))
                                 {
                                     ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
@@ -129,7 +129,7 @@ namespace AITranslator.Translator.Translation
                             {
                                 ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
                                 ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，正在尝试重新翻译...");
-                                result_single = Translate_NoResetNewline(mergeValues[i], true, 600, 0.1, 0);
+                                result_single = Translate_NoResetNewline(mergeValues[i], true, TryTranslateType.Retry);
                                 if (!Verification(mergeValues[i], result_single, out error))
                                 {
                                     ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);

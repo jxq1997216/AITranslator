@@ -13,13 +13,11 @@ namespace AITranslator.View.Models
         /// <summary>
         /// 模型名称
         /// </summary>
-        [Required(ErrorMessage = "必须输入模型名称！")]
         [ObservableProperty]
         private string model;
         /// <summary>
         /// API密钥
         /// </summary>
-        [Required(ErrorMessage = "必须输入API密钥！")]
         [ObservableProperty]
         private string apiKey;
         /// <summary>

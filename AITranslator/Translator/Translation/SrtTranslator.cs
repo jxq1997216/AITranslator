@@ -57,13 +57,13 @@ namespace AITranslator.Translator.Translation
                 foreach (var kv_replace in _replaces)
                     source = source.Replace(kv_replace.Key, kv_replace.Value);
 
-                string result_single = Translate_NoResetNewline(source, true, 150, 0.6, 0);
+                string result_single = Translate_NoResetNewline(source, true, TryTranslateType.Single);
 
-                if (!Verification(source, result_single,out string error))
+                if (!Verification(source, result_single, out string error))
                 {
                     ViewModelManager.WriteLine($"\r\n" + source + "\r\n" + "    ⬇" + "\r\n" + result_single);
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，正在尝试重新翻译...");
-                    result_single = Translate_NoResetNewline(source, true, 150, 0.1, 0.15);
+                    result_single = Translate_NoResetNewline(source, true, TryTranslateType.Retry);
                     if (!Verification(source, result_single, out error))
                     {
                         SrtData faildData = value.Clone();
