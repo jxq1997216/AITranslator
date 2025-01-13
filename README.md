@@ -25,3 +25,6 @@
 - [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) 
 - [H.NotifyIcon](https://github.com/HavenDV/H.NotifyIcon) 
 - [CalcBinding](https://github.com/Alex141/CalcBinding) 
+
+## License
+本项目基于[GPL-3.0 License](LICENSE)发布，您如果基于此项目进行修改和分发，必须保持开源
