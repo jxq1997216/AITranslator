@@ -19,6 +19,7 @@
 
 #### 开源声明
 项目使用到了以下开源库
+
 [LLamaSharp](https://github.com/SciSharp/LLamaSharp)
 [CommunityToolkit](https://github.com/CommunityToolkit/dotnet)
 [roslyn](https://github.com/dotnet/roslyn)
