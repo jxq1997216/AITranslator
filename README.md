@@ -19,9 +19,9 @@
 
 #### 开源声明
 项目使用到了以下开源库
-[LLamaSharp](https://github.com/SciSharp/LLamaSharp) 
-[CommunityToolkit](https://github.com/CommunityToolkit/dotnet) 
-[roslyn](https://github.com/dotnet/roslyn) 
-[Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) 
-[H.NotifyIcon](https://github.com/HavenDV/H.NotifyIcon) 
-[CalcBinding](https://github.com/Alex141/CalcBinding) 
+- [LLamaSharp](https://github.com/SciSharp/LLamaSharp) 
+- [CommunityToolkit](https://github.com/CommunityToolkit/dotnet) 
+- [roslyn](https://github.com/dotnet/roslyn) 
+- [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) 
+- [H.NotifyIcon](https://github.com/HavenDV/H.NotifyIcon) 
+- [CalcBinding](https://github.com/Alex141/CalcBinding) 
