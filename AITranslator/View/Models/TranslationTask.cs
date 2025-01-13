@@ -8,17 +8,21 @@ using AITranslator.Translator.Translation;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CsvHelper.Configuration;
+using CsvHelper;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using static System.Net.Mime.MediaTypeNames;
 using FileLoadException = AITranslator.Exceptions.FileLoadException;
 
 namespace AITranslator.View.Models
@@ -149,29 +153,39 @@ namespace AITranslator.View.Models
         /// </summary>
         /// <param name="file"></param>
         /// <exception cref="KnownException"></exception>
-        public TranslationTask(FileInfo file)
+        public TranslationTask(TranslateDataType type, string path, string fileName)
         {
             ViewModel_DefaultTemplate? defaultTemplate;
-            switch (file.Extension)
+            TranslateType = type;
+            switch (TranslateType)
             {
-                case ".json":
-                    TranslateType = TranslateDataType.KV;
+                case TranslateDataType.KV:
                     defaultTemplate = ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_MTool;
-                    Dictionary<string, string> kvSource = JsonPersister.Load<Dictionary<string, string>>(file.FullName);
+                    Dictionary<string, string> kvSource = JsonPersister.Load<Dictionary<string, string>>(path);
                     DicName = CreateRandomDic();
                     JsonPersister.Save(kvSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
                     break;
-                case ".srt":
-                    TranslateType = TranslateDataType.Srt;
+                case TranslateDataType.Tpp:
+                    defaultTemplate = ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Tpp;
+
+                    Dictionary<string, Dictionary<string, string?>> csvDicDatas = CsvPersister.LoadFromFolder(path);
+                    if (csvDicDatas.Count == 0)
+                        throw new KnownException("无效的文件夹，请确保是Translator++导出的包含csv文件的文件夹");
+
+                    DicName = CreateRandomDic();
+
+                    string sourceDicName = PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source);
+                    CsvPersister.SaveToFolder(sourceDicName, csvDicDatas);
+                    break;
+                case TranslateDataType.Srt:
                     defaultTemplate = ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Srt;
-                    Dictionary<int, SrtData> srtSource = SrtPersister.Load(file.FullName);
+                    Dictionary<int, SrtData> srtSource = SrtPersister.Load(path);
                     DicName = CreateRandomDic();
                     SrtPersister.Save(srtSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
                     break;
-                case ".txt":
-                    TranslateType = TranslateDataType.Txt;
+                case TranslateDataType.Txt:
                     defaultTemplate = ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Txt;
-                    List<string> txtSource = TxtPersister.Load(file.FullName);
+                    List<string> txtSource = TxtPersister.Load(path);
                     DicName = CreateRandomDic();
                     TxtPersister.Save(txtSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
                     break;
@@ -179,7 +193,8 @@ namespace AITranslator.View.Models
                     throw new KnownException("不支持的翻译文件类型");
             }
 
-            FileName = file.Name;
+
+            FileName = fileName;
             TemplateDic = defaultTemplate.TemplateDic?.Name;
             if (TemplateDic is null)
                 throw new DicNotFoundException("模板文件夹未设置，请先前往高级参数设置此类翻译任务的模板文件夹");
@@ -295,6 +310,9 @@ namespace AITranslator.View.Models
                         case TranslateDataType.KV:
                             KVTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
                             break;
+                        case TranslateDataType.Tpp:
+                            TppTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
+                            break;
                         case TranslateDataType.Srt:
                             SrtTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
                             break;
@@ -352,6 +370,7 @@ namespace AITranslator.View.Models
             return TranslateType switch
             {
                 TranslateDataType.KV => KVTranslateData.HasFailedData(DicName),
+                TranslateDataType.Tpp => TppTranslateData.HasFailedData(DicName),
                 TranslateDataType.Srt => SrtTranslateData.HasFailedData(DicName),
                 TranslateDataType.Txt => TxtTranslateData.HasFailedData(DicName),
                 _ => throw new KnownException("不支持的翻译文件类型"),
@@ -377,6 +396,7 @@ namespace AITranslator.View.Models
             _translator = TranslateType switch
             {
                 TranslateDataType.KV => new KVTranslator(this),
+                TranslateDataType.Tpp => new TppTranslator(this),
                 TranslateDataType.Srt => new SrtTranslator(this),
                 TranslateDataType.Txt => new TxtTranslator(this),
                 _ => throw new KnownException("不支持的翻译文件类型"),

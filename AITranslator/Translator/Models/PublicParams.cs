@@ -133,6 +133,15 @@ namespace AITranslator.Translator.Models
                         GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.json",
                         _ => throw new KnownException("无效的存储文件类型")
                     };
+                case TranslateDataType.Tpp:
+                    return FileType switch
+                    {
+                        GenerateFileType.Source => $"{TranslatedDataDic}/{dicName}/原始数据",
+                        GenerateFileType.Cleaned => $"{TranslatedDataDic}/{dicName}/清理后的数据.json",
+                        GenerateFileType.Successful => $"{TranslatedDataDic}/{dicName}/翻译成功.json",
+                        GenerateFileType.Failed => $"{TranslatedDataDic}/{dicName}/翻译失败.json",
+                        _ => throw new KnownException("无效的存储文件类型")
+                    };
                 default:
                     throw new KnownException("不支持的翻译文件类型");
             }

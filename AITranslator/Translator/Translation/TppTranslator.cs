@@ -29,15 +29,15 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AITranslator.Translator.Translation
 {
-    public class KVTranslator : TranslatorBase
+    public class TppTranslator : TranslatorBase
     {
         public override TranslateDataType Type => Data is null ? TranslateDataType.Unknow : Data.Type;
 
-        public KVTranslateData Data => (TranslateData as KVTranslateData)!;
+        public TppTranslateData Data => (TranslateData as TppTranslateData)!;
 
         internal override int FailedDataCount => Data.Dic_Failed!.Count;
 
-        public KVTranslator(TranslationTask task) : base(task) { }
+        public TppTranslator(TranslationTask task) : base(task) { }
         internal override void LoadHistory()
         {
             //添加历史记录
@@ -94,11 +94,11 @@ namespace AITranslator.Translator.Translation
                             {
                                 Data.Dic_Successful[mergeKeys[i]] = result_single;
                                 SaveSuccessfulFile();
-                                ViewModelManager.WriteLine($"\r\n" + mergeKeys[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
                             }
                             else
                             {
-                                Data.Dic_Failed[mergeKeys[i]] = result_single;
+                                Data.Dic_Failed[mergeValues[i]] = result_single;
                                 SaveFailedFile();
                             }
 
@@ -116,7 +116,7 @@ namespace AITranslator.Translator.Translation
                             {
                                 Data.Dic_Successful[mergeKeys[i]] = result_single;
                                 SaveSuccessfulFile();
-                                ViewModelManager.WriteLine($"\r\n" + mergeKeys[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
                             }
                             else
                             {
@@ -142,7 +142,7 @@ namespace AITranslator.Translator.Translation
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
             _translationTask.State = TaskState.Merging;
             Data.ReloadData();
-            Dictionary<string, string> dic_Merge = new Dictionary<string, string>();
+            Dictionary<string, string?> dic_Merge = new Dictionary<string, string?>();
             foreach (var key in Data.Dic_Source.Keys)
             {
                 if (Data.Dic_Successful.ContainsKey(key))
@@ -150,7 +150,7 @@ namespace AITranslator.Translator.Translation
                 else if (Data.Dic_Failed.ContainsKey(key))
                     dic_Merge[key] = Data.Dic_Failed[key];
             }
-            JsonPersister.Save(dic_Merge, PublicParams.GetFileName(Data, GenerateFileType.Merged));
+            CsvPersister.SaveMergeDicToFolder(PublicParams.GetFileName(Data, GenerateFileType.Merged), dic_Merge);
             _translationTask.State = TaskState.Completed;
             _translationTask.SaveConfig();
         }

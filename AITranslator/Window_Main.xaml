@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AITranslator"
         xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
         xmlns:vm="clr-namespace:AITranslator.View.Models" 
         xmlns:uc="clr-namespace:AITranslator.View.UserControls" 
@@ -157,15 +158,31 @@
                             <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_TranslatingView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="▶" ToolTip="全部开始" Command="{Binding StartAllCommand}"/>
                                 <controls:ViewButton Margin="0,0,3,0" Width="32" Height="32" Content="‖" ToolTip="全部暂停" Command="{Binding PauseAllCommand}"/>
-                                <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="新建任务" Command="{Binding AddTaskCommand}">
-                                    <controls:ViewButton.Content>
+                                <controls:CheckButton x:Name="cb_AddNewTask" IsChecked="{Binding AddTaskPopupShow}" Margin="0,0,5,0" Width="64" Height="32" ToolTip="新建任务">
+                                    <controls:CheckButton.Content>
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBlock VerticalAlignment="Center" Margin="0,0,5,2" FontSize="18" Text="+"/>
                                             <TextBlock VerticalAlignment="Center" Text="新建"/>
                                         </StackPanel>
-                                    </controls:ViewButton.Content>
-                                </controls:ViewButton>
+                                    </controls:CheckButton.Content>
+                                </controls:CheckButton>
                             </StackPanel>
+
+                            <Popup StaysOpen="False" AllowsTransparency="True" Placement="Bottom" PopupAnimation="Slide" PlacementTarget="{Binding ElementName=cb_AddNewTask}" IsOpen="{Binding ElementName=cb_AddNewTask,Path=IsChecked, Mode=OneWay}">
+                                <behaviors:Interaction.Triggers>
+                                    <behaviors:EventTrigger EventName="Closed">
+                                        <behaviors:InvokeCommandAction Command="{Binding CloseAddTaskPopupCommand}"/>
+                                    </behaviors:EventTrigger>
+                                </behaviors:Interaction.Triggers>
+
+                                <Border Width="{Binding  ActualWidth,ElementName=cb_AddNewTask}" Background="#FF1C2431" BorderBrush="#FFAAAAAA" CornerRadius="1" BorderThickness="1">
+                                    <StackPanel>
+                                        <controls:ViewButton Height="24" FontSize="11" Content="文件" ToolTip="从文件创建翻译任务，支持json/srt/txt文件" Command="{Binding AddTaskFromFileCommand}"/>
+                                        <Rectangle Height="1" Fill="#FFAAAAAA"/>
+                                        <controls:ViewButton Height="24" FontSize="11" Content="文件夹" ToolTip="从文件夹创建翻译任务，支持T++导出的文件" Command="{Binding AddTaskFromFolderCommand}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Popup>
 
                             <StackPanel Margin="0,0,5,0" Visibility="{calc:Binding IsChecked,ElementName=rb_CompletedView,FalseToVisibility=Collapsed}" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <controls:ViewButton Margin="0,0,5,0" Width="64" Height="32" ToolTip="删除全部" Command="{Binding RemoveAllCommand}">

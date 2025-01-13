@@ -33,6 +33,32 @@ namespace AITranslator.Translator.Pretreatment
         /// <param name="isEnglish"></param>
         /// <param name="dic_block"></param>
         /// <returns></returns>
+        public static Dictionary<string, Dictionary<string, string?>> Pretreatment(this Dictionary<string, Dictionary<string, string?>> input, string scriptPath)
+        {
+            Dictionary<string, Dictionary<string, string?>> output = new Dictionary<string, Dictionary<string, string?>>();
+            Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
+            StrClearScriptInput strClearScriptInput = new StrClearScriptInput();
+
+            foreach (var kv in input)
+            {
+                output[kv.Key] = new Dictionary<string, string?>();
+                foreach (var key in kv.Value.Keys)
+                {
+                    strClearScriptInput.Str = key;
+                    if (!clearScript.RunAsync(strClearScriptInput).Result.ReturnValue)
+                        output[kv.Key][key] = key.Normalize(NormalizationForm.FormKC);//标准化字符串格式
+                }
+            }
+
+            return output;
+        }
+        /// <summary>
+        /// 对要被翻译的数据进行提前的清理和预处理
+        /// </summary>
+        /// <param name="input">要被翻译的数据</param>
+        /// <param name="isEnglish"></param>
+        /// <param name="dic_block"></param>
+        /// <returns></returns>
         public static Dictionary<string, string> Pretreatment(this Dictionary<string, string> input, string scriptPath)
         {
             Dictionary<string, string> output = new Dictionary<string, string>();

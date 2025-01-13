@@ -4,6 +4,7 @@ using AITranslator.Translator.Tools;
 using AITranslator.Translator.TranslateData;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;

@@ -22,12 +22,14 @@
 
 #### 开源声明
 项目使用到了以下开源库
-- [LLamaSharp](https://github.com/SciSharp/LLamaSharp) 
-- [CommunityToolkit](https://github.com/CommunityToolkit/dotnet) 
-- [roslyn](https://github.com/dotnet/roslyn) 
-- [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) 
-- [H.NotifyIcon](https://github.com/HavenDV/H.NotifyIcon) 
-- [CalcBinding](https://github.com/Alex141/CalcBinding) 
+- [LLamaSharp](https://github.com/SciSharp/LLamaSharp)
+- [CommunityToolkit](https://github.com/CommunityToolkit/dotnet)
+- [Microsoft.Xaml.Behaviors.Wpf](https://github.com/Microsoft/XamlBehaviorsWpf)
+- [roslyn](https://github.com/dotnet/roslyn)
+- [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
+- [CsvHelper](https://github.com/JoshClose/CsvHelper)
+- [H.NotifyIcon](https://github.com/HavenDV/H.NotifyIcon)
+- [CalcBinding](https://github.com/Alex141/CalcBinding)
 
 ## License
 本项目基于[GPL-3.0 License](LICENSE)发布，您如果基于此项目进行修改和分发，必须保持开源

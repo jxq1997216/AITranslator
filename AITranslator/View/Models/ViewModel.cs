@@ -63,6 +63,11 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private bool agreedStatement;
         /// <summary>
+        /// 添加任务下拉框显示
+        /// </summary>
+        [ObservableProperty]
+        private bool addTaskPopupShow;
+        /// <summary>
         /// 控制台输出内容
         /// </summary>
         [ObservableProperty]
@@ -179,6 +184,9 @@ namespace AITranslator.View.Models
         }
 
         [RelayCommand]
+        private void CloseAddTaskPopup() => AddTaskPopupShow = false;
+
+        [RelayCommand]
         private void StartAll()
         {
             if (UnfinishedTasks.Count == 0)
@@ -212,7 +220,7 @@ namespace AITranslator.View.Models
         }
 
         [RelayCommand]
-        private void AddTask()
+        private void AddTaskFromFile()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog()
             {
@@ -229,12 +237,40 @@ namespace AITranslator.View.Models
             {
                 ExpandedFuncs.TryExceptions(() =>
                 {
-                    FileInfo file = new FileInfo(fileName);
-                    TranslationTask task = new TranslationTask(file);
+                    FileInfo info = new FileInfo(fileName);
+                    TranslateDataType type = info.Extension.ToLower() switch
+                    {
+                        ".json" => TranslateDataType.KV,
+                        ".srt" => TranslateDataType.Srt,
+                        ".txt" => TranslateDataType.Txt,
+                        _ => TranslateDataType.Unknow
+                    };
+                    TranslationTask task = new TranslationTask(type, info.FullName, info.Name);
 
                     AddTask(task);
                 });
             }
+        }
+
+
+        [RelayCommand]
+        private void AddTaskFromFolder()
+        {
+            OpenFolderDialog openFolderDialog = new OpenFolderDialog()
+            {
+                Title = "请选择T++导出的包含csv文件的文件夹",
+                Multiselect = false
+            };
+
+            if (!openFolderDialog.ShowDialog()!.Value)
+                return;
+
+            ExpandedFuncs.TryExceptions(() =>
+            {
+                DirectoryInfo info = new DirectoryInfo(openFolderDialog.FolderName);
+                TranslationTask task = new TranslationTask(TranslateDataType.Tpp, info.FullName, info.Name);
+                AddTask(task);
+            });
         }
 
         [RelayCommand]
@@ -328,7 +364,7 @@ namespace AITranslator.View.Models
             }
         }
 
-        
+
 
     }
 }

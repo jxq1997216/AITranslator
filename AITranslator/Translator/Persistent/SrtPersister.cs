@@ -24,21 +24,22 @@ namespace AITranslator.Translator.Persistent
             string fileBakName = fileNameNoExtension + "_bak" + fileExtension;
             try
             {
-                string[] srtStrings = File.ReadAllText(filePath).Replace("\r\n", "\n").Split("\n\n");
-                Dictionary<int, SrtData> dic = new Dictionary<int, SrtData>();
-                for (int i = 0; i < srtStrings.Length; i++)
+                Dictionary<int, SrtData> dic;
+                if (File.Exists(fileBakName))
                 {
-                    string srtString = srtStrings[i];
-                    if (string.IsNullOrWhiteSpace(srtString))
-                        continue;
-
-                    string[] srt_string = srtString.Split('\n');
-                    srt_string = srt_string.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
-                    int index = int.Parse(srt_string[0]);
-                    //if (index != i + 1)
-                    //    throw new FileLoadException($"\r\nSrt文件格式错误:非连续序号！");
-                    dic.Add(index, new SrtData(srt_string[1..]));
+                    try
+                    {
+                        dic = ReadData(fileBakName);
+                        File.Move(fileBakName, fileName, true);
+                    }
+                    catch (Exception)
+                    {
+                        File.Delete(fileBakName);
+                        dic = ReadData(filePath);
+                    }
                 }
+                else
+                    dic = ReadData(filePath);
 
                 return dic;
             }
@@ -88,6 +89,25 @@ namespace AITranslator.Translator.Persistent
             {
                 throw new FileSaveException($"\r\n以下文件中的一个或多个被拒绝访问，请确保文件未被占用：\r\n[{fileBakName}]\r\n[{fileName}]\r\n");
             }
+        }
+
+
+        static Dictionary<int, SrtData> ReadData(string path)
+        {
+            string[] srtStrings = File.ReadAllText(path).Replace("\r\n", "\n").Split("\n\n");
+            Dictionary<int, SrtData> dic = new Dictionary<int, SrtData>();
+            for (int i = 0; i < srtStrings.Length; i++)
+            {
+                string srtString = srtStrings[i];
+                if (string.IsNullOrWhiteSpace(srtString))
+                    continue;
+
+                string[] srt_string = srtString.Split('\n');
+                srt_string = srt_string.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+                int index = int.Parse(srt_string[0]);
+                dic.Add(index, new SrtData(srt_string[1..]));
+            }
+            return dic;
         }
     }
 }

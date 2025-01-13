@@ -1,5 +1,67 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:control="clr-namespace:AITranslator.View.Controls"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style TargetType="{x:Type control:CheckButton}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Foreground" Value="#FFD2D9DC"/>
+        <Setter Property="UncheckedBackground" Value="#1FFFFFFF"/>
+        <Setter Property="UncheckedEnterBackground" Value="#1F1A1A1A"/>
+        <Setter Property="CheckedBackground" Value="#6FFFFFFF"/>
+        <Setter Property="CheckedEnterBackground" Value="#8FFFFFFF"/>
+        <Setter Property="BorderBrush" Value="#1FFFFFFF"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="EnableAnimation" Value="Vertical"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Width" Value="50"/>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:CheckButton}">
+                    <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
+                        <Border.Background>
+                            <SolidColorBrush>
+                                <SolidColorBrush.Color>
+                                    <MultiBinding Converter="{StaticResource AnimProgressTo4Color}">
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="AnimProgress"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="UncheckedBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="UncheckedEnterBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="CheckedBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="CheckedEnterBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="IsChecked"/>
+                                    </MultiBinding>
+                                </SolidColorBrush.Color>
+                            </SolidColorBrush>
+                        </Border.Background>
+                        <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="UIElement.MouseEnter">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="AnimProgress" To="1" Duration="0:0:0.1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="UIElement.MouseLeave">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="AnimProgress" To="0" Duration="0:0:0.1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Border" Property="Background" Value="#09FFFFFF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 
     <Style x:Key="CheckButton" TargetType="{x:Type CheckBox}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -18,7 +80,8 @@
                                     <ColorAnimation
                                       Storyboard.TargetName="Border"
                                       Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                      To="#1FFFFFFF" Duration="0:0:0.1" />
+                                      To="#1FFFFFFF" 
+                                      Duration="0:0:0.1"/>
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
@@ -28,7 +91,8 @@
                                     <ColorAnimation
                                       Storyboard.TargetName="Border"
                                       Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                      To="#1F1A1A1A" Duration="0:0:0.1" />
+                                      To="#1F1A1A1A" 
+                                      Duration="0:0:0.1"/>
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>

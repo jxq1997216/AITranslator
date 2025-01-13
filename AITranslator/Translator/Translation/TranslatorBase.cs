@@ -114,6 +114,7 @@ namespace AITranslator.Translator.Translation
             TranslateData = task.TranslateType switch
             {
                 TranslateDataType.KV => new KVTranslateData(task.DicName, task.FileName),
+                TranslateDataType.Tpp => new TppTranslateData(task.DicName, task.FileName),
                 TranslateDataType.Srt => new SrtTranslateData(task.DicName, task.FileName),
                 TranslateDataType.Txt => new TxtTranslateData(task.DicName, task.FileName),
                 _ => throw new KnownException("不支持的翻译文件类型"),
@@ -440,7 +441,7 @@ namespace AITranslator.Translator.Translation
             ViewModel_DefaultTemplate? defaultTemplate = Type switch
             {
                 TranslateDataType.KV => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_MTool,
-                TranslateDataType.Tpp => null,
+                TranslateDataType.Tpp => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Tpp,
                 TranslateDataType.Srt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Srt,
                 TranslateDataType.Txt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Txt,
                 _ => null

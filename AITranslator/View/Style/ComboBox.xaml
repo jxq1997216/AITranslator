@@ -20,7 +20,7 @@
             <Trigger Property="IsChecked" Value="true">
                 <Setter TargetName="Arrow" Property="RenderTransform">
                     <Setter.Value>
-                        <RotateTransform  CenterX="6" CenterY="3" Angle="180"/>
+                        <RotateTransform CenterX="6" CenterY="3" Angle="180"/>
                     </Setter.Value>
                 </Setter>
                 <Setter TargetName="Arrow" Property="Margin" Value="0,0,5,0"/>

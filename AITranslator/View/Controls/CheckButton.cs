@@ -10,7 +10,7 @@ using System.Windows.Media.Animation;
 
 namespace AITranslator.View.Controls
 {
-    public class SidebarRadioButton : RadioButton
+    public class CheckButton : CheckBox
     {
         double width;
         double height;
@@ -22,16 +22,16 @@ namespace AITranslator.View.Controls
             height = Height;
         }
 
-        static SidebarRadioButton()
+        static CheckButton()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(SidebarRadioButton), new FrameworkPropertyMetadata(typeof(SidebarRadioButton)));
-            IsEnabledProperty.OverrideMetadata(typeof(SidebarRadioButton), new FrameworkPropertyMetadata(true, OnEnableChanged));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(CheckButton), new FrameworkPropertyMetadata(typeof(CheckButton)));
+            IsEnabledProperty.OverrideMetadata(typeof(CheckButton), new FrameworkPropertyMetadata(true, OnEnableChanged));
         }
 
         static DoubleAnimation anim = new DoubleAnimation(0, new Duration(TimeSpan.FromSeconds(0.1)));
         static void OnEnableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            SidebarRadioButton button = (SidebarRadioButton)d;
+            CheckButton button = (CheckButton)d;
 
             bool isEnable = (bool)e.NewValue;
             switch (button.EnableAnimation)
@@ -51,12 +51,15 @@ namespace AITranslator.View.Controls
                 default:
                     break;
             }
-            anim.To = isEnable ? 1 : 0;
-            button.BeginAnimation(OpacityProperty, anim);
+            if (button.EnableAnimation != EnableAnimType.DisEnable)
+            {
+                anim.To = isEnable ? 1 : 0;
+                button.BeginAnimation(OpacityProperty, anim);
+            }
         }
 
         public static readonly DependencyProperty EnableAnimationProperty =
-DependencyProperty.Register(nameof(EnableAnimation), typeof(EnableAnimType), typeof(SidebarRadioButton));
+DependencyProperty.Register(nameof(EnableAnimation), typeof(EnableAnimType), typeof(CheckButton));
 
         public EnableAnimType EnableAnimation
         {
@@ -65,7 +68,7 @@ DependencyProperty.Register(nameof(EnableAnimation), typeof(EnableAnimType), typ
         }
 
         private static readonly DependencyProperty AnimProgressProperty =
-DependencyProperty.Register(nameof(AnimProgress), typeof(double), typeof(SidebarRadioButton));
+DependencyProperty.Register(nameof(AnimProgress), typeof(double), typeof(CheckButton));
 
         private double AnimProgress
         {
@@ -73,9 +76,8 @@ DependencyProperty.Register(nameof(AnimProgress), typeof(double), typeof(Sidebar
             set => SetValue(AnimProgressProperty, value);
         }
 
-
         public static readonly DependencyProperty UncheckedEnterBackgroundProperty =
-          DependencyProperty.Register(nameof(UncheckedEnterBackground), typeof(Color), typeof(SidebarRadioButton));
+          DependencyProperty.Register(nameof(UncheckedEnterBackground), typeof(Color), typeof(CheckButton));
 
         public Color UncheckedEnterBackground
         {
@@ -84,7 +86,7 @@ DependencyProperty.Register(nameof(AnimProgress), typeof(double), typeof(Sidebar
         }
 
         public static readonly DependencyProperty UncheckedBackgroundProperty =
-            DependencyProperty.Register(nameof(UncheckedBackground), typeof(Color), typeof(SidebarRadioButton));
+            DependencyProperty.Register(nameof(UncheckedBackground), typeof(Color), typeof(CheckButton));
 
         public Color UncheckedBackground
         {
@@ -93,7 +95,7 @@ DependencyProperty.Register(nameof(AnimProgress), typeof(double), typeof(Sidebar
         }
 
         public static readonly DependencyProperty CheckedEnterBackgroundProperty =
-  DependencyProperty.Register(nameof(CheckedEnterBackground), typeof(Color), typeof(SidebarRadioButton));
+  DependencyProperty.Register(nameof(CheckedEnterBackground), typeof(Color), typeof(CheckButton));
 
         public Color CheckedEnterBackground
         {
@@ -102,22 +104,19 @@ DependencyProperty.Register(nameof(AnimProgress), typeof(double), typeof(Sidebar
         }
 
         public static readonly DependencyProperty CheckedBackgroundProperty =
-DependencyProperty.Register(nameof(CheckedBackground), typeof(Color), typeof(SidebarRadioButton));
+DependencyProperty.Register(nameof(CheckedBackground), typeof(Color), typeof(CheckButton));
         public Color CheckedBackground
         {
             get => (Color)GetValue(CheckedBackgroundProperty);
             set => SetValue(CheckedBackgroundProperty, value);
         }
-
         public static readonly DependencyProperty CornerRadiusProperty =
-DependencyProperty.Register(nameof(CornerRadius), typeof(CornerRadius), typeof(SidebarRadioButton));
+DependencyProperty.Register(nameof(CornerRadius), typeof(CornerRadius), typeof(CheckButton));
 
         public CornerRadius CornerRadius
         {
             get => (CornerRadius)GetValue(CornerRadiusProperty);
             set => SetValue(CornerRadiusProperty, value);
         }
-
-
     }
 }

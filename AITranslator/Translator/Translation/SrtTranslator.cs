@@ -99,8 +99,6 @@ namespace AITranslator.Translator.Translation
                     dic_Merge[key] = Data.Dic_Successful[key];
                 else if (Data.Dic_Failed.ContainsKey(key))
                     dic_Merge[key] = Data.Dic_Failed[key];
-                else
-                    throw new KnownException("合并文件错误,存在未翻译的字幕,请检查文件是否被修改");
             }
 
             KeyValuePair<int, SrtData>[] dic_Merges = dic_Merge.OrderBy(s => s.Key).ToArray();

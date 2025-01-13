@@ -22,7 +22,7 @@ namespace AITranslator.Translator.PostData
         public double temperature { get; set; }
         public double frequency_penalty { get; set; }
         public double presence_penalty { get; set; }
-        public string[]? stop { get; set; }
+        public string[] stop { get; set; } = Array.Empty<string>();
         //"\n###",
         //   "\n\n",
         //   "[PAD151645]",

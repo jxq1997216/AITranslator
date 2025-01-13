@@ -219,12 +219,7 @@
 
                             </StackPanel>
                         </control:SizeAnimationGrid>
-                        <Border x:Name="tb_error" Visibility="{calc:Binding Error,FalseToVisibility=Collapsed}"  Margin="5,5,5,0" Height="Auto" Background="DarkRed" BorderBrush="White" BorderThickness="1" CornerRadius="9">
-                            <Border.DataContext>
-                                <vm:ViewModel_CommunicatorLLama/>
-                            </Border.DataContext>
-                            <TextBlock Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding ErrorMessage}"/>
-                        </Border>
+                        
                     </StackPanel>
                 </GroupBox>
                 <control:ViewButton Margin="0,5,0,0" Height="25" Width="120" Content="保存配置" HorizontalAlignment="Right" Click="Button_Save_Click"/>

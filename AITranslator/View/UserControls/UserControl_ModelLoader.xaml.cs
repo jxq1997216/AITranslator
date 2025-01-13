@@ -59,18 +59,11 @@ namespace AITranslator.View.UserControls
                 else
                 {
                     llamaHeight += llamaUnLoadHeightAdd;
-                    AnimateLLamaViewHeight(llamaHeight - animOffset + tb_error.ActualHeight);
-                    AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
+                    AnimateLLamaViewHeight(llamaHeight - animOffset);
+                    AnimateMainHeight(llamaHeight);
                     Window_Message.ShowDialog("错误", result);
                 }
             }
-
-            tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorType switch
-            {
-                CommunicatorType.LLama => ViewModelManager.ViewModel.CommunicatorLLama_ViewModel,
-                CommunicatorType.OpenAI => ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel,
-                _ => throw ExceptionThrower.InvalidCommunicator,
-            };
         }
         private void Button_Select_Click(object sender, RoutedEventArgs e)
         {
@@ -103,8 +96,8 @@ namespace AITranslator.View.UserControls
                 LLamaLoader.Unload();
                 vm.ModelLoaded = false;
                 llamaHeight += llamaUnLoadHeightAdd;
-                AnimateLLamaViewHeight(llamaHeight - animOffset + tb_error.ActualHeight);
-                AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
+                AnimateLLamaViewHeight(llamaHeight - animOffset);
+                AnimateMainHeight(llamaHeight);
                 Window_Message.ShowDialog("提示", "卸载模型成功");
             }
             else
@@ -113,7 +106,7 @@ namespace AITranslator.View.UserControls
                     LLamaLoader.StopLoadModel();
                 else
                 {
-                    AnimateMainHeight(llamaHeight + tb_error.ActualHeight - llamaUnLoadHeightAdd);
+                    AnimateMainHeight(llamaHeight - llamaUnLoadHeightAdd);
                     AnimateLLamaViewHeight(llamaHeight - animOffset - llamaUnLoadHeightAdd);
                     llamaHeight -= llamaUnLoadHeightAdd;
                     string result = await LLamaLoader.LoadModel(ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate.Name);
@@ -125,8 +118,8 @@ namespace AITranslator.View.UserControls
                     else
                     {
                         llamaHeight += llamaUnLoadHeightAdd;
-                        AnimateLLamaViewHeight(llamaHeight - animOffset + tb_error.ActualHeight);
-                        AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
+                        AnimateLLamaViewHeight(llamaHeight - animOffset);
+                        AnimateMainHeight(llamaHeight);
                         Window_Message.ShowDialog("错误", result);
                     }
                 }
@@ -146,17 +139,7 @@ namespace AITranslator.View.UserControls
             //校验配置参数有没有错误
             if (!vm.ValidateError())
             {
-                Task.Run(() =>
-                {
-                    Thread.Sleep(1);
-                    double height = ViewModelManager.ViewModel.CommunicatorType switch
-                    {
-                        CommunicatorType.LLama =>llamaHeight,
-                        CommunicatorType.OpenAI => openAIHeight,
-                        _ => throw ExceptionThrower.InvalidCommunicator,
-                    };
-                    Dispatcher.Invoke(() => AnimateMainHeight(height + tb_error.ActualHeight));
-                });
+                Window_Message.ShowDialog("提示", $"保存失败:{vm.ErrorMessage}");
                 return;
             }
 
@@ -164,10 +147,10 @@ namespace AITranslator.View.UserControls
             switch (ViewModelManager.ViewModel.CommunicatorType)
             {
                 case CommunicatorType.LLama:
-                    AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
+                    AnimateMainHeight(llamaHeight);
                     break;
                 case CommunicatorType.OpenAI:
-                    AnimateMainHeight(openAIHeight + tb_error.ActualHeight);
+                    AnimateMainHeight(openAIHeight);
                     break;
                 default:
                     throw ExceptionThrower.InvalidCommunicator;
@@ -180,12 +163,10 @@ namespace AITranslator.View.UserControls
             switch (ViewModelManager.ViewModel.CommunicatorType)
             {
                 case CommunicatorType.LLama:
-                    AnimateMainHeight(llamaHeight + tb_error.ActualHeight);
-                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
+                    AnimateMainHeight(llamaHeight);
                     break;
                 case CommunicatorType.OpenAI:
-                    AnimateMainHeight(openAIHeight + tb_error.ActualHeight);
-                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel;
+                    AnimateMainHeight(openAIHeight);
                     break;
                 default:
                     throw ExceptionThrower.InvalidCommunicator;
@@ -222,11 +203,9 @@ namespace AITranslator.View.UserControls
             {
                 case CommunicatorType.LLama:
                     AnimateMainHeight(llamaHeight);
-                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
                     break;
                 case CommunicatorType.OpenAI:
                     AnimateMainHeight(openAIHeight);
-                    tb_error.DataContext = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel;
                     break;
                 default:
                     throw ExceptionThrower.InvalidCommunicator;

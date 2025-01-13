@@ -180,8 +180,6 @@ namespace AITranslator.Translator.Translation
                     str.Add(Data.Dic_Successful[i]);
                 else if (Data.Dic_Failed.ContainsKey(i))
                     str.Add(Data.Dic_Failed[i]);
-                else
-                    throw new KnownException("合并文件错误,存在未翻译的段落,请检查文件是否被修改");
             }
             TxtPersister.Save(str, PublicParams.GetFileName(Data, GenerateFileType.Merged));
             _translationTask.State = TaskState.Completed;
