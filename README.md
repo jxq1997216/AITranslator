@@ -26,7 +26,7 @@
 
 [roslyn](https://github.com/dotnet/roslyn)
 
-[Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)\
+[Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
 
 [H.NotifyIcon](https://github.com/HavenDV/H.NotifyIcon)
 
