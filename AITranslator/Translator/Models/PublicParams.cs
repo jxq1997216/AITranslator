@@ -151,13 +151,25 @@ namespace AITranslator.Translator.Models
         {
             return type switch
             {
-                TemplateType.Replace => $"模板/{templateDicName}/名词替换/{templateName}.json",
-                TemplateType.Prompt => $"模板/{templateDicName}/提示词/{templateName}.json",
-                TemplateType.Clean => $"模板/{templateDicName}/清理规则/{templateName}.csx",
-                TemplateType.Verification => $"模板/{templateDicName}/校验规则/{templateName}.csx",
+                TemplateType.Instruct or TemplateType.TemplateConfig => GetTemplateFilePath(type, templateName),
+                TemplateType.Replace => $"{TemplatesDic}/{templateDicName}/{ReplaceTemplateDic}/{templateName}.json",
+                TemplateType.Prompt => $"{TemplatesDic}/{templateDicName}/{PromptTemplateDic}/{templateName}.json",
+                TemplateType.Clean => $"{TemplatesDic}/{templateDicName}/{CleanTemplateDic}/{templateName}.csx",
+                TemplateType.Verification => $"{TemplatesDic}/{templateDicName}/{VerificationTemplateDic}/{templateName}.csx",
                 _ => throw new NotSupportedException("不支持的模板类型!"),
             };
         }
+
+        public static string GetTemplateFilePath(TemplateType type, string templateName)
+        {
+            return type switch
+            {
+                TemplateType.Instruct => $"{InstructTemplateDic}/{templateName}.csx",
+                TemplateType.TemplateConfig => $"{TemplatesDic}/{templateName}.json",
+                _ => throw new NotSupportedException("不支持的模板类型!"),
+            };
+        }
+
         public static string GetDicName(string dicName)
         {
             return $"{TranslatedDataDic}/{dicName}";

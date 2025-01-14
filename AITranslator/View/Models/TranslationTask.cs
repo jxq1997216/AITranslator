@@ -171,9 +171,7 @@ namespace AITranslator.View.Models
                     Dictionary<string, Dictionary<string, string?>> csvDicDatas = CsvPersister.LoadFromFolder(path);
                     if (csvDicDatas.GetTotalCount() == 0)
                         throw new KnownException("无效的文件夹，请确保是Translator++导出的包含csv文件的文件夹");
-
                     DicName = CreateRandomDic();
-
                     string sourceDicName = PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source);
                     CsvPersister.SaveToFolder(sourceDicName, csvDicDatas);
                     break;

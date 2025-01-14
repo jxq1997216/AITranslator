@@ -1,13 +1,9 @@
 ﻿using AITranslator.Translator.Models;
-using AITranslator.Translator.PostData;
 using AITranslator.Translator.Tools;
-using AITranslator.Translator.TranslateData;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
-using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Windows;
@@ -204,6 +200,7 @@ namespace AITranslator
                 CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.VerificationTemplateDic}", "*.csx", TemplateType.Verification, templateDic.VerificationTemplate);
             }
             CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate);
+            //CheckFileChanged(PublicParams.TemplatesDic, "*.json", TemplateType.TemplateConfig, ViewModelManager.ViewModel.TemplateConfigs);
 
             if (ViewModelManager.ViewModel.InstructTemplate.Count > 0 &&
                 ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)

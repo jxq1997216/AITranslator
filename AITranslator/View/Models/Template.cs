@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Xml.Linq;
 
 namespace AITranslator.View.Models
@@ -38,6 +39,10 @@ namespace AITranslator.View.Models
         /// 对话格式模板
         /// </summary>
         Instruct,
+        /// <summary>
+        /// 模板配置
+        /// </summary>
+        TemplateConfig,
     }
 
     public partial class TemplateDic : ObservableObject
@@ -72,79 +77,6 @@ namespace AITranslator.View.Models
         {
             Name = name;
         }
-
-        [RelayCommand]
-        private void OpenReplaceTemplateFolder()
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.ReplaceTemplateDic}");
-            Process.Start("explorer.exe", path);
-        }
-
-        [RelayCommand]
-        private void OpenReplaceTemplateFile(string fileName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.ReplaceTemplateDic}\\{fileName}.json");
-            ExpandedFuncs.OpenFileUseDefaultSoft(path);
-        }
-
-        [RelayCommand]
-        private void OpenPromptTemplateFolder()
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.PromptTemplateDic}");
-            Process.Start("explorer.exe", path);
-        }
-
-        [RelayCommand]
-        private void OpenPromptTemplateFile(string fileName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.PromptTemplateDic}\\{fileName}.json");
-            ExpandedFuncs.OpenFileUseDefaultSoft(path);
-        }
-        [RelayCommand]
-        private void OpenCleanTemplateFolder()
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.CleanTemplateDic}");
-            Process.Start("explorer.exe", path);
-        }
-
-        [RelayCommand]
-        private void OpenCleanTemplateFile(string fileName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.CleanTemplateDic}\\{fileName}.csx");
-            ExpandedFuncs.OpenFileUseDefaultSoft(path);
-        }
-
-        [RelayCommand]
-        private void TestCleanTemplate(string fileName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.CleanTemplateDic}\\{fileName}.csx");
-            Window_TestCleanTemplate testWindow = new Window_TestCleanTemplate(path);
-            testWindow.Owner = Window_Message.DefaultOwner;
-            testWindow.ShowDialog();
-        }
-
-        [RelayCommand]
-        private void OpenVerificationTemplateFolder()
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.VerificationTemplateDic}");
-            Process.Start("explorer.exe", path);
-        }
-
-        [RelayCommand]
-        private void OpenVerificationTemplateFile(string fileName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.VerificationTemplateDic}\\{fileName}.csx");
-            ExpandedFuncs.OpenFileUseDefaultSoft(path);
-        }
-
-        [RelayCommand]
-        private void TestVerificationTemplate(string fileName)
-        {
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{Name}\\{PublicParams.VerificationTemplateDic}\\{fileName}.csx");
-            Window_TestVerificationTemplate testWindow = new Window_TestVerificationTemplate(path);
-            testWindow.Owner = Window_Message.DefaultOwner;
-            testWindow.ShowDialog();
-        }
     }
 
 
@@ -172,6 +104,54 @@ namespace AITranslator.View.Models
         {
             Name = name;
             Type = type;
+        }
+
+        [RelayCommand]
+        private void OpenTemplateFolder(string dicName)
+        {
+            string? templateTypeDic = Type switch
+            {
+                TemplateType.Replace => PublicParams.ReplaceTemplateDic,
+                TemplateType.Prompt => PublicParams.PromptTemplateDic,
+                TemplateType.Clean => PublicParams.CleanTemplateDic,
+                TemplateType.Verification => PublicParams.VerificationTemplateDic,
+                _ => null,
+            };
+            if (templateTypeDic is null)
+                return;
+            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{dicName}\\{templateTypeDic}");
+            Process.Start("explorer.exe", path);
+        }
+
+        [RelayCommand]
+        private void OpenTemplateFile(string dicName)
+        {
+            if (Type == TemplateType.UnKnow || Type == TemplateType.Instruct)
+                return;
+
+            string path = Path.GetFullPath(PublicParams.GetTemplateFilePath(dicName, Type, Name));
+            ExpandedFuncs.OpenFileUseDefaultSoft(path);
+        }
+
+        [RelayCommand]
+        private void TestTemplate(string dicName)
+        {
+            if (Type == TemplateType.UnKnow || Type == TemplateType.Instruct)
+                return;
+
+            string scriptPath = Path.GetFullPath(PublicParams.GetTemplateFilePath(dicName, Type, Name));
+            Window? testCleanWindow = Type switch
+            {
+                TemplateType.Clean => testCleanWindow = new Window_TestCleanTemplate(scriptPath),
+                TemplateType.Verification => testCleanWindow = new Window_TestVerificationTemplate(scriptPath),
+                _ => null,
+            };
+
+            if (testCleanWindow is null)
+                return;
+
+            testCleanWindow.Owner = Window_Message.DefaultOwner;
+            testCleanWindow.ShowDialog();
         }
     }
 }
