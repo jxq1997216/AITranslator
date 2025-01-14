@@ -169,7 +169,7 @@ namespace AITranslator.View.Models
                     defaultTemplate = ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Tpp;
 
                     Dictionary<string, Dictionary<string, string?>> csvDicDatas = CsvPersister.LoadFromFolder(path);
-                    if (csvDicDatas.Count == 0)
+                    if (csvDicDatas.GetTotalCount() == 0)
                         throw new KnownException("无效的文件夹，请确保是Translator++导出的包含csv文件的文件夹");
 
                     DicName = CreateRandomDic();
@@ -241,7 +241,7 @@ namespace AITranslator.View.Models
             Directory.CreateDirectory(PublicParams.GetDicName(DicName));
             return DicName;
         }
-        private void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
+        private async void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
         {
             _translator.Stoped -= _translator_Stoped;
             Speed = 0;
@@ -281,77 +281,84 @@ namespace AITranslator.View.Models
                     Process.Start("c:/windows/system32/shutdown.exe", "-s -f -t 0");
             }
             else
-                nextTask.Start();
+                await nextTask.Start();
         }
 
-        public void Start(bool showErrorMsg = true)
+        public async Task Start(bool showErrorMsg = true)
         {
-            TaskState beforeState = State;
-            ExpandedFuncs.TryExceptions(() =>
-            {
-                string diaName = PublicParams.GetDicName(DicName);
-                if (!Directory.Exists(diaName))
-                    throw new DicNotFoundException($"任务[{fileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
+            await Task.Run(() =>
+             {
+                 TaskState beforeState = State;
+                 ExpandedFuncs.TryExceptions(() =>
+                 {
+                     string diaName = PublicParams.GetDicName(DicName);
+                     if (!Directory.Exists(diaName))
+                         throw new DicNotFoundException($"任务[{fileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
 
 
-                if (ViewModelManager.ViewModel.ActiveTask is not null)
-                {
-                    if (State == TaskState.Initialized || State == TaskState.Pause)
-                        State = TaskState.WaitTranslate;
-                    return;
-                }
+                     if (ViewModelManager.ViewModel.ActiveTask is not null)
+                     {
+                         if (State == TaskState.Initialized || State == TaskState.Pause)
+                             State = TaskState.WaitTranslate;
+                         return;
+                     }
 
-                ViewModelManager.ViewModel.ActiveTask = this;
-                //如果不存在清理后文件，执行清理流程
-                if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
-                {
-                    switch (TranslateType)
-                    {
-                        case TranslateDataType.KV:
-                            KVTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
-                            break;
-                        case TranslateDataType.Tpp:
-                            TppTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
-                            break;
-                        case TranslateDataType.Srt:
-                            SrtTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
-                            break;
-                        case TranslateDataType.Txt:
-                            TxtTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
-                            break;
-                        default:
-                            throw new KnownException("不支持的翻译文件类型");
-                    }
-                }
-                //创建翻译器
-                CreateTranslator();
+                     ViewModelManager.ViewModel.ActiveTask = this;
+                     //如果不存在清理后文件，执行清理流程
+                     if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
+                     {
+                         switch (TranslateType)
+                         {
+                             case TranslateDataType.KV:
+                                 KVTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
+                                 break;
+                             case TranslateDataType.Tpp:
+                                 TppTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
+                                 break;
+                             case TranslateDataType.Srt:
+                                 SrtTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
+                                 break;
+                             case TranslateDataType.Txt:
+                                 TxtTranslateData.Clear(DicName, PublicParams.GetTemplateFilePath(TemplateDic, TemplateType.Clean, CleanTemplate));
+                                 break;
+                             default:
+                                 throw new KnownException("不支持的翻译文件类型");
+                         }
+                     }
+                     //创建翻译器
+                     CreateTranslator();
 
-                //启动翻译
-                State = TaskState.Translating;
-                _translator.Stoped += _translator_Stoped;
-                _translator.Start();
-            },
-            (err) =>
-            {
-                if (err is DicNotFoundException)
-                {
-                    ViewModelManager.ViewModel.RemoveTask(this);
-                    return;
-                }
-                if (ViewModelManager.ViewModel.ActiveTask == this)
-                    ViewModelManager.ViewModel.ActiveTask = null;
-                if (_translator is not null)
-                    _translator = null;
+                     //启动翻译
+                     State = TaskState.Translating;
+                     _translator.Stoped += _translator_Stoped;
+                     _translator.Start();
+                 },
+                 (err) =>
+                 {
+                     if (err is DicNotFoundException)
+                     {
+                         ViewModelManager.ViewModel.RemoveTask(this);
+                         return;
+                     }
+                     if (ViewModelManager.ViewModel.ActiveTask == this)
+                         ViewModelManager.ViewModel.ActiveTask = null;
+                     if (_translator is not null)
+                         _translator = null;
 
-                State = beforeState;
-            }, showErrorMsg);
+                     State = beforeState;
+                 }, showErrorMsg);
+
+             });
         }
+
 
         public Task Pause()
         {
             //停止翻译
             return Task.Run(() =>
              {
+                 if (State == TaskState.Pause || State == TaskState.WaitPause)
+                     return;
                  //设置界面暂停中
                  if (State == TaskState.Translating)
                  {
@@ -471,6 +478,26 @@ namespace AITranslator.View.Models
             Progress = config.Progress;
             State = config.State;
         }
+
+        [RelayCommand]
+        public async Task ReTranslateFailed()
+        {
+            ViewModel vm = ViewModelManager.ViewModel;
+            if (vm.CommunicatorType == CommunicatorType.LLama && !vm.CommunicatorLLama_ViewModel.ModelLoaded)
+            {
+                Window_Message.ShowDialog("提示", "请先加载模型！");
+                return;
+            }
+            ExpandedFuncs.TryExceptions(() =>
+            {
+                File.Delete(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Failed));
+                State = TaskState.Pause;
+            });
+
+
+            await Start();
+        }
+
 
         [RelayCommand]
         private async Task Remove()

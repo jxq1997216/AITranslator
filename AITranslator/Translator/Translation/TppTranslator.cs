@@ -166,7 +166,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    JsonPersister.Save(Data.Dic_Successful, PublicParams.GetFileName(TranslateData, GenerateFileType.Successful));
+                    JsonPersister.Save(Data.Dic_Successful.ToSeparateDic(), PublicParams.GetFileName(TranslateData, GenerateFileType.Successful));
                     success = true;
                 }
                 catch (FileSaveException)
@@ -192,7 +192,7 @@ namespace AITranslator.Translator.Translation
             {
                 try
                 {
-                    JsonPersister.Save(Data.Dic_Failed, PublicParams.GetFileName(TranslateData, GenerateFileType.Failed));
+                    JsonPersister.Save(Data.Dic_Failed.ToSeparateDic(), PublicParams.GetFileName(TranslateData, GenerateFileType.Failed));
                     success = true;
                 }
                 catch (FileSaveException)

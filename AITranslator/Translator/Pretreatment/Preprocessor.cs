@@ -41,12 +41,15 @@ namespace AITranslator.Translator.Pretreatment
 
             foreach (var kv in input)
             {
-                output[kv.Key] = new Dictionary<string, string?>();
                 foreach (var key in kv.Value.Keys)
                 {
                     strClearScriptInput.Str = key;
                     if (!clearScript.RunAsync(strClearScriptInput).Result.ReturnValue)
+                    {
+                        if (!output.ContainsKey(kv.Key))
+                            output[kv.Key] = new Dictionary<string, string?>();
                         output[kv.Key][key] = key.Normalize(NormalizationForm.FormKC);//标准化字符串格式
+                    } 
                 }
             }
 

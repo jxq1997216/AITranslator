@@ -1,7 +1,5 @@
-﻿using AITranslator.Mail;
-using AITranslator.Translator.Communicator;
+﻿using AITranslator.Translator.Communicator;
 using AITranslator.Translator.Models;
-using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Tools;
 using AITranslator.Translator.TranslateData;
 using AITranslator.View.Windows;
@@ -13,22 +11,11 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Xml.Linq;
 using static LLama.Common.ChatHistory;
 using Path = System.IO.Path;
 
@@ -145,6 +132,8 @@ namespace AITranslator.View.Models
             {
                 if (task.State == TaskState.Translating)
                     await task.Pause();
+                while (task.State == TaskState.WaitPause)
+                    await Task.Delay(50);
 
                 string dicName = PublicParams.GetDicName(task.DicName);
                 if (Directory.Exists(dicName))
@@ -187,7 +176,7 @@ namespace AITranslator.View.Models
         private void CloseAddTaskPopup() => AddTaskPopupShow = false;
 
         [RelayCommand]
-        private void StartAll()
+        private async void StartAll()
         {
             if (UnfinishedTasks.Count == 0)
                 return;
@@ -199,7 +188,7 @@ namespace AITranslator.View.Models
             }
 
             foreach (var _task in UnfinishedTasks)
-                _task.Start(false);
+                await _task.Start(false);
         }
 
         [RelayCommand]
@@ -234,24 +223,8 @@ namespace AITranslator.View.Models
                 return;
 
             foreach (var fileName in openFileDialog.FileNames)
-            {
-                ExpandedFuncs.TryExceptions(() =>
-                {
-                    FileInfo info = new FileInfo(fileName);
-                    TranslateDataType type = info.Extension.ToLower() switch
-                    {
-                        ".json" => TranslateDataType.KV,
-                        ".srt" => TranslateDataType.Srt,
-                        ".txt" => TranslateDataType.Txt,
-                        _ => TranslateDataType.Unknow
-                    };
-                    TranslationTask task = new TranslationTask(type, info.FullName, info.Name);
-
-                    AddTask(task);
-                });
-            }
+                CreatAddTaskFromFile(fileName);
         }
-
 
         [RelayCommand]
         private void AddTaskFromFolder()
@@ -265,9 +238,32 @@ namespace AITranslator.View.Models
             if (!openFolderDialog.ShowDialog()!.Value)
                 return;
 
+            CreatAddTaskFromFolder(openFolderDialog.FolderName);
+        }
+
+        public void CreatAddTaskFromFile(string fileName)
+        {
             ExpandedFuncs.TryExceptions(() =>
             {
-                DirectoryInfo info = new DirectoryInfo(openFolderDialog.FolderName);
+                FileInfo info = new FileInfo(fileName);
+                TranslateDataType type = info.Extension.ToLower() switch
+                {
+                    ".json" => TranslateDataType.KV,
+                    ".srt" => TranslateDataType.Srt,
+                    ".txt" => TranslateDataType.Txt,
+                    _ => TranslateDataType.Unknow
+                };
+                TranslationTask task = new TranslationTask(type, info.FullName, info.Name);
+
+                AddTask(task);
+            });
+        }
+
+        public void CreatAddTaskFromFolder(string folderName)
+        {
+            ExpandedFuncs.TryExceptions(() =>
+            {
+                DirectoryInfo info = new DirectoryInfo(folderName);
                 TranslationTask task = new TranslationTask(TranslateDataType.Tpp, info.FullName, info.Name);
                 AddTask(task);
             });

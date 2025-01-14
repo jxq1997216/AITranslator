@@ -179,13 +179,21 @@ namespace AITranslator.Translator.Persistent
             {
                 string[] strs = mergeDic.Key.Split("||");
                 string fileName = strs[0];
-                string needTransStr = string.Join("||", fileName[1..]);
+                string needTransStr = string.Join("||", strs[1..]);
                 string translatedStr = mergeDic.Value;
                 if (!csvDicDatas.ContainsKey(fileName))
                     csvDicDatas[fileName] = new Dictionary<string, string?>();
                 csvDicDatas[fileName].Add(needTransStr, translatedStr);
             }
             return csvDicDatas;
+        }
+
+        public static int GetTotalCount(this Dictionary<string, Dictionary<string, string?>> mergeDics)
+        {
+            int count = 0;
+            foreach (var value in mergeDics.Values)
+                count += value.Count;
+            return count;
         }
     }
 }

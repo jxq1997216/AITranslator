@@ -44,7 +44,7 @@ namespace AITranslator.Translator.TranslateData
         /// 未翻译的数据
         /// </summary>
         public Dictionary<string, string> Dic_NotTranslated = new Dictionary<string, string?>();
-        public TppTranslateData(string dicName,string fileName)
+        public TppTranslateData(string dicName, string fileName)
         {
             DicName = dicName;
             FileName = fileName;
@@ -61,19 +61,19 @@ namespace AITranslator.Translator.TranslateData
 
             string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
             if (File.Exists(cleanedFile))
-                Dic_Cleaned = JsonPersister.Load<Dictionary<string, string>>(cleanedFile);
+                Dic_Cleaned = JsonPersister.Load<Dictionary<string, Dictionary<string, string>>>(cleanedFile).ToMergeDic();
             else
                 throw new KnownException("不存在清理后的文件！");
 
             string successfulFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Successful);
             if (File.Exists(successfulFile))
-                Dic_Successful = JsonPersister.Load<Dictionary<string, string>>(successfulFile);
+                Dic_Successful = JsonPersister.Load<Dictionary<string, Dictionary<string, string>>>(successfulFile).ToMergeDic();
             else
                 Dic_Successful = new Dictionary<string, string>();
 
             string failedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Failed);
             if (File.Exists(failedFile))
-                Dic_Failed = JsonPersister.Load<Dictionary<string, string>>(failedFile);
+                Dic_Failed = JsonPersister.Load<Dictionary<string, Dictionary<string, string>>>(failedFile).ToMergeDic();
             else
                 Dic_Failed = new Dictionary<string, string>();
         }
@@ -106,7 +106,7 @@ namespace AITranslator.Translator.TranslateData
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;
         }
 
-        public static void Clear(string dicName,string clearTemplatePath)
+        public static void Clear(string dicName, string clearTemplatePath)
         {
             Dictionary<string, Dictionary<string, string?>> dic_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -117,7 +117,7 @@ namespace AITranslator.Translator.TranslateData
 
             dic_source = dic_source.Pretreatment(clearTemplatePath);
 
-            JsonPersister.Save(dic_source.ToMergeDic(), PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
+            JsonPersister.Save(dic_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
         }
 
         public static bool HasFailedData(string dicName)
@@ -125,8 +125,8 @@ namespace AITranslator.Translator.TranslateData
             string failedFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Failed);
             if (!File.Exists(failedFile))
                 return false;
-            Dictionary<string, string?> dic_failed = JsonPersister.Load<Dictionary<string, string?>>(failedFile);
-            return dic_failed.Count != 0;
+            Dictionary<string, Dictionary<string, string>> dic_failed = JsonPersister.Load<Dictionary<string, Dictionary<string, string>>>(failedFile);
+            return dic_failed.GetTotalCount() != 0;
         }
 
 

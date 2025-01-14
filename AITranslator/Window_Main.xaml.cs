@@ -285,5 +285,33 @@ namespace AITranslator
             setWindow.Owner = this;
             setWindow.ShowDialog();
         }
+
+        private void Window_PreviewDragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Link;
+                rb_TranslatingView.IsChecked = true;
+            }
+            else
+                e.Effects = DragDropEffects.None;
+        }
+
+        private void Window_PreviewDrop(object sender, DragEventArgs e)
+        {
+            string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (var path in paths)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    FileAttributes attr = File.GetAttributes(path);
+                    //如果是文件夹
+                    if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                        ViewModelManager.ViewModel.CreatAddTaskFromFolder(path);
+                    else
+                        ViewModelManager.ViewModel.CreatAddTaskFromFile(path);
+                });
+            }
+        }
     }
 }
