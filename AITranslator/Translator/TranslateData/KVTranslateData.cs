@@ -27,23 +27,23 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 原始翻译数据
         /// </summary>
-        public Dictionary<string, string>? Dic_Source;
+        public Dictionary<string, string>? Dic_Source { get; private set; }
         /// <summary>
         /// 清理后的数据
         /// </summary>
-        public Dictionary<string, string>? Dic_Cleaned;
+        public Dictionary<string, string>? Dic_Cleaned { get; private set; }
         /// <summary>
         /// 翻译成功的数据
         /// </summary>
-        public Dictionary<string, string>? Dic_Successful;
+        public Dictionary<string, string>? Dic_Successful { get; private set; }
         /// <summary>
         /// 翻译失败的数据
         /// </summary>
-        public Dictionary<string, string>? Dic_Failed;
+        public Dictionary<string, string>? Dic_Failed { get; private set; }
         /// <summary>
         /// 未翻译的数据
         /// </summary>
-        public Dictionary<string, string> Dic_NotTranslated = new Dictionary<string, string>();
+        public Dictionary<string, string> Dic_NotTranslated { get; private set; } = new Dictionary<string, string>();
         public KVTranslateData(string dicName,string fileName)
         {
             DicName = dicName;

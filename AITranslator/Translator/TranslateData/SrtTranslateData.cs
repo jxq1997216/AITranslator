@@ -55,23 +55,23 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 原始数据
         /// </summary>
-        public Dictionary<int, SrtData>? Dic_Source;
+        public Dictionary<int, SrtData>? Dic_Source { get; private set; }
         /// <summary>
         /// 清理后的数据
         /// </summary>
-        public Dictionary<int, SrtData>? Dic_Cleaned;
+        public Dictionary<int, SrtData>? Dic_Cleaned { get; private set; }
         /// <summary>
         /// 翻译成功的数据
         /// </summary>
-        public Dictionary<int, SrtData>? Dic_Successful;
+        public Dictionary<int, SrtData>? Dic_Successful { get; private set; }
         /// <summary>
         /// 翻译失败的数据
         /// </summary>
-        public Dictionary<int, SrtData>? Dic_Failed;
+        public Dictionary<int, SrtData>? Dic_Failed { get; private set; }
         /// <summary>
         /// 未翻译的数据
         /// </summary>
-        public Dictionary<int, SrtData> Dic_NotTranslated = new Dictionary<int, SrtData>();
+        public Dictionary<int, SrtData> Dic_NotTranslated { get; private set; } = new Dictionary<int, SrtData>();
 
         public SrtTranslateData(string dicName, string fileName)
         {

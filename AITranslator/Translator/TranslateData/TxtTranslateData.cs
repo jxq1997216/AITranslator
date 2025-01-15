@@ -26,19 +26,19 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 原始翻译数据
         /// </summary>
-        public List<string>? List_Cleaned;
+        public List<string>? List_Cleaned { get; private set; }
         /// <summary>
         /// 翻译成功的数据
         /// </summary>
-        public Dictionary<int, string>? Dic_Successful;
+        public Dictionary<int, string>? Dic_Successful { get; private set; }
         /// <summary>
         /// 翻译失败的数据
         /// </summary>
-        public Dictionary<int, string>? Dic_Failed;
+        public Dictionary<int, string>? Dic_Failed { get; private set; }
         /// <summary>
         /// 未翻译的数据
         /// </summary>
-        public Dictionary<int, string> Dic_NotTranslated = new Dictionary<int, string>();
+        public Dictionary<int, string> Dic_NotTranslated { get; private set; } = new Dictionary<int, string>();
 
 
         public TxtTranslateData(string dicName, string fileName)
