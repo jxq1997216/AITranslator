@@ -83,6 +83,11 @@ namespace AITranslator.View.Models
         /// 对话格式模板
         /// </summary>
         [ObservableProperty]
+        private ObservableCollection<Template> templateConfigs = new ObservableCollection<Template>();
+        /// <summary>
+        /// 对话格式模板
+        /// </summary>
+        [ObservableProperty]
         private ObservableCollection<Template> instructTemplate = new ObservableCollection<Template>();
         /// <summary>
         /// 自定义模板
@@ -109,11 +114,6 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private ViewModel_SetView setView_ViewModel = new ViewModel_SetView();
-        /// <summary>
-        /// 高级参数界面的ViewModel
-        /// </summary>
-        [ObservableProperty]
-        private ViewModel_AdvancedView advancedView_ViewModel = new ViewModel_AdvancedView();
 
         //UI线程
         internal Dispatcher Dispatcher;

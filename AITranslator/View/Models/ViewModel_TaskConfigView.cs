@@ -15,41 +15,11 @@ namespace AITranslator.View.Models
     public partial class ViewModel_TaskConfigView : ViewModel_ValidateBase
     {
         /// <summary>
-        /// 模板文件夹
+        /// 翻译模板
         /// </summary>
-        [Required(ErrorMessage = "必须选择模板文件夹")]
+        [Required(ErrorMessage = "必须选择翻译模板")]
         [ObservableProperty]
-        private TemplateDic? templateDic;
-        /// <summary>
-        /// 提示词模板
-        /// </summary>
-        [Required(ErrorMessage = "必须选择提示词模板")]
-        [ObservableProperty]
-        private Template? promptTemplate;
-        /// <summary>
-        /// 替换词模板
-        /// </summary>
-        [Required(ErrorMessage = "必须选择替换词模板")]
-        [ObservableProperty]
-        private Template? replaceTemplate;
-        /// <summary>
-        /// 校验规则模板
-        /// </summary>
-        [Required(ErrorMessage = "必须选择校验规则模板")]
-        [ObservableProperty]
-        private Template? verificationTemplate;
-        /// <summary>
-        /// 清理规则模板
-        /// </summary>
-        [Required(ErrorMessage = "必须选择清理规则模板")]
-        [ObservableProperty]
-        private Template? cleanTemplate;
-        /// <summary>
-        /// 上下文记忆数量
-        /// </summary>
-        [Range(typeof(int), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
-        [ObservableProperty]
-        private int historyCount = 5;
+        private Template? templateConfig;
 
         /// <summary>
         /// 文本替换列表
@@ -101,42 +71,18 @@ namespace AITranslator.View.Models
             task.Replaces.Clear();
             foreach (var replace in Replaces)
                 task.Replaces.Add(replace);
-            task.HistoryCount = HistoryCount;
-            task.TemplateDic = TemplateDic?.Name;
-            task.PromptTemplate = PromptTemplate?.Name;
-            task.CleanTemplate = CleanTemplate?.Name;
-            task.ReplaceTemplate = ReplaceTemplate?.Name;
-            task.VerificationTemplate = VerificationTemplate?.Name;
+            task.TemplateConfig = TemplateConfig;
         }
 
         public static ViewModel_TaskConfigView Create(TranslationTask task)
         {
-            ViewModel_TaskConfigView vm = new ViewModel_TaskConfigView()
-            {
-                HistoryCount = task.HistoryCount,
-            };
-            if (Directory.Exists($"{PublicParams.TemplatesDic}/{task.TemplateDic}"))
-            {
-                vm.TemplateDic = ViewModelManager.ViewModel.TemplateDics.FirstOrDefault(s => s.Name == task.TemplateDic);
-
-                if (vm.TemplateDic is not null)
-                {
-                    if (File.Exists(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Prompt, task.PromptTemplate)))
-                        vm.PromptTemplate = vm.TemplateDic.PromptTemplate.FirstOrDefault(s => s.Name == task.PromptTemplate);
-
-                    if (File.Exists(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Clean, task.CleanTemplate)))
-                        vm.CleanTemplate = vm.TemplateDic.CleanTemplate.FirstOrDefault(s => s.Name == task.CleanTemplate);
-
-                    if (File.Exists(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Replace, task.ReplaceTemplate)))
-                        vm.ReplaceTemplate = vm.TemplateDic.ReplaceTemplate.FirstOrDefault(s => s.Name == task.ReplaceTemplate);
-
-                    if (File.Exists(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Verification, task.VerificationTemplate)))
-                        vm.VerificationTemplate = vm.TemplateDic.VerificationTemplate.FirstOrDefault(s => s.Name == task.VerificationTemplate);
-                }
-            }
+            ViewModel_TaskConfigView vm = new ViewModel_TaskConfigView();
 
             foreach (var replace in task.Replaces)
                 vm.Replaces.Add(replace);
+
+            vm.TemplateConfig = task.TemplateConfig;
+
             return vm;
         }
     }

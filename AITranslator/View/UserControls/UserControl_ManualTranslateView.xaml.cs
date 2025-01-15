@@ -40,7 +40,12 @@ namespace AITranslator.View.UserControls
         /// 手动翻译的参数
         /// </summary>
         [ObservableProperty]
-        private ViewModel_TranslatePrams translatePrams = new ViewModel_TranslatePrams(200, 0.7, 0, "\n###", "\n\n", "[PAD151645]", "<|im_end|>");
+        private ViewModel_TranslatePrams translatePrams = new ViewModel_TranslatePrams()
+        {
+            MaxTokens = 200,
+            Temperature = 0.7,
+            Stops = ["\n###", "\n\n", "[PAD151645]", "<|im_end|>"]
+        };
 
         public UserControl_ManualTranslateView()
         {
@@ -49,7 +54,6 @@ namespace AITranslator.View.UserControls
 
         private async void Button_Translate_Click(object sender, RoutedEventArgs e)
         {
-
             string input = tb_input.Text;
             if (string.IsNullOrWhiteSpace(input))
                 return;

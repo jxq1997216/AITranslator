@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="AITranslator.View.UserControls.UserControl_Advanced"
+﻿<UserControl x:Class="AITranslator.View.UserControls.UserControl_Template"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -16,33 +16,31 @@
     </UserControl.DataContext>-->
     <ScrollViewer  Margin="5" VerticalScrollBarVisibility="Auto">
         <StackPanel>
+            <GroupBox Margin="0,5,5,5" BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="上下文记忆" Foreground="White"/>
+                        <TextBlock Text=" [?]" Foreground="White" Cursor="Help" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid Margin="2,5,2,2" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+                    <Slider Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding HistoryCount}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                    <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                </Grid>
+            </GroupBox>
+
             <GroupBox Grid.Column="1" Margin="0,0,5,10" BorderThickness="0.1" BorderBrush="White" Foreground="White">
                 <GroupBox.Header>
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                        <TextBlock Text="默认模板" Foreground="White"/>
-                        <TextBlock Text=" [?]" Foreground="White" Cursor="Help" ToolTip="当您创建一个新任务时，会判断翻译文件的类型，并根据默认模板，提前配置好翻译参数"/>
+                        <TextBlock Text="规则模板" Foreground="White"/>
+                        <TextBlock Text=" [?]" Foreground="White" Cursor="Help" ToolTip="您的翻译任务会按照您选择的模板进行翻译，您可以自己定义属于您的规则模板"/>
                     </StackPanel>
                 </GroupBox.Header>
                 <StackPanel>
-                    <GroupBox Margin="0,5,0,0" BorderThickness="0.1" BorderBrush="White">
-                        <GroupBox.Header>
-                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                <TextBlock Text="上下文记忆" Foreground="White" FontSize="10"/>
-                                <TextBlock Text=" [?]" Foreground="White" Cursor="Help" FontSize="10" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
-                            </StackPanel>
-                        </GroupBox.Header>
-                        <Grid Margin="2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="40"/>
-                            </Grid.ColumnDefinitions>
-                            <Slider Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding HistoryCount}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
-                            <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                        </Grid>
-                    </GroupBox>
-
-                    <Rectangle Margin="-5,8,-5,9" Height="1" Fill="Gray"/>
-
                     <ComboBox x:Name="cb_templateDic" Width="100" FontSize="12"  Foreground="White" SelectedItem="{Binding TemplateDic}" DisplayMemberPath="Name" ItemsSource="{Binding Path=TemplateDics,Source={x:Static vm:ViewModelManager.ViewModel}}" SelectionChanged="cb_templateDic_SelectionChanged"/>
 
                     <Grid Margin="0,15,0,8">

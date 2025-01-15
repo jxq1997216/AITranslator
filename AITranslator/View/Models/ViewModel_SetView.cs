@@ -26,6 +26,26 @@ namespace AITranslator.View.Models
     public partial class ViewModel_SetView : ObservableValidator
     {
         /// <summary>
+        /// 默认模板_MTool
+        /// </summary>
+        [ObservableProperty]
+        private Template? defaultTemplate_MTool;
+        /// <summary>
+        /// 默认模板_T++
+        /// </summary>
+        [ObservableProperty]
+        private Template? defaultTemplate_Tpp;
+        /// <summary>
+        /// 默认模板_Srt
+        /// </summary>
+        [ObservableProperty]
+        private Template? defaultTemplate_Srt;
+        /// <summary>
+        /// 默认模板_Txt
+        /// </summary>
+        [ObservableProperty]
+        private Template? defaultTemplate_Txt;
+        /// <summary>
         /// 启用邮件通知
         /// </summary>
         [ObservableProperty]
@@ -71,10 +91,13 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private bool autoShutdown;
 
-
         public void Enable()
         {
             ViewModel_SetView vm = ViewModelManager.ViewModel.SetView_ViewModel;
+            vm.DefaultTemplate_MTool = DefaultTemplate_MTool;
+            vm.DefaultTemplate_Tpp = DefaultTemplate_Tpp;
+            vm.DefaultTemplate_Srt = DefaultTemplate_Srt;
+            vm.DefaultTemplate_Txt = DefaultTemplate_Txt;
             vm.EnableEmail = EnableEmail;
             vm.EmailAddress = EmailAddress;
             vm.EmailPassword = EmailPassword;
@@ -92,6 +115,10 @@ namespace AITranslator.View.Models
             ViewModel_SetView vm = ViewModelManager.ViewModel.SetView_ViewModel;
             return new ViewModel_SetView
             {
+                DefaultTemplate_MTool = vm.DefaultTemplate_MTool,
+                DefaultTemplate_Tpp = vm.DefaultTemplate_Tpp,
+                DefaultTemplate_Srt = vm.DefaultTemplate_Srt,
+                DefaultTemplate_Txt = vm.DefaultTemplate_Txt,
                 EnableEmail = vm.EnableEmail,
                 EmailAddress = vm.EmailAddress,
                 EmailPassword = vm.EmailPassword,

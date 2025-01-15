@@ -11,6 +11,22 @@ namespace AITranslator.Translator.Models
     public class ConfigSave_Set
     {
         /// <summary>
+        /// 默认模板_MTool
+        /// </summary>
+        public string? DefaultTemplate_MTool { get; set; } = "游戏 日→中 ChatML";
+        /// <summary>
+        /// 默认模板_T++
+        /// </summary>
+        public string? DefaultTemplate_Tpp { get; set; } = "游戏 日→中 ChatML";
+        /// <summary>
+        /// 默认模板_Srt
+        /// </summary>
+        public string? DefaultTemplate_Srt { get; set; } = "字幕 日→中 ChatML";
+        /// <summary>
+        /// 默认模板_Txt
+        /// </summary>
+        public string? DefaultTemplate_Txt { get; set; } = "文本 日→中 ChatML";
+        /// <summary>
         /// 启用邮件通知
         /// </summary>
         public bool EnableEmail { get; set; }
@@ -49,6 +65,10 @@ namespace AITranslator.Translator.Models
 
         public void CopyFromViewModel(ViewModel_SetView vm)
         {
+            DefaultTemplate_MTool = vm.DefaultTemplate_MTool?.Name;
+            DefaultTemplate_Tpp = vm.DefaultTemplate_Tpp?.Name;
+            DefaultTemplate_Srt = vm.DefaultTemplate_Srt?.Name;
+            DefaultTemplate_Txt = vm.DefaultTemplate_Txt?.Name;
             EnableEmail = vm.EnableEmail;
             EmailAddress = vm.EmailAddress;
             EmailPassword = vm.EmailPassword;
@@ -62,6 +82,10 @@ namespace AITranslator.Translator.Models
 
         public void CopyToViewModel(ViewModel_SetView vm)
         {
+            vm.DefaultTemplate_MTool = ViewModelManager.ViewModel.TemplateConfigs.FirstOrDefault(s => s.Name == DefaultTemplate_MTool);
+            vm.DefaultTemplate_Tpp = ViewModelManager.ViewModel.TemplateConfigs.FirstOrDefault(s => s.Name == DefaultTemplate_Tpp);
+            vm.DefaultTemplate_Srt = ViewModelManager.ViewModel.TemplateConfigs.FirstOrDefault(s => s.Name == DefaultTemplate_Srt);
+            vm.DefaultTemplate_Txt = ViewModelManager.ViewModel.TemplateConfigs.FirstOrDefault(s => s.Name == DefaultTemplate_Txt);
             vm.EnableEmail = EnableEmail;
             vm.EmailAddress = EmailAddress;
             vm.EmailPassword = EmailPassword;

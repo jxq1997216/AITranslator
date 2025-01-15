@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -112,10 +113,7 @@ namespace AITranslator
         private void Consoles_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                // 滚动到最后
-                uc_Logs.ViewToItem();
-            }
+                uc_Logs.ViewToItem();   // 滚动到最后
         }
 
         private void tbIcon_TrayLeftMouseDoubleClick(object sender, RoutedEventArgs e) => AnimShow();
@@ -169,15 +167,42 @@ namespace AITranslator
             Close();
         }
 
-
-        private void Button_EnableSet_Click(object sender, RoutedEventArgs e) => uc_Set.EnableSet();
-
-        private void Button_EnableAdvanced_Click(object sender, RoutedEventArgs e) => uc_Advanced.EnableAdvanced();
-
-        private void Button_ResetAdvanced_Click(object sender, RoutedEventArgs e) => uc_Advanced.ResetAdvanced();
-        private void ComboBox_Advanced_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        /// <summary>
+        /// 拖入文件时切换到翻译中视图
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_PreviewDragEnter(object sender, DragEventArgs e)
         {
-            uc_Advanced.UpdataContext();
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Link;
+                rb_TranslatingView.IsChecked = true;
+            }
+            else
+                e.Effects = DragDropEffects.None;
+        }
+
+        /// <summary>
+        /// 拖入文件完成时新建任务
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_PreviewDrop(object sender, DragEventArgs e)
+        {
+            string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (var path in paths)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    FileAttributes attr = File.GetAttributes(path);
+                    //如果是文件夹
+                    if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                        ViewModelManager.ViewModel.CreatAddTaskFromFolder(path);
+                    else
+                        ViewModelManager.ViewModel.CreatAddTaskFromFile(path);
+                });
+            }
         }
 
         void CheckTemplateChangedCycle()
@@ -185,7 +210,7 @@ namespace AITranslator
             while (true)
             {
                 CheckTemplateChanged();
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }
         }
 
@@ -194,26 +219,44 @@ namespace AITranslator
             CheckDicChanged();
             foreach (var templateDic in ViewModelManager.ViewModel.TemplateDics)
             {
-                CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.ReplaceTemplateDic}", "*.json", TemplateType.Replace, templateDic.ReplaceTemplate);
-                CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.PromptTemplateDic}", "*.json", TemplateType.Prompt, templateDic.PromptTemplate);
-                CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.CleanTemplateDic}", "*.csx", TemplateType.Clean, templateDic.CleanTemplate);
-                CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.VerificationTemplateDic}", "*.csx", TemplateType.Verification, templateDic.VerificationTemplate);
+                if (CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.ReplaceTemplateDic}", "*.json", TemplateType.Replace, templateDic.ReplaceTemplate))
+                    Dispatcher.Invoke(() => templateDic.ReplaceTemplate = new ObservableCollection<Template>(templateDic.ReplaceTemplate.OrderBy(s => s.Name)));
+
+                if (CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.PromptTemplateDic}", "*.json", TemplateType.Prompt, templateDic.PromptTemplate))
+                    Dispatcher.Invoke(() => templateDic.PromptTemplate = new ObservableCollection<Template>(templateDic.PromptTemplate.OrderBy(s => s.Name)));
+
+                if (CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.CleanTemplateDic}", "*.csx", TemplateType.Clean, templateDic.CleanTemplate))
+                    Dispatcher.Invoke(() => templateDic.CleanTemplate = new ObservableCollection<Template>(templateDic.CleanTemplate.OrderBy(s => s.Name)));
+
+                if (CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.VerificationTemplateDic}", "*.csx", TemplateType.Verification, templateDic.VerificationTemplate))
+                    Dispatcher.Invoke(() => templateDic.VerificationTemplate = new ObservableCollection<Template>(templateDic.VerificationTemplate.OrderBy(s => s.Name)));
+
             }
-            CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate);
-            //CheckFileChanged(PublicParams.TemplatesDic, "*.json", TemplateType.TemplateConfig, ViewModelManager.ViewModel.TemplateConfigs);
+            if (CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate))
+                Dispatcher.Invoke(() => ViewModelManager.ViewModel.InstructTemplate = new ObservableCollection<Template>(ViewModelManager.ViewModel.InstructTemplate.OrderBy(s => s.Name)));
+
+
+            if (CheckFileChanged(PublicParams.TemplatesDic, "*.json", TemplateType.TemplateConfig, ViewModelManager.ViewModel.TemplateConfigs))
+                Dispatcher.Invoke(() => ViewModelManager.ViewModel.TemplateConfigs = new ObservableCollection<Template>(ViewModelManager.ViewModel.TemplateConfigs.OrderBy(s => s.Name)));
+
 
             if (ViewModelManager.ViewModel.InstructTemplate.Count > 0 &&
                 ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
                 ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate = ViewModelManager.ViewModel.InstructTemplate[0];
 
+            if (ViewModelManager.ViewModel.TemplateConfigs.Count > 0 &&
+                uc_Template.CurrentTemplateConfig is null)
+                uc_Template.CurrentTemplateConfig = ViewModelManager.ViewModel.TemplateConfigs[0];
+
         }
 
-        void CheckFileChanged(string dicName, string extension, TemplateType templateType, ObservableCollection<Template> templates)
+        bool CheckFileChanged(string dicName, string extension, TemplateType templateType, ObservableCollection<Template> templates)
         {
             if (!Directory.Exists(dicName))
                 Directory.CreateDirectory(dicName);
             //读取名词替换模板文件夹信息，加载名词替换模板列表
             FileInfo[] templateFiles = Directory.GetFiles(dicName, extension).Select(s => new FileInfo(s)).OrderBy(s => s.CreationTime).ToArray();
+            bool changed = false;
             foreach (var fileInfo in templateFiles)
             {
                 ExpandedFuncs.TryExceptions(() =>
@@ -223,6 +266,7 @@ namespace AITranslator
                     {
                         Template template = new Template(fileName, templateType);
                         Dispatcher.Invoke(() => templates.Add(template));
+                        changed = true;
                     }
                 },
                 ShowDialog: false);
@@ -234,11 +278,14 @@ namespace AITranslator
                     if (!templateFiles.Any(s => s.Name[..^s.Extension.Length] == templates[i].Name))
                     {
                         Dispatcher.Invoke(() => templates.RemoveAt(i));
+                        changed = true;
                         i--;
                     }
                 },
               ShowDialog: false);
             }
+
+            return changed;
         }
 
         void CheckDicChanged()
@@ -275,6 +322,11 @@ namespace AITranslator
         }
 
 
+        private void Button_EnableSet_Click(object sender, RoutedEventArgs e) => uc_Set.EnableSet();
+
+        private void ComboBox_Template_SelectionChanged(object sender, SelectionChangedEventArgs e) => uc_Template.UpdataContext();
+        private void Button_CopyTemplate_Click(object sender, RoutedEventArgs e) => uc_Template.CopyTemplate();
+        private void Button_SaveTemplate_Click(object sender, RoutedEventArgs e) => uc_Template.SaveTemplate();
         private void Button_SetManualParams_Click(object sender, RoutedEventArgs e)
         {
             Window_SetManualParams setWindow = new Window_SetManualParams();
@@ -283,32 +335,6 @@ namespace AITranslator
             setWindow.ShowDialog();
         }
 
-        private void Window_PreviewDragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effects = DragDropEffects.Link;
-                rb_TranslatingView.IsChecked = true;
-            }
-            else
-                e.Effects = DragDropEffects.None;
-        }
 
-        private void Window_PreviewDrop(object sender, DragEventArgs e)
-        {
-            string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop);
-            foreach (var path in paths)
-            {
-                ExpandedFuncs.TryExceptions(() =>
-                {
-                    FileAttributes attr = File.GetAttributes(path);
-                    //如果是文件夹
-                    if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
-                        ViewModelManager.ViewModel.CreatAddTaskFromFolder(path);
-                    else
-                        ViewModelManager.ViewModel.CreatAddTaskFromFile(path);
-                });
-            }
-        }
     }
 }

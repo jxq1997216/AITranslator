@@ -53,6 +53,16 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public ConfigSave_TranslatePrams TranslatePrams_Retry { get; set; } = new ConfigSave_TranslatePrams();
 
+        public void VerifyData()
+        {
+            TranslatePrams_FirstMult.VerifyData();
+            TranslatePrams_FirstSingle.VerifyData();
+            TranslatePrams_Retry.VerifyData();
+            if (HistoryCount > 50)
+                HistoryCount = 50;
+            else if (HistoryCount < 0)
+                HistoryCount = 0;
+        }
         public void CopyFromViewModel(ViewModel_DefaultTemplate vm)
         {
             TemplateDic = vm.TemplateDic?.Name;
@@ -60,33 +70,28 @@ namespace AITranslator.Translator.Models
             ReplaceTemplate = vm.ReplaceTemplate?.Name;
             VerificationTemplate = vm.VerificationTemplate?.Name;
             CleanTemplate = vm.CleanTemplate?.Name;
-            HistoryCount = vm.HistoryCount;
+
             TranslatePrams_FirstMult.CopyFromViewModel(vm.TranslatePrams_FirstMult);
             TranslatePrams_FirstSingle.CopyFromViewModel(vm.TranslatePrams_FirstSingle);
             TranslatePrams_Retry.CopyFromViewModel(vm.TranslatePrams_Retry);
+            VerifyData();
         }
 
         public void CopyToViewModel(ViewModel_DefaultTemplate vm)
         {
+            VerifyData();
             TranslatePrams_FirstMult.CopyToViewModel(vm.TranslatePrams_FirstMult);
             TranslatePrams_FirstSingle.CopyToViewModel(vm.TranslatePrams_FirstSingle);
             TranslatePrams_Retry.CopyToViewModel(vm.TranslatePrams_Retry);
-            if (HistoryCount is default(int))
-                HistoryCount = vm._defaultHistoryCount;
-            vm.HistoryCount = HistoryCount;
-            if (TemplateDic is null)
-                TemplateDic = vm._defaultTemplateDic;
-            if (!Directory.Exists($"{PublicParams.TemplatesDic}/{TemplateDic}"))
-            {
-                vm.TemplateDic = null;
-                vm.PromptTemplate = null;
-                vm.ReplaceTemplate = null;
-                vm.VerificationTemplate = null;
-                vm.CleanTemplate = null;
-                return;
-            }
 
+            if (HistoryCount > 50)
+                HistoryCount = 50;
+            else if (HistoryCount < 0)
+                HistoryCount = 0;
+
+            vm.HistoryCount = HistoryCount;
             vm.TemplateDic = ViewModelManager.ViewModel.TemplateDics.FirstOrDefault(s => s.Name == TemplateDic);
+
             if (vm.TemplateDic is null)
             {
                 vm.PromptTemplate = null;
@@ -96,17 +101,15 @@ namespace AITranslator.Translator.Models
                 return;
             }
 
-            vm.PromptTemplate = CopyDefaultTemplateViewModel(PromptTemplate, vm._defaultPrompt, TemplateType.Prompt, vm.TemplateDic.PromptTemplate);
-            vm.ReplaceTemplate = CopyDefaultTemplateViewModel(ReplaceTemplate, vm._defaultReplace, TemplateType.Replace, vm.TemplateDic.ReplaceTemplate);
-            vm.VerificationTemplate = CopyDefaultTemplateViewModel(VerificationTemplate, vm._defaultVerification, TemplateType.Verification, vm.TemplateDic.VerificationTemplate);
-            vm.CleanTemplate = CopyDefaultTemplateViewModel(CleanTemplate, vm._defaultClean, TemplateType.Clean, vm.TemplateDic.CleanTemplate);
+            vm.PromptTemplate = CopyDefaultTemplateViewModel(PromptTemplate, TemplateType.Prompt, vm.TemplateDic.PromptTemplate);
+            vm.ReplaceTemplate = CopyDefaultTemplateViewModel(ReplaceTemplate, TemplateType.Replace, vm.TemplateDic.ReplaceTemplate);
+            vm.VerificationTemplate = CopyDefaultTemplateViewModel(VerificationTemplate, TemplateType.Verification, vm.TemplateDic.VerificationTemplate);
+            vm.CleanTemplate = CopyDefaultTemplateViewModel(CleanTemplate, TemplateType.Clean, vm.TemplateDic.CleanTemplate);
         }
 
-        Template? CopyDefaultTemplateViewModel(string? templateName, string defaultTemplate, TemplateType type, ObservableCollection<Template> templates)
+        Template? CopyDefaultTemplateViewModel(string? templateName, TemplateType type, ObservableCollection<Template> templates)
         {
-            if (templateName is null)
-                templateName = defaultTemplate;
-            if (!File.Exists(PublicParams.GetTemplateFilePath(TemplateDic!, type, templateName)))
+            if (templateName is null || !File.Exists(PublicParams.GetTemplateFilePath(TemplateDic!, type, templateName)))
                 return null;
             else
                 return templates.FirstOrDefault(s => s.Name == templateName);
@@ -139,6 +142,35 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public string[] Stops { get; set; }
 
+        public void VerifyData()
+        {
+            if (MaxTokens > 8192)
+                MaxTokens = 8192;
+            else if (MaxTokens < 1)
+                MaxTokens = 1;
+
+            if (Temperature > 2)
+                Temperature = 2;
+            else if (Temperature < 0)
+                Temperature = 0;
+
+            if (FrequencyPenalty > 2)
+                FrequencyPenalty = 2;
+            else if (FrequencyPenalty < -2)
+                FrequencyPenalty = -2;
+
+            if (PresencePenalty > 2)
+                PresencePenalty = 2;
+            else if (PresencePenalty < -2)
+                PresencePenalty = -2;
+
+            if (TopP > 1)
+                TopP = 1;
+            else if (TopP < 0)
+                TopP = 0;
+
+            Stops ??= Array.Empty<string>();
+        }
 
         public void CopyFromViewModel(ViewModel_TranslatePrams vm)
         {
@@ -151,59 +183,12 @@ namespace AITranslator.Translator.Models
         }
         public void CopyToViewModel(ViewModel_TranslatePrams vm)
         {
-            if (MaxTokens is default(uint))
-                MaxTokens = vm._defaultMaxTokens;
             vm.MaxTokens = MaxTokens;
-
-            if (Temperature is default(double))
-                Temperature = vm._defaultTemperature;
             vm.Temperature = Temperature;
-
-            if (FrequencyPenalty is default(double))
-                FrequencyPenalty = vm._defaultFrequencyPenalty;
             vm.FrequencyPenalty = FrequencyPenalty;
-
             vm.PresencePenalty = PresencePenalty;
             vm.TopP = TopP;
-            if (Stops is null)
-                Stops = vm._defaultStops;
             vm.Stops = new ObservableCollection<string>(Stops);
-        }
-    }
-    public class ConfigSave_Advanced
-    {
-        /// <summary>
-        /// MTool导出待翻译文件的默认模板
-        /// </summary>
-        public ConfigSave_DefaultTemplate Template_MTool { get; set; } = new ConfigSave_DefaultTemplate();
-        /// <summary>
-        /// Translator++导出待翻译文件的默认模板
-        /// </summary>
-        public ConfigSave_DefaultTemplate Template_Tpp { get; set; } = new ConfigSave_DefaultTemplate();
-        /// <summary>
-        /// 字幕文件的默认模板
-        /// </summary>
-        public ConfigSave_DefaultTemplate Template_Srt { get; set; } = new ConfigSave_DefaultTemplate();
-        /// <summary>
-        /// 文本文件的默认模板
-        /// </summary>
-        public ConfigSave_DefaultTemplate Template_Txt { get; set; } = new ConfigSave_DefaultTemplate();
-
-
-        public void CopyFromViewModel(ViewModel_AdvancedView vm)
-        {
-            Template_MTool.CopyFromViewModel(vm.Template_MTool);
-            Template_Tpp.CopyFromViewModel(vm.Template_Tpp);
-            Template_Srt.CopyFromViewModel(vm.Template_Srt);
-            Template_Txt.CopyFromViewModel(vm.Template_Txt);
-        }
-
-        public void CopyToViewModel(ViewModel_AdvancedView vm)
-        {
-            Template_MTool.CopyToViewModel(vm.Template_MTool);
-            Template_Tpp.CopyToViewModel(vm.Template_Tpp);
-            Template_Srt.CopyToViewModel(vm.Template_Srt);
-            Template_Txt.CopyToViewModel(vm.Template_Txt);
         }
     }
 }

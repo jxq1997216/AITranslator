@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="View\UserControls\UserControl_Advanced.xaml.cs">
+    <Compile Update="View\UserControls\UserControl_Template.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="View\UserControls\UserControl_SetView.xaml.cs">

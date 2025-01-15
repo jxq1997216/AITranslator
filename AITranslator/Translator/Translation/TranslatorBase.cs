@@ -24,6 +24,7 @@ using AITranslator.Translator.Pretreatment;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.IO;
 using AITranslator.Translator.Persistent;
+using FileNotFoundException = AITranslator.Exceptions.FileNotFoundException;
 
 namespace AITranslator.Translator.Translation
 {
@@ -108,8 +109,22 @@ namespace AITranslator.Translator.Translation
         public TranslatorBase(TranslationTask task)
         {
             _translationTask = task;
-            _example = JsonPersister.Load<ExampleDialogue[]>(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Prompt, task.PromptTemplate));
-            _verification = CSharpScript.Create<(bool, string)>(File.ReadAllText(PublicParams.GetTemplateFilePath(task.TemplateDic, TemplateType.Verification, task.VerificationTemplate)), ScriptOptions.Default, globalsType: typeof(VerificationScriptInput));
+
+            //创建提示词模板
+            if (task.TemplateConfigParams.PromptTemplate is null)
+                throw new KnownException($"请先配置提示词模板");
+            string promptTemplatePath = PublicParams.GetTemplateFilePath(task.TemplateConfigParams.TemplateDic!, TemplateType.Prompt, task.TemplateConfigParams.PromptTemplate);
+            if (!File.Exists(promptTemplatePath))
+                throw new FileNotFoundException($"提示词模板[{task.TemplateConfigParams.PromptTemplate}]不存在，请确认文件是否已被删除");
+            _example = JsonPersister.Load<ExampleDialogue[]>(promptTemplatePath);
+
+            //创建校验规则模板
+            if (task.TemplateConfigParams.VerificationTemplate is null)
+                throw new KnownException($"请先配置校验规则模板");
+            string verificationTemplatePath = PublicParams.GetTemplateFilePath(task.TemplateConfigParams.TemplateDic!, TemplateType.Verification, task.TemplateConfigParams.VerificationTemplate);
+            if (!File.Exists(verificationTemplatePath))
+                throw new FileNotFoundException($"校验规则模板[{task.TemplateConfigParams.VerificationTemplate}]不存在，请确认文件是否已被删除");
+            _verification = CSharpScript.Create<(bool, string)>(File.ReadAllText(verificationTemplatePath), ScriptOptions.Default, globalsType: typeof(VerificationScriptInput));
             //创建Data
             TranslateData = task.TranslateType switch
             {
@@ -120,11 +135,19 @@ namespace AITranslator.Translator.Translation
                 _ => throw new KnownException("不支持的翻译文件类型"),
             };
 
+            //填充替换词
+            if (task.TemplateConfigParams.ReplaceTemplate is null)
+                throw new KnownException($"请先配置替换词模板");
+            string replaceTemplatePath = PublicParams.GetTemplateFilePath(task.TemplateConfigParams.TemplateDic!, TemplateType.Replace, task.TemplateConfigParams.ReplaceTemplate);
+            if (!File.Exists(replaceTemplatePath))
+                throw new FileNotFoundException($"替换词模板[{task.TemplateConfigParams.ReplaceTemplate}]不存在，请确认文件是否已被删除");
+            _replaces = JsonPersister.Load<Dictionary<string, string>>(replaceTemplatePath);
+            foreach (var replace in task.Replaces)
+                _replaces[replace.Key] = replace.Value ?? string.Empty;
+
             //计算当前进度
             CalculateProgress();
 
-            foreach (var replace in task.Replaces)
-                _replaces[replace.Key] = replace.Value;
         }
 
 
@@ -335,9 +358,9 @@ namespace AITranslator.Translator.Translation
         /// <param name="translated">翻译后数据</param>
         internal void AddHistory(string source, string translated)
         {
-            if (_translationTask.HistoryCount > 0)
+            if (_translationTask.TemplateConfigParams.HistoryCount > 0)
             {
-                if (_history.Count >= _translationTask.HistoryCount * 2)
+                if (_history.Count >= _translationTask.TemplateConfigParams.HistoryCount * 2)
                 {
                     _history.Dequeue();
                     _history.Dequeue();
@@ -417,8 +440,8 @@ namespace AITranslator.Translator.Translation
             ExampleDialogue[] headers = _example[..^1];
             ExampleDialogue[] histories = useHistory ? _history.ToArray() : Array.Empty<ExampleDialogue>();
 
-         
-            ViewModel_TranslatePrams? param = GetTranslatePrams(type);
+
+            ConfigSave_TranslatePrams? param = GetTranslatePrams(type);
             if (param is null)
                 throw new KnownException("未配置翻译参数！请先前往高级参数配置翻译所需的参数");
 
@@ -435,26 +458,25 @@ namespace AITranslator.Translator.Translation
             return str_result;
         }
 
-        ViewModel_TranslatePrams? GetTranslatePrams(TryTranslateType type)
+        ConfigSave_TranslatePrams? GetTranslatePrams(TryTranslateType type)
         {
 
-            ViewModel_DefaultTemplate? defaultTemplate = Type switch
-            {
-                TranslateDataType.KV => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_MTool,
-                TranslateDataType.Tpp => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Tpp,
-                TranslateDataType.Srt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Srt,
-                TranslateDataType.Txt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Txt,
-                _ => null
-            };
+            //ViewModel_DefaultTemplate? defaultTemplate = Type switch
+            //{
+            //    TranslateDataType.KV => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_MTool,
+            //    TranslateDataType.Tpp => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Tpp,
+            //    TranslateDataType.Srt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Srt,
+            //    TranslateDataType.Txt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Txt,
+            //    _ => null
+            //};
 
-            if (defaultTemplate is null)
-                return null;
 
-            ViewModel_TranslatePrams? transParams = type switch
+
+            ConfigSave_TranslatePrams? transParams = type switch
             {
-                TryTranslateType.Single => defaultTemplate.TranslatePrams_FirstSingle,
-                TryTranslateType.Mult => defaultTemplate.TranslatePrams_FirstMult,
-                TryTranslateType.Retry => defaultTemplate.TranslatePrams_Retry,
+                TryTranslateType.Single => _translationTask.TemplateConfigParams.TranslatePrams_FirstSingle,
+                TryTranslateType.Mult => _translationTask.TemplateConfigParams.TranslatePrams_FirstMult,
+                TryTranslateType.Retry => _translationTask.TemplateConfigParams.TranslatePrams_Retry,
                 _ => null,
             };
 

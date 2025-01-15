@@ -32,7 +32,7 @@ namespace AITranslator.Translator.Translation
         internal override void LoadHistory()
         {
             //添加历史记录
-            int historyCount = _translationTask.HistoryCount;
+            int historyCount = _translationTask.TemplateConfigParams.HistoryCount;
             if (historyCount > 0)
             {
                 long endIndex = Data.Dic_Successful.Count - 1 - historyCount;

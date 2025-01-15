@@ -27,10 +27,6 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public ConfigSave_Set Set { get; set; } = new ConfigSave_Set();
         /// <summary>
-        /// 高级参数页面的参数
-        /// </summary>
-        public ConfigSave_Advanced Advanced { get; set; } = new ConfigSave_Advanced();
-        /// <summary>
         /// LLama通讯器的设置参数
         /// </summary>
         public ConfigSave_CommunicatorLLama CommunicatorLLama { get; set; } = new ConfigSave_CommunicatorLLama();

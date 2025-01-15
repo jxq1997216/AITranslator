@@ -16,7 +16,49 @@
     </UserControl.DataContext>
     <ScrollViewer  Margin="5" VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <GroupBox Grid.Column="1" Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
+            <GroupBox Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="默认模板" Foreground="White" FontSize="10"  VerticalAlignment="Center"/>
+                        <TextBlock Margin="3,0,0,0" Text="[?]" Cursor="Help" Foreground="White" FontSize="10" ToolTip="当您新建对应类型的任务时，会使用您选择的默认模板参数"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel>
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="MTool (json文件)" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" Foreground="White" DisplayMemberPath="Name" SelectedItem="{Binding DefaultTemplate_MTool}" ItemsSource="{Binding TemplateConfigs,Source={x:Static vm:ViewModelManager.ViewModel}}"/>
+                    </Grid>
+                    <Grid  Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="T++ (csv文件夹)" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" Foreground="White" DisplayMemberPath="Name" SelectedItem="{Binding DefaultTemplate_Tpp}" ItemsSource="{Binding TemplateConfigs,Source={x:Static vm:ViewModelManager.ViewModel}}"/>
+                    </Grid>
+                    <Grid  Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="字幕 (srt文件)" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" Foreground="White" DisplayMemberPath="Name" SelectedItem="{Binding DefaultTemplate_Srt}" ItemsSource="{Binding TemplateConfigs,Source={x:Static vm:ViewModelManager.ViewModel}}"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="文本 (txt文件)" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" Foreground="White" DisplayMemberPath="Name" SelectedItem="{Binding DefaultTemplate_Txt}" ItemsSource="{Binding TemplateConfigs,Source={x:Static vm:ViewModelManager.ViewModel}}"/>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
                 <GroupBox.Header>
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                         <CheckBox Content="邮件通知" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding EnableEmail}"/>
@@ -70,7 +112,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
+            <GroupBox Margin="0,0,5,5" BorderThickness="0.1" BorderBrush="White">
                 <GroupBox.Header>
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                         <CheckBox Content="自动重翻失败部分" Foreground="White" FontSize="10" VerticalContentAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding TranslateFailedAgain}"/>

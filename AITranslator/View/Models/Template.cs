@@ -100,26 +100,28 @@ namespace AITranslator.View.Models
             Type = type;
         }
 
-        public Template(string name, TemplateType type, bool canRemove)
-        {
-            Name = name;
-            Type = type;
-        }
 
         [RelayCommand]
         private void OpenTemplateFolder(string dicName)
         {
-            string? templateTypeDic = Type switch
+            string path;
+            if (Type == TemplateType.TemplateConfig)
+                path = Path.GetFullPath(PublicParams.TemplatesDic);
+            else
             {
-                TemplateType.Replace => PublicParams.ReplaceTemplateDic,
-                TemplateType.Prompt => PublicParams.PromptTemplateDic,
-                TemplateType.Clean => PublicParams.CleanTemplateDic,
-                TemplateType.Verification => PublicParams.VerificationTemplateDic,
-                _ => null,
-            };
-            if (templateTypeDic is null)
-                return;
-            string path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{dicName}\\{templateTypeDic}");
+                string? templateTypeDic = Type switch
+                {
+                    TemplateType.Replace => PublicParams.ReplaceTemplateDic,
+                    TemplateType.Prompt => PublicParams.PromptTemplateDic,
+                    TemplateType.Clean => PublicParams.CleanTemplateDic,
+                    TemplateType.Verification => PublicParams.VerificationTemplateDic,
+                    _ => null,
+                };
+                if (templateTypeDic is null)
+                    return;
+                path = Path.GetFullPath($"{PublicParams.TemplatesDic}\\{dicName}\\{templateTypeDic}");
+            }
+
             Process.Start("explorer.exe", path);
         }
 
