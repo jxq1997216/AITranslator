@@ -38,7 +38,7 @@ namespace AITranslator.View.Models
         /// 版本号
         /// </summary>
         [ObservableProperty]
-        private string? version = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName).FileVersion;
+        private string? version = FileVersionInfo.GetVersionInfo(Environment.ProcessPath).FileVersion;
         /// <summary>
         /// 是否为测试版本
         /// </summary>
