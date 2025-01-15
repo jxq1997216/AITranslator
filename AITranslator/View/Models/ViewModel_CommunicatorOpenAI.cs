@@ -32,7 +32,7 @@ namespace AITranslator.View.Models
         /// 额外的配置参数
         /// </summary>
         [ObservableProperty]
-        private string expendedParams = "123";
+        private string expendedParams;
         public override bool ValidateError()
         {
             ICollection<ValidationResult> results = new List<ValidationResult>();

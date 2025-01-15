@@ -31,7 +31,6 @@
                                 <ComboBoxItem Content="内置加载器"/>
                                 <ComboBoxItem Content="OpenAI"/>
                             </ComboBox>
-                            <!--<control:ToggleButton Width="38" Height="14" FontSize="8" Margin="5,0,0,0" OnText="外置" OffText="内置"   IsChecked="{Binding IsOpenAILoader}" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked"/>-->
                         </StackPanel>
                     </GroupBox.Header>
                     <StackPanel Margin="5,10,5,5">
