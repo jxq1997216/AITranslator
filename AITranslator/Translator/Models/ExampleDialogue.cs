@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AITranslator.Translator.Models
 {
     //示例对话
-    public class ExampleDialogue
+    public struct ExampleDialogue
     {
         public string? role { get; set; }
         public string? content { get; set; }
@@ -18,7 +18,10 @@ namespace AITranslator.Translator.Models
             role = s_role;
             content = s_content;
         }
-
+        public static ExampleDialogue System(string content)
+        {
+            return new ExampleDialogue("system", content);
+        }
         public static ExampleDialogue Input(string content)
         {
             return new ExampleDialogue("user", content);

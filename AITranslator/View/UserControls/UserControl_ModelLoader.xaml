@@ -232,7 +232,7 @@
                                         </Viewbox>
                                     </control:ViewButton.Content>
                                 </control:ViewButton>
-                                <control:ViewButton Margin="0,0,2,0" IsEnabled="{calc:Binding 'CurrentCommunicatorParam != null',RelativeSource={RelativeSource AncestorType=UserControl}}"  EnableAnimation="Horizontal" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Width="80" ToolTip="设为默认" HorizontalAlignment="Right" Command="{Binding SetDefaultCommunicatorParamCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <control:ViewButton Margin="0,0,2,0" IsEnabled="{calc:Binding 'CurrentCommunicatorParam != null',RelativeSource={RelativeSource AncestorType=UserControl}}"  EnableAnimation="Horizontal" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" Width="80" ToolTip="将当前选中的加载器配置模板设置为默认模板，软件启动时自动选择此模板" HorizontalAlignment="Right" Command="{Binding SetDefaultCommunicatorParamCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
                                     <control:ViewButton.Content>
                                         <StackPanel Orientation="Horizontal">
                                             <Viewbox Width="13" Height="13" Margin="0,0,4,0">

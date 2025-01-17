@@ -35,7 +35,7 @@ namespace AITranslator.View.Windows
         private void Button_OK_Click(object sender, RoutedEventArgs e)
         {
             //校验输入的字符串和示例字符串是否一致
-            if (tb_exampleText.Text != tb_input.Text)
+            if (!cb_confirm.IsChecked.HasValue || !cb_confirm.IsChecked.Value)
             {
                 bd_error.Visibility = Visibility.Visible;
                 return;

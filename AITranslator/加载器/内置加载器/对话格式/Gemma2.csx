@@ -6,7 +6,10 @@ const string EndHeaderId = "<end_of_turn>\n";
 void EncodeHeader(Message message, StringBuilder sb)
 {
     sb.Append(StartHeaderId);
-    sb.Append(message.AuthorRole.ToString());
+    if (message.AuthorRole == AuthorRole.Assistant)
+        sb.Append("model");
+    else
+        sb.Append(message.AuthorRole.ToString().ToLower());
     sb.Append('\n');
 }
 void EncodeMessage(Message message, StringBuilder sb)

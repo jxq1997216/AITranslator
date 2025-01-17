@@ -33,7 +33,7 @@ namespace AITranslator.Translator.Communicator
     public static class LLamaLoader
     {
         public static Script<string> Script;
-        public static bool Is1B8 => model is not null && model.ParameterCount <= 2000000000;
+        //public static bool Is1B8 => model is not null && model.ParameterCount <= 2000000000;
         static LLamaWeights model;
         public static StatelessExecutor Executor;
         static LLamaLoader()
@@ -49,14 +49,14 @@ namespace AITranslator.Translator.Communicator
             else
                 llamaPath += "llama.dll";
             NativeLibraryConfig.LLama.WithLibrary(llamaPath);
-            NativeLibraryConfig.LLama.WithLogCallback(PrintLog);
+            //NativeLibraryConfig.LLama.WithLogCallback(PrintLog);
         }
 
 
-        static void PrintLog(LLamaLogLevel level, string message)
-        {
-            Debug.Write(message);
-        }
+        //static void PrintLog(LLamaLogLevel level, string message)
+        //{
+        //    Debug.Write(message);
+        //}
 
         static CancellationTokenSource _cts;
         public static async Task<string> LoadModel(string? templateName)
@@ -141,6 +141,8 @@ namespace AITranslator.Translator.Communicator
                     //RopeFrequencyBase = 0,
                 };
                 model = await LLamaWeights.LoadFromFileAsync(parameters, ctk, progressReporter);
+                //foreach (var item in model.Metadata)
+                //    Debug.WriteLine($"{item.Key}:{item.Value}");
                 Executor = new StatelessExecutor(model, parameters);
             }
             catch (OperationCanceledException err)

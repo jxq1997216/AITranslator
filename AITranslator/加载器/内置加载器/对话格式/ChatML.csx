@@ -6,7 +6,7 @@ const string EndHeaderId = "<|im_end|>\n";
 void EncodeHeader(Message message, StringBuilder sb)
 {
     sb.Append(StartHeaderId);
-    sb.Append(message.AuthorRole.ToString());
+    sb.Append(message.AuthorRole.ToString().ToLower());
     sb.Append('\n');
 }
 void EncodeMessage(Message message, StringBuilder sb)
