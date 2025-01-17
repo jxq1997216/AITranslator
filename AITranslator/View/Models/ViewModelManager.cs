@@ -48,22 +48,21 @@ namespace AITranslator.View.Models
         /// </summary>
         public static void LoadBaseConfig()
         {
-            if (File.Exists(PublicParams.ConfigPath_LoadModel))
-            {
-                ConfigSave_Base save = JsonPersister.Load<ConfigSave_Base>(PublicParams.ConfigPath_LoadModel);
-                ViewModel.AgreedStatement = save.AgreedStatement;
-                if (save.DefaultCommunicator is not null)
-                    ViewModel.DefaultCommunicatorParam = ViewModel.CommunicatorParams.FirstOrDefault(s => s.Name == save.DefaultCommunicator);
-
-                if (ViewModel.DefaultCommunicatorParam is null)
-                    ViewModel.DefaultCommunicatorParam = ViewModel.CommunicatorParams.FirstOrDefault();
-
-                if (Window_Message.DefaultOwner is Window_Main win_Main)
-                    win_Main.uc_ModelLoader.CurrentCommunicatorParam = ViewModel.DefaultCommunicatorParam;
-                save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
-            }
-            else
+            if (!File.Exists(PublicParams.ConfigPath_LoadModel))
                 SaveBaseConfig();
+
+            ConfigSave_Base save = JsonPersister.Load<ConfigSave_Base>(PublicParams.ConfigPath_LoadModel);
+            ViewModel.AgreedStatement = save.AgreedStatement;
+            if (save.DefaultCommunicator is not null)
+                ViewModel.DefaultCommunicatorParam = ViewModel.CommunicatorParams.FirstOrDefault(s => s.Name == save.DefaultCommunicator);
+
+            if (ViewModel.DefaultCommunicatorParam is null)
+                ViewModel.DefaultCommunicatorParam = ViewModel.CommunicatorParams.FirstOrDefault();
+
+            if (Window_Message.DefaultOwner is Window_Main win_Main)
+                win_Main.uc_ModelLoader.CurrentCommunicatorParam = ViewModel.DefaultCommunicatorParam;
+            save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
+
         }
 
         public static bool ShowDialogMessage(string title, string message, bool isSingleBtn = true, Window? owner = null)

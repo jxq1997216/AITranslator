@@ -68,19 +68,28 @@ namespace AITranslator
             {
                 //加载配置信息
                 ViewModelManager.LoadBaseConfig();
-
                 if (!ViewModelManager.ViewModel.AgreedStatement)
                 {
-                    Window_Statement window_Statement = new Window_Statement();
-                    window_Statement.Owner = this;
-                    bool agreed = window_Statement.ShowDialog()!.Value;
-                    if (!agreed)
+                    Task.Run(() =>
                     {
-                        Environment.Exit(0);
-                        return;
-                    }
-                    ViewModelManager.ViewModel.AgreedStatement = agreed;
-                    ViewModelManager.SaveBaseConfig();
+                        Thread.Sleep(1);
+
+                        bool agreed = Dispatcher.Invoke(() =>
+                        {
+                            Window_Statement window_Statement = new Window_Statement();
+                            window_Statement.Owner = this;
+                            return window_Statement.ShowDialog()!.Value;
+                        });
+
+                        if (!agreed)
+                        {
+                            Environment.Exit(0);
+                            return;
+                        }
+                        ViewModelManager.ViewModel.AgreedStatement = agreed;
+                        ViewModelManager.SaveBaseConfig();
+
+                    });
                 }
 
             }
