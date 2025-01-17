@@ -1,4 +1,5 @@
 ﻿using AITranslator.Translator.Models;
+using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Tools;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
@@ -19,7 +20,7 @@ namespace AITranslator
     /// </summary>
     public partial class Window_Main : Window
     {
-
+        bool templateLoaded = false;
         public Window_Main()
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls |
@@ -41,6 +42,8 @@ namespace AITranslator
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            while (!templateLoaded)
+                Thread.Sleep(10);
             //读取初始化配置
             InitState();
         }
@@ -209,13 +212,22 @@ namespace AITranslator
         {
             while (true)
             {
-                CheckTemplateChanged();
+                try
+                {
+                    CheckTemplateChanged();
+                }
+                catch (Exception err)
+                {
+                    ViewModelManager.WriteLine(err.ToString());
+                }
+                templateLoaded = true;
                 Thread.Sleep(1000);
             }
         }
 
         void CheckTemplateChanged()
         {
+            ViewModel vm = ViewModelManager.ViewModel;
             CheckDicChanged();
             foreach (var templateDic in ViewModelManager.ViewModel.TemplateDics)
             {
@@ -232,22 +244,29 @@ namespace AITranslator
                     Dispatcher.Invoke(() => templateDic.VerificationTemplate = new ObservableCollection<Template>(templateDic.VerificationTemplate.OrderBy(s => s.Name)));
 
             }
-            if (CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, ViewModelManager.ViewModel.InstructTemplate))
-                Dispatcher.Invoke(() => ViewModelManager.ViewModel.InstructTemplate = new ObservableCollection<Template>(ViewModelManager.ViewModel.InstructTemplate.OrderBy(s => s.Name)));
+            if (CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, vm.InstructTemplate))
+                Dispatcher.Invoke(() => vm.InstructTemplate = new ObservableCollection<Template>(ViewModelManager.ViewModel.InstructTemplate.OrderBy(s => s.Name)));
 
 
-            if (CheckFileChanged(PublicParams.TemplatesDic, "*.json", TemplateType.TemplateConfig, ViewModelManager.ViewModel.TemplateConfigs))
-                Dispatcher.Invoke(() => ViewModelManager.ViewModel.TemplateConfigs = new ObservableCollection<Template>(ViewModelManager.ViewModel.TemplateConfigs.OrderBy(s => s.Name)));
+            if (CheckFileChanged(PublicParams.TemplatesDic, "*.json", TemplateType.TemplateConfig, vm.TemplateConfigs))
+                Dispatcher.Invoke(() => vm.TemplateConfigs = new ObservableCollection<Template>(vm.TemplateConfigs.OrderBy(s => s.Name)));
+
+            if (CheckFileChanged(PublicParams.CommunicatorDic, "*.json", TemplateType.Communicator, vm.CommunicatorParams))
+                Dispatcher.Invoke(() => vm.CommunicatorParams = new ObservableCollection<Template>(vm.CommunicatorParams.OrderBy(s => s.Name)));
 
 
-            if (ViewModelManager.ViewModel.InstructTemplate.Count > 0 &&
-                ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
-                ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate = ViewModelManager.ViewModel.InstructTemplate[0];
+            if (vm.InstructTemplate.Count > 0 &&
+                vm.Communicator.CurrentInstructTemplate is null)
+                vm.Communicator.CurrentInstructTemplate = vm.InstructTemplate[0];
 
-            if (ViewModelManager.ViewModel.TemplateConfigs.Count > 0 &&
+            if (vm.TemplateConfigs.Count > 0 &&
                 uc_Template.CurrentTemplateConfig is null)
-                uc_Template.CurrentTemplateConfig = ViewModelManager.ViewModel.TemplateConfigs[0];
+                uc_Template.CurrentTemplateConfig = vm.TemplateConfigs[0];
 
+
+            //if (vm.CommunicatorParams.Count > 0 &&
+            //    uc_ModelLoader.CurrentCommunicatorParam is null)
+            //    uc_ModelLoader.CurrentCommunicatorParam = vm.CommunicatorParams[0];
         }
 
         bool CheckFileChanged(string dicName, string extension, TemplateType templateType, ObservableCollection<Template> templates)
@@ -334,7 +353,5 @@ namespace AITranslator
             setWindow.Owner = this;
             setWindow.ShowDialog();
         }
-
-
     }
 }

@@ -1,0 +1,5 @@
+{
+  "CommunicatorType": 1,
+  "ServerURL": "http://127.0.0.1:5000/v1",
+  "ExpendedParams": "\"mode\":\"instruct\",\"instruction_template\":\"ChatML\""
+}

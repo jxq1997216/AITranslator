@@ -82,7 +82,7 @@ namespace AITranslator.Translator.Communicator
                 return sb.ToString();
             }
 
-            ViewModel_CommunicatorLLama vm = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
+            ViewModel_Communicator vm = ViewModelManager.ViewModel.Communicator;
             if (!File.Exists("llama/llama.dll") && !File.Exists("llama/LLamaSelect.dll"))
                 return "模型加载库不存在，请下载对应您显卡版本的模型加载库放入软件目录下的llama文件夹中";
             if (!File.Exists(vm.ModelPath))
@@ -123,7 +123,7 @@ namespace AITranslator.Translator.Communicator
         }
         private static void Progress_ProgressChanged(object? sender, float e)
         {
-            ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.ModelLoadProgress = Math.Round(e * 100, 1);
+            ViewModelManager.ViewModel.Communicator.ModelLoadProgress = Math.Round(e * 100, 1);
         }
 
         public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, bool flashAttention, CancellationToken ctk, IProgress<float> progressReporter)

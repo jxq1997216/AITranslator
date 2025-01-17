@@ -1,12 +1,6 @@
 ﻿using AITranslator.Exceptions;
 using AITranslator.Translator.TranslateData;
 using AITranslator.View.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AITranslator.Translator.Models
 {
@@ -48,7 +42,11 @@ namespace AITranslator.Translator.Models
         /// <summary>
         /// 对话格式模板文件的文件夹
         /// </summary>
-        public const string InstructTemplateDic = "内置加载器/对话格式";
+        public const string CommunicatorDic = "加载器";
+        /// <summary>
+        /// 对话格式模板文件的文件夹
+        /// </summary>
+        public const string InstructTemplateDic = $"{CommunicatorDic}/内置加载器/对话格式";
         /// <summary>
         /// 所有自定义模板所在的文件夹
         /// </summary>
@@ -151,7 +149,8 @@ namespace AITranslator.Translator.Models
         {
             return type switch
             {
-                TemplateType.Instruct or TemplateType.TemplateConfig => GetTemplateFilePath(type, templateName),
+                TemplateType.Instruct or TemplateType.TemplateConfig or TemplateType.Communicator
+                => GetTemplateFilePath(type, templateName),
                 TemplateType.Replace => $"{TemplatesDic}/{templateDicName}/{ReplaceTemplateDic}/{templateName}.json",
                 TemplateType.Prompt => $"{TemplatesDic}/{templateDicName}/{PromptTemplateDic}/{templateName}.json",
                 TemplateType.Clean => $"{TemplatesDic}/{templateDicName}/{CleanTemplateDic}/{templateName}.csx",
@@ -164,6 +163,7 @@ namespace AITranslator.Translator.Models
         {
             return type switch
             {
+                TemplateType.Communicator => $"{CommunicatorDic}/{templateName}.json",
                 TemplateType.Instruct => $"{InstructTemplateDic}/{templateName}.csx",
                 TemplateType.TemplateConfig => $"{TemplatesDic}/{templateName}.json",
                 _ => throw new NotSupportedException("不支持的模板类型!"),

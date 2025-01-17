@@ -55,9 +55,12 @@ namespace AITranslator.View.Windows
 
         public static bool ShowDialog(string title, string message, bool isSingleBtn = true, Window? owner = null)
         {
-            Window_Message window = InitWindow(title, message, isSingleBtn, owner);
-            window.ShowDialog();
-            return window.DialogResult!.Value;
+            return DefaultOwner!.Dispatcher.Invoke(() =>
+            {
+                Window_Message window = InitWindow(title, message, isSingleBtn, owner);
+                window.ShowDialog();
+                return window.DialogResult!.Value;
+            });
         }
 
         public static void Show(string title, string message, bool isSingleBtn = true, Window? owner = null)

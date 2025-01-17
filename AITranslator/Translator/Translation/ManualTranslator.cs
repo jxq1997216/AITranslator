@@ -16,14 +16,14 @@ namespace AITranslator.Translator.Translation
         internal ICommunicator _communicator;
         public ManualTranslator()
         {
-            _communicator = ViewModelManager.ViewModel.CommunicatorType switch
+            _communicator = ViewModelManager.ViewModel.Communicator.CommunicatorType switch
             {
                 CommunicatorType.LLama => new LLamaCommunicator(),
                 CommunicatorType.OpenAI => new OpenAICommunicator(
-                    new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"),
-                    ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey,
-                    ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model,
-                    ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ExpendedParams),
+                    new Uri(ViewModelManager.ViewModel.Communicator.ServerURL + "/chat/completions"),
+                    ViewModelManager.ViewModel.Communicator.ApiKey,
+                    ViewModelManager.ViewModel.Communicator.Model,
+                    ViewModelManager.ViewModel.Communicator.ExpendedParams),
                 _ => throw ExceptionThrower.InvalidCommunicator,
             };
         }

@@ -55,6 +55,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="加载器\TGW.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="模板\字幕 日→中 ChatML.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -76,10 +79,10 @@
     <None Update="模板\日文→中文\名词替换\示例模板.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="内置加载器\对话格式\Gemma2.csx">
+    <None Update="加载器\内置加载器\对话格式\Gemma2.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="内置加载器\对话格式\ChatML.csx">
+    <None Update="加载器\内置加载器\对话格式\ChatML.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="模板\日文→中文\提示词\其他.json">

@@ -87,7 +87,9 @@ namespace AITranslator.Translator.Persistent
             string fileBakName = fileNameNoExtension + "_bak" + fileExtension;
             try
             {
-                string json = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                JsonSerializerSettings jsetting = new JsonSerializerSettings();
+                jsetting.DefaultValueHandling = DefaultValueHandling.Ignore;
+                string json = JsonConvert.SerializeObject(obj, Formatting.Indented, jsetting);
                 File.WriteAllText(fileBakName, json);
                 File.Delete(fileName);
                 File.Copy(fileBakName, fileName, true);

@@ -95,20 +95,37 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private ObservableCollection<TemplateDic> templateDics = new ObservableCollection<TemplateDic>();
         /// <summary>
-        /// 是否使用OpenAI接口的第三方加载库
+        /// 通讯器参数模板
         /// </summary>
         [ObservableProperty]
-        private CommunicatorType communicatorType;
+        private ObservableCollection<Template> communicatorParams = new ObservableCollection<Template>();
         /// <summary>
-        /// LLama模型加载器ViewModel
+        /// 默认通讯器参数模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_CommunicatorLLama communicatorLLama_ViewModel = new ViewModel_CommunicatorLLama();
+        private Template? defaultCommunicatorParam;
         /// <summary>
-        /// OpenAI模型加载器ViewModel
+        /// 通讯器模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_CommunicatorOpenAI communicatorOpenAI_ViewModel = new ViewModel_CommunicatorOpenAI();
+        private ViewModel_Communicator communicator = new ViewModel_Communicator();
+
+
+        ///// <summary>
+        ///// 是否使用OpenAI接口的第三方加载库
+        ///// </summary>
+        //[ObservableProperty]
+        //private CommunicatorType communicatorType;
+        ///// <summary>
+        ///// LLama模型加载器ViewModel
+        ///// </summary>
+        //[ObservableProperty]
+        //private ViewModel_CommunicatorLLama communicatorLLama_ViewModel = new ViewModel_CommunicatorLLama();
+        ///// <summary>
+        ///// OpenAI模型加载器ViewModel
+        ///// </summary>
+        //[ObservableProperty]
+        //private ViewModel_CommunicatorOpenAI communicatorOpenAI_ViewModel = new ViewModel_CommunicatorOpenAI();
         /// <summary>
         /// 设置界面的ViewModel
         /// </summary>
@@ -181,7 +198,7 @@ namespace AITranslator.View.Models
             if (UnfinishedTasks.Count == 0)
                 return;
 
-            if (CommunicatorType == CommunicatorType.LLama && !CommunicatorLLama_ViewModel.ModelLoaded)
+            if (Communicator.CommunicatorType == CommunicatorType.LLama && !Communicator.ModelLoaded)
             {
                 Window_Message.ShowDialog("提示", "请先加载模型！");
                 return;
@@ -315,12 +332,12 @@ namespace AITranslator.View.Models
         [RelayCommand]
         private void OpenInstructTemplateFile()
         {
-            if (ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
+            if (ViewModelManager.ViewModel.Communicator.CurrentInstructTemplate is null)
             {
                 Window_Message.ShowDialog("提示", "请先选择对话格式");
                 return;
             }
-            string path = Path.GetFullPath($"{PublicParams.InstructTemplateDic}\\{ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate.Name}.csx");
+            string path = Path.GetFullPath($"{PublicParams.InstructTemplateDic}\\{ViewModelManager.ViewModel.Communicator.CurrentInstructTemplate.Name}.csx");
             Process.Start("explorer.exe", path);
         }
 
@@ -329,12 +346,12 @@ namespace AITranslator.View.Models
         {
             try
             {
-                if (ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate is null)
+                if (ViewModelManager.ViewModel.Communicator.CurrentInstructTemplate is null)
                 {
                     Window_Message.ShowDialog("提示", "请先选择对话格式");
                     return;
                 }
-                Script<string> script = CSharpScript.Create<string>(File.ReadAllText($"{PublicParams.InstructTemplateDic}\\{ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.CurrentInstructTemplate.Name}.csx"), ScriptOptions.Default.WithReferences(typeof(Message).Assembly, typeof(StringBuilder).Assembly), globalsType: typeof(InstructScriptInput));
+                Script<string> script = CSharpScript.Create<string>(File.ReadAllText($"{PublicParams.InstructTemplateDic}\\{ViewModelManager.ViewModel.Communicator.CurrentInstructTemplate.Name}.csx"), ScriptOptions.Default.WithReferences(typeof(Message).Assembly, typeof(StringBuilder).Assembly), globalsType: typeof(InstructScriptInput));
                 List<Message> restmessages = [new(AuthorRole.System, "这里是System语句"), new(AuthorRole.User, "这里是User语句1"), new(AuthorRole.Assistant, "这里是Assistant语句1"), new(AuthorRole.User, "这里是User语句2")];
                 InstructScriptInput testGloableClass = new InstructScriptInput() { Messages = restmessages };
                 string result = script.RunAsync(testGloableClass).Result.ReturnValue;

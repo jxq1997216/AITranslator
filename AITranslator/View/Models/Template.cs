@@ -43,6 +43,10 @@ namespace AITranslator.View.Models
         /// 模板配置
         /// </summary>
         TemplateConfig,
+        /// <summary>
+        /// 通讯器参数
+        /// </summary>
+        Communicator,
     }
 
     public partial class TemplateDic : ObservableObject

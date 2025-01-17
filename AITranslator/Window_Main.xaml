@@ -267,7 +267,7 @@
                         </Grid>
                     </DockPanel>
                     <!--模型加载区-->
-                    <uc:UserControl_ModelLoader VerticalAlignment="Bottom" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
+                    <uc:UserControl_ModelLoader x:Name="uc_ModelLoader" VerticalAlignment="Bottom" DataContext="{Binding DataContext,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}"/>
                 </Grid>
             </Grid>
         </Grid>
