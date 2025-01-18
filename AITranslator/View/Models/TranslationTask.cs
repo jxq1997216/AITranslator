@@ -428,7 +428,6 @@ namespace AITranslator.View.Models
                     count++;
                     if (count >= 3)
                         throw;
-                    Debug.WriteLine($"记录[配置文件]失败{count + 1}");
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[配置文件]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }

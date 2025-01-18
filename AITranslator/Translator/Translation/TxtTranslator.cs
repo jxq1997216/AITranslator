@@ -203,7 +203,6 @@ namespace AITranslator.Translator.Translation
                     if (count >= 3)
                         throw;
 
-                    Debug.WriteLine($"记录[翻译失败{tempFileExtension}]失败{count + 1}");
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译失败{tempFileExtension}]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }
@@ -226,7 +225,6 @@ namespace AITranslator.Translator.Translation
                     count++;
                     if (count >= 3)
                         throw;
-                    Debug.WriteLine($"记录[翻译成功{tempFileExtension}]失败{count + 1}");
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译成功{tempFileExtension}]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }
