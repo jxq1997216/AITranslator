@@ -10,10 +10,10 @@
              xmlns:pros="clr-namespace:AITranslator.View.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="550" d:DesignWidth="350">
-    <DockPanel IsEnabled="{calc:Binding 'ActiveTask == null and (CommunicatorLLama_ViewModel.ModelLoaded or CommunicatorType != vm:CommunicatorType.LLama)'}">
+    <DockPanel IsEnabled="{calc:Binding 'ActiveTask == null and (Communicator.ModelLoaded or Communicator.CommunicatorType != vm:CommunicatorType.LLama)'}">
         <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Margin="5" Foreground="White" Text="请在下方文本框中输入你想要手动翻译的文本："/>
         <TextBlock Visibility="{calc:Binding 'ActiveTask != null',FalseToVisibility=Collapsed}" DockPanel.Dock="Top" TextWrapping="Wrap" Margin="5,0" Foreground="Red" Text="手动翻译会和翻译任务抢占翻译资源，请先暂停翻译任务"/>
-        <TextBlock Visibility="{calc:Binding '!CommunicatorLLama_ViewModel.ModelLoaded and CommunicatorType == vm:CommunicatorType.LLama',FalseToVisibility=Collapsed}" DockPanel.Dock="Top" TextWrapping="Wrap" Margin="5,0" Foreground="Red" Text="请先加载模型!"/>
+        <TextBlock Visibility="{calc:Binding '!Communicator.ModelLoaded and Communicator.CommunicatorType == vm:CommunicatorType.LLama',FalseToVisibility=Collapsed}" DockPanel.Dock="Top" TextWrapping="Wrap" Margin="5,0" Foreground="Red" Text="请先加载模型!"/>
         <Grid DockPanel.Dock="Bottom" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition/>

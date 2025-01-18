@@ -97,7 +97,7 @@ namespace AITranslator.Translator.Communicator
                 _cts = new CancellationTokenSource();
                 CancellationToken ctk = _cts.Token;
                 progress.ProgressChanged += Progress_ProgressChanged;
-                await LLamaLoader.Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, vm.FlashAttention, ctk, progress);
+                await Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, vm.FlashAttention, ctk, progress);
             }
             catch (KnownException err)
             {
@@ -162,6 +162,7 @@ namespace AITranslator.Translator.Communicator
         public static void Unload()
         {
             Executor = null;
+            GC.Collect();
             model?.Dispose();
         }
     }
