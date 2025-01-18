@@ -112,7 +112,7 @@
                                                                     </Viewbox>
                                                                 </control:ViewButton.Content>
                                                             </control:ViewButton>
-                                                            <control:ViewButton Margin="3,0,0,0" Width="20" Height="20" ToolTip="查看" Command="{Binding OpenInstructTemplateFileCommand}">
+                                                            <control:ViewButton Margin="3,0,0,0" Width="20" Height="20" ToolTip="打开文件" Command="{Binding OpenInstructTemplateFileCommand}">
                                                                 <control:ViewButton.Content>
                                                                     <Viewbox Margin="3">
                                                                         <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type control:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>

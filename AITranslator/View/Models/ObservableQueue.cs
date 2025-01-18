@@ -48,5 +48,14 @@ namespace AITranslator.View.Models
                 return successed;
             }
         }
+
+        public new void Clear()
+        {
+            lock (_locker)
+            {
+                base.Clear();
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
+        }
     }
 }
