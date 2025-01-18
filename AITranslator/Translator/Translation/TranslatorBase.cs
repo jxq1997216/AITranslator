@@ -19,9 +19,20 @@ using System.Diagnostics;
 using System.Windows.Markup;
 using AITranslator.Mail;
 using AITranslator.Translator.PostData;
+using Microsoft.CodeAnalysis.Scripting;
+using AITranslator.Translator.Pretreatment;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using System.IO;
+using AITranslator.Translator.Persistent;
+using FileNotFoundException = AITranslator.Exceptions.FileNotFoundException;
 
 namespace AITranslator.Translator.Translation
 {
+    public sealed class VerificationScriptInput
+    {
+        public string Translated;
+        public string Untranslated;
+    }
     internal class TranslateResult
     {
         public bool IsPause { get; private set; }
@@ -40,6 +51,12 @@ namespace AITranslator.Translator.Translation
         }
     }
 
+    public enum TryTranslateType
+    {
+        Mult,
+        Single,
+        Retry
+    }
     public abstract class TranslatorBase
     {
         /// <summary>
@@ -59,21 +76,14 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         internal event EventHandler<TranslateStopEventArgs> Stoped;
 
-        //发送数据包
-        //internal PostDataBase postData;
-
-        /// <summary>
-        /// 对话提示
-        /// </summary>
-        internal string prompt_with_text;
-
-        internal string system_prompt;
         /// <summary>
         /// 翻译线程
         /// </summary>
         Task _task;
 
         internal TranslationTask _translationTask;
+        readonly Script<(bool, string)> _verification;
+        readonly VerificationScriptInput _verificationScriptInput = new VerificationScriptInput();
 
         /// <summary>
         /// 历史上下文
@@ -99,20 +109,45 @@ namespace AITranslator.Translator.Translation
         public TranslatorBase(TranslationTask task)
         {
             _translationTask = task;
+
+            //创建提示词模板
+            if (task.TemplateConfigParams.PromptTemplate is null)
+                throw new KnownException($"请先配置提示词模板");
+            string promptTemplatePath = PublicParams.GetTemplateFilePath(task.TemplateConfigParams.TemplateDic!, TemplateType.Prompt, task.TemplateConfigParams.PromptTemplate);
+            if (!File.Exists(promptTemplatePath))
+                throw new FileNotFoundException($"提示词模板[{task.TemplateConfigParams.PromptTemplate}]不存在，请确认文件是否已被删除");
+            _example = JsonPersister.Load<ExampleDialogue[]>(promptTemplatePath);
+
+            //创建校验规则模板
+            if (task.TemplateConfigParams.VerificationTemplate is null)
+                throw new KnownException($"请先配置校验规则模板");
+            string verificationTemplatePath = PublicParams.GetTemplateFilePath(task.TemplateConfigParams.TemplateDic!, TemplateType.Verification, task.TemplateConfigParams.VerificationTemplate);
+            if (!File.Exists(verificationTemplatePath))
+                throw new FileNotFoundException($"校验规则模板[{task.TemplateConfigParams.VerificationTemplate}]不存在，请确认文件是否已被删除");
+            _verification = CSharpScript.Create<(bool, string)>(File.ReadAllText(verificationTemplatePath), ScriptOptions.Default, globalsType: typeof(VerificationScriptInput));
             //创建Data
             TranslateData = task.TranslateType switch
             {
-                TranslateDataType.KV => new KVTranslateData(task.DicName,task.FileName),
+                TranslateDataType.KV => new KVTranslateData(task.DicName, task.FileName),
+                TranslateDataType.Tpp => new TppTranslateData(task.DicName, task.FileName),
                 TranslateDataType.Srt => new SrtTranslateData(task.DicName, task.FileName),
                 TranslateDataType.Txt => new TxtTranslateData(task.DicName, task.FileName),
                 _ => throw new KnownException("不支持的翻译文件类型"),
             };
 
+            //填充替换词
+            if (task.TemplateConfigParams.ReplaceTemplate is null)
+                throw new KnownException($"请先配置替换词模板");
+            string replaceTemplatePath = PublicParams.GetTemplateFilePath(task.TemplateConfigParams.TemplateDic!, TemplateType.Replace, task.TemplateConfigParams.ReplaceTemplate);
+            if (!File.Exists(replaceTemplatePath))
+                throw new FileNotFoundException($"替换词模板[{task.TemplateConfigParams.ReplaceTemplate}]不存在，请确认文件是否已被删除");
+            _replaces = JsonPersister.Load<Dictionary<string, string>>(replaceTemplatePath);
+            foreach (var replace in task.Replaces)
+                _replaces[replace.Key] = replace.Value ?? string.Empty;
+
             //计算当前进度
             CalculateProgress();
 
-            foreach (var replace in task.Replaces)
-                _replaces[replace.Key] = replace.Value;
         }
 
 
@@ -136,24 +171,53 @@ namespace AITranslator.Translator.Translation
                 {
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
                     //创建连接客户端，设置超时时间10分钟
-                    _communicator = ViewModelManager.ViewModel.CommunicatorType switch
+                    _communicator = ViewModelManager.ViewModel.Communicator.CommunicatorType switch
                     {
                         CommunicatorType.LLama => new LLamaCommunicator(),
-                        CommunicatorType.TGW => new TGWCommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorTGW_ViewModel.ServerURL + "/v1/chat/completions")),
-                        CommunicatorType.OpenAI => new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"), ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey),
+                        CommunicatorType.OpenAI => new OpenAICommunicator(
+                            new Uri(ViewModelManager.ViewModel.Communicator.ServerURL + "/chat/completions"),
+                            ViewModelManager.ViewModel.Communicator.ApiKey,
+                            ViewModelManager.ViewModel.Communicator.Model,
+                            ViewModelManager.ViewModel.Communicator.ExpendedParams),
                         _ => throw ExceptionThrower.InvalidCommunicator,
                     };
-                    TranslateData.GetNotTranslatedData();
+                    TranslateData.GetUntranslatedData();
                     _history.Clear();
                     LoadHistory();
                     Translate();
                     //保存文件
                     SaveFiles();
 
-                    if (TryMergeData())
-                        TranslateSuccessful();
-                    else
-                        TranslateNeedMerge();
+                    int translateFailedTimes = ViewModelManager.ViewModel.SetView_ViewModel.TranslateFailedAgain ? ViewModelManager.ViewModel.SetView_ViewModel.TranslateFailedTimes : 0;
+                    int i = 0;
+                    while (true)
+                    {
+                        if (TryMergeData())
+                        {
+                            TranslateSuccessful();
+                            break;
+                        }
+                        else
+                        {
+                            if (i >= translateFailedTimes)
+                            {
+                                //等待合并
+                                TranslateNeedMerge();
+                                break;
+                            }
+                            else
+                            {
+                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始第{i + 1}次重翻失败部分");
+                                //重新翻译失败部分
+                                TranslateData.ClearFailedData();
+                                TranslateData.GetUntranslatedData();
+                                Translate();
+                                SaveFiles();
+                            }
+                        }
+
+                        i++;
+                    }
                 }
                 catch (FileSaveException err)
                 {
@@ -269,6 +333,21 @@ namespace AITranslator.Translator.Translation
         }
 
         /// <summary>
+        /// 翻译结果校验
+        /// </summary>
+        /// <param name="source">原始数据</param>
+        /// <param name="translated">翻译后数据</param>
+        /// <param name="error">校验不通过原因</param>
+        /// <returns>校验是否通过</returns>
+        internal bool Verification(string source, string translated, out string error)
+        {
+            _verificationScriptInput.Untranslated = source;
+            _verificationScriptInput.Translated = translated;
+            (bool, string) result = _verification.RunAsync(_verificationScriptInput).Result.ReturnValue;
+            error = result.Item2;
+            return result.Item1;
+        }
+        /// <summary>
         /// 加载历史记录
         /// </summary>
         internal abstract void LoadHistory();
@@ -279,9 +358,9 @@ namespace AITranslator.Translator.Translation
         /// <param name="translated">翻译后数据</param>
         internal void AddHistory(string source, string translated)
         {
-            if (_translationTask.HistoryCount > 0)
+            if (_translationTask.TemplateConfigParams.HistoryCount > 0)
             {
-                if (_history.Count >= _translationTask.HistoryCount * 2)
+                if (_history.Count >= _translationTask.TemplateConfigParams.HistoryCount * 2)
                 {
                     _history.Dequeue();
                     _history.Dequeue();
@@ -297,7 +376,7 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         /// <param name="mergeValues">合并后的待翻译字符串列表</param>
         /// <returns>翻译完成的字符串列表</returns>
-        internal string[] Translate_Mult(List<string> mergeValues, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
+        internal string[] Translate_Mult(List<string> mergeValues, bool useHistory)
         {
             List<Dictionary<string, List<double>>> positions_list = new List<Dictionary<string, List<double>>>();
             List<string> processed_texts = new List<string>();
@@ -309,7 +388,7 @@ namespace AITranslator.Translator.Translation
             }
 
             string str_join = string.Join('\n', processed_texts);
-            string str_result = TryTranslate(str_join, prompt_with_text + "\n", useHistory, maxTokens, temperature, frequencyPenalty);
+            string str_result = TryTranslate(str_join, _example[^1].content! + "\n", useHistory, TryTranslateType.Mult);
 
             //如果返回结果的换行符数量不一致，调用逐句翻译模式
             string[] strs_result = str_result.Split('\n');
@@ -331,18 +410,18 @@ namespace AITranslator.Translator.Translation
         /// <param name="temperature">温度</param>
         /// <param name="frequencyPenalty">频率惩罚</param>
         /// <returns>翻译完成的字符串</returns>
-        internal string Translate_Single(string value, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
+        internal string Translate_Single(string value, bool useHistory, bool retry)
         {
             (Dictionary<string, List<double>>, string) result = value.CalculateNewlinePositions(escapeChars);
             Dictionary<string, List<double>> positions = result.Item1;
             string processed_texts = result.Item2;
-            string str_result = TryTranslate(processed_texts, prompt_with_text, useHistory, maxTokens, temperature, frequencyPenalty).InsertNewlines(positions);
+            string str_result = TryTranslate(processed_texts, _example[^1].content!, useHistory, retry ? TryTranslateType.Retry : TryTranslateType.Single).InsertNewlines(positions);
             return str_result;
         }
 
-        internal string Translate_NoResetNewline(string value, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
+        internal string Translate_NoResetNewline(string value, bool useHistory, TryTranslateType type)
         {
-            string str_result = TryTranslate(value, prompt_with_text, useHistory, maxTokens, temperature, frequencyPenalty);
+            string str_result = TryTranslate(value, _example[^1].content!, useHistory, type);
             return str_result;
         }
 
@@ -356,27 +435,52 @@ namespace AITranslator.Translator.Translation
         /// <param name="frequencyPenalty">频率惩罚</param>
         /// <returns>翻译完成的字符串</returns>
         /// <exception cref="KnownException">出现的已知错误</exception>
-        internal string TryTranslate(string str, string prompt_with_text, bool useHistory, int maxTokens, double temperature, double frequencyPenalty)
+        internal string TryTranslate(string str, string prompt_with_text, bool useHistory, TryTranslateType type)
         {
-            ExampleDialogue[] headers = [new ExampleDialogue("system", system_prompt), .. _example];
-            ExampleDialogue[] history = useHistory ? _history.ToArray() : Array.Empty<ExampleDialogue>();
+            ExampleDialogue[] headers = _example[..^1];
+            ExampleDialogue[] histories = useHistory ? _history.ToArray() : Array.Empty<ExampleDialogue>();
 
-            PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
+
+            ConfigSave_TranslatePrams? param = GetTranslatePrams(type);
+            if (param is null)
+                throw new KnownException("未配置翻译参数！请先前往高级参数配置翻译所需的参数");
+
+            PostDataBase postData = new PostDataBase();
+            postData.temperature = param.Temperature;
+            postData.frequency_penalty = param.FrequencyPenalty;
+            postData.max_tokens = (int)param.MaxTokens;
+            postData.top_p = param.TopP;
+            postData.presence_penalty = param.PresencePenalty;
+            postData.stop = param.Stops.ToArray();
+
+            string str_result = _communicator.Translate(postData, headers, histories, $"{prompt_with_text}{str}", out double speed);
+            _translationTask.Speed = speed;
+            return str_result;
+        }
+
+        ConfigSave_TranslatePrams? GetTranslatePrams(TryTranslateType type)
+        {
+
+            //ViewModel_DefaultTemplate? defaultTemplate = Type switch
+            //{
+            //    TranslateDataType.KV => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_MTool,
+            //    TranslateDataType.Tpp => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Tpp,
+            //    TranslateDataType.Srt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Srt,
+            //    TranslateDataType.Txt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Txt,
+            //    _ => null
+            //};
+
+
+
+            ConfigSave_TranslatePrams? transParams = type switch
             {
-                CommunicatorType.LLama => new LLamaPostData(),
-                CommunicatorType.TGW => new TGWPostData(),
-                CommunicatorType.OpenAI => new OpenAIPostData() { model = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model },
-                _ => throw ExceptionThrower.InvalidCommunicator,
+                TryTranslateType.Single => _translationTask.TemplateConfigParams.TranslatePrams_FirstSingle,
+                TryTranslateType.Mult => _translationTask.TemplateConfigParams.TranslatePrams_FirstMult,
+                TryTranslateType.Retry => _translationTask.TemplateConfigParams.TranslatePrams_Retry,
+                _ => null,
             };
 
-
-            postData.temperature = temperature;
-            postData.frequency_penalty = frequencyPenalty;
-            postData.max_tokens = maxTokens;
-
-            string str_result = _communicator.Translate(postData, headers, history, $"{prompt_with_text}{str}");
-
-            return str_result;
+            return transParams;
         }
     }
 }

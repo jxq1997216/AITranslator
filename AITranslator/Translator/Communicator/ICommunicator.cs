@@ -10,7 +10,7 @@ namespace AITranslator.Translator.Communicator
 {
     internal interface ICommunicator : IDisposable
     {
-        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string prompt_with_text);
+        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText, out double speed);
         public void Cancel();
     }
 }

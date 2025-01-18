@@ -1,6 +1,7 @@
 ﻿using AITranslator.Exceptions;
 using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
+using AITranslator.Translator.Pretreatment;
 using AITranslator.Translator.Translation;
 using System;
 using System.Collections.Generic;
@@ -25,22 +26,22 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 原始翻译数据
         /// </summary>
-        public List<string>? List_Cleaned;
+        public List<string>? List_Cleaned { get; private set; }
         /// <summary>
         /// 翻译成功的数据
         /// </summary>
-        public Dictionary<int, string>? Dic_Successful;
+        public Dictionary<int, string>? Dic_Successful { get; private set; }
         /// <summary>
         /// 翻译失败的数据
         /// </summary>
-        public Dictionary<int, string>? Dic_Failed;
+        public Dictionary<int, string>? Dic_Failed { get; private set; }
         /// <summary>
         /// 未翻译的数据
         /// </summary>
-        public Dictionary<int, string> Dic_NotTranslated = new Dictionary<int, string>();
+        public Dictionary<int, string> Dic_NotTranslated { get; private set; } = new Dictionary<int, string>();
 
 
-        public TxtTranslateData(string dicName,string fileName)
+        public TxtTranslateData(string dicName, string fileName)
         {
             DicName = dicName;
             FileName = fileName;
@@ -72,7 +73,7 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 获取未翻译的内容
         /// </summary>
-        public void GetNotTranslatedData()
+        public void GetUntranslatedData()
         {
             Dic_NotTranslated.Clear();
             for (int i = 0; i < List_Cleaned.Count; i++)
@@ -84,13 +85,21 @@ namespace AITranslator.Translator.TranslateData
                 Dic_NotTranslated[i] = List_Cleaned[i];
             }
         }
+        /// <summary>
+        /// 清除翻译失败的内容，用于重翻
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public void ClearFailedData()
+        {
+            Dic_Failed.Clear();
+        }
 
         public double GetProgress()
         {
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)List_Cleaned.Count * 100;
         }
 
-        public static void Clear(string dicName)
+        public static void Clear(string dicName, string clearTemplatePath)
         {
             List<string> list_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -99,12 +108,7 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            ////替换名词
-            //for (int i = 0; i < list_source.Count; i++)
-            //{
-            //    foreach (var replace in replaces)
-            //        list_source[i] = list_source[i].Replace(replace.Key, replace.Value);
-            //}
+            list_source = list_source.Pretreatment(clearTemplatePath);
 
             TxtPersister.Save(list_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
         }

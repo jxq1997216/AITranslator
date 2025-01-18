@@ -16,11 +16,14 @@ namespace AITranslator.Translator.Translation
         internal ICommunicator _communicator;
         public ManualTranslator()
         {
-            _communicator = ViewModelManager.ViewModel.CommunicatorType switch
+            _communicator = ViewModelManager.ViewModel.Communicator.CommunicatorType switch
             {
                 CommunicatorType.LLama => new LLamaCommunicator(),
-                CommunicatorType.TGW => new TGWCommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorTGW_ViewModel.ServerURL + "/v1/chat/completions")),
-                CommunicatorType.OpenAI => new OpenAICommunicator(new Uri(ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ServerURL + "/chat/completions"), ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.ApiKey),
+                CommunicatorType.OpenAI => new OpenAICommunicator(
+                    new Uri(ViewModelManager.ViewModel.Communicator.ServerURL + "/chat/completions"),
+                    ViewModelManager.ViewModel.Communicator.ApiKey,
+                    ViewModelManager.ViewModel.Communicator.Model,
+                    ViewModelManager.ViewModel.Communicator.ExpendedParams),
                 _ => throw ExceptionThrower.InvalidCommunicator,
             };
         }
@@ -37,22 +40,20 @@ namespace AITranslator.Translator.Translation
         /// <param name="frequencyPenalty">频率惩罚</param>
         /// <returns>翻译完成的字符串</returns>
         /// <exception cref="KnownException">出现的已知错误</exception>
-        public string Translate(string str, double temperature, double frequency_penalty)
+        public string Translate(string str, string systemPrompt, string userPrompt, ViewModel_TranslatePrams param)
         {
-            PostDataBase postData = ViewModelManager.ViewModel.CommunicatorType switch
-            {
-                CommunicatorType.LLama => new LLamaPostData(),
-                CommunicatorType.TGW => new TGWPostData(),
-                CommunicatorType.OpenAI => new OpenAIPostData() { model = ViewModelManager.ViewModel.CommunicatorOpenAI_ViewModel.Model },
-                _ => throw ExceptionThrower.InvalidCommunicator,
-            };
+            PostDataBase postData = new PostDataBase();
 
-            postData.temperature = temperature;
-            postData.frequency_penalty = frequency_penalty;
+            ExampleDialogue[] examples = [new ExampleDialogue("system", systemPrompt)];
+            postData.max_tokens = (int)param.MaxTokens;
+            postData.temperature = param.Temperature;
+            postData.frequency_penalty = param.FrequencyPenalty;
+            postData.presence_penalty = param.PresencePenalty;
+            postData.top_p = param.TopP;
+            postData.stop = new string[param.Stops.Count];
+            param.Stops.CopyTo(postData.stop, 0);
 
-            postData.max_tokens = str.Length;
-
-            string str_result = _communicator.Translate(postData, Array.Empty<ExampleDialogue>(), Array.Empty<ExampleDialogue>(), $"将下面的文本翻译成中文：{str}");
+            string str_result = _communicator.Translate(postData, examples, Array.Empty<ExampleDialogue>(), $"{userPrompt}{str}", out double speed);
             return str_result;
         }
         public void Dispose()

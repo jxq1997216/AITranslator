@@ -12,6 +12,7 @@ namespace AITranslator.Translator.TranslateData
     {
         Unknow,
         KV,
+        Tpp,
         Srt,
         Txt
     };
@@ -21,8 +22,8 @@ namespace AITranslator.Translator.TranslateData
         public string FileName { get; set; }
         public string DicName { get; set; }
 
-        public void GetNotTranslatedData();
-
+        public void GetUntranslatedData(); 
+        public void ClearFailedData();
         public double GetProgress();
 
         public void ReloadData();
@@ -30,7 +31,7 @@ namespace AITranslator.Translator.TranslateData
         /// 替换和清理原始数据
         /// </summary>
         /// <param name="dicName"></param>
-        public abstract static void Clear(string dicName);
+        public abstract static void Clear(string dicName, string clearTemplatePath);
 
         public abstract static bool HasFailedData(string dicName);
     }

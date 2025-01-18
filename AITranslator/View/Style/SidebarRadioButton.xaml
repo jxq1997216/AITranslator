@@ -5,9 +5,10 @@
     <Style TargetType="{x:Type control:SidebarRadioButton}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Foreground" Value="#FFD2D9DC"/>
-        <Setter Property="LeaveBackground" Value="#FF2A2A3A"/>
-        <Setter Property="EnterBackground" Value="#FF4F4F6F"/>
+        <Setter Property="UncheckedBackground" Value="#FF2A2A3A"/>
+        <Setter Property="UncheckedEnterBackground" Value="#FF4F4F6F"/>
         <Setter Property="CheckedBackground" Value="#FF514DA7"/>
+        <Setter Property="CheckedEnterBackground" Value="#FF716DD7"/>
         <Setter Property="BorderBrush" Value="#1FFFFFFF"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -24,11 +25,12 @@
                         <Border.Background>
                             <SolidColorBrush>
                                 <SolidColorBrush.Color>
-                                    <MultiBinding Converter="{StaticResource AnimProgressTo3Color}">
+                                    <MultiBinding Converter="{StaticResource AnimProgressTo4Color}">
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="AnimProgress"/>
-                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="LeaveBackground"/>
-                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="EnterBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="UncheckedBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="UncheckedEnterBackground"/>
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="CheckedBackground"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="CheckedEnterBackground"/>
                                         <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="IsChecked"/>
                                     </MultiBinding>
                                 </SolidColorBrush.Color>

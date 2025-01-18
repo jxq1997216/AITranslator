@@ -1,26 +1,23 @@
-﻿using AITranslator.Mail;
+﻿using AITranslator.Translator.Communicator;
 using AITranslator.Translator.Models;
-using AITranslator.Translator.Persistent;
 using AITranslator.Translator.Tools;
 using AITranslator.Translator.TranslateData;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LLama.Common;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Shapes;
 using System.Windows.Threading;
+using static LLama.Common.ChatHistory;
+using Path = System.IO.Path;
 
 namespace AITranslator.View.Models
 {
@@ -30,7 +27,6 @@ namespace AITranslator.View.Models
     public enum CommunicatorType
     {
         LLama,
-        TGW,
         OpenAI
     }
     /// <summary>
@@ -42,7 +38,7 @@ namespace AITranslator.View.Models
         /// 版本号
         /// </summary>
         [ObservableProperty]
-        private string? version = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName).FileVersion;
+        private string? version = FileVersionInfo.GetVersionInfo(Environment.ProcessPath).FileVersion;
         /// <summary>
         /// 是否为测试版本
         /// </summary>
@@ -53,6 +49,11 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private bool agreedStatement;
+        /// <summary>
+        /// 添加任务下拉框显示
+        /// </summary>
+        [ObservableProperty]
+        private bool addTaskPopupShow;
         /// <summary>
         /// 控制台输出内容
         /// </summary>
@@ -79,25 +80,52 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private ObservableCollection<TranslationTask> completedTasks = new ObservableCollection<TranslationTask>();
         /// <summary>
-        /// 是否使用OpenAI接口的第三方加载库
+        /// 对话格式模板
         /// </summary>
         [ObservableProperty]
-        private CommunicatorType communicatorType;
+        private ObservableCollection<Template> templateConfigs = new ObservableCollection<Template>();
         /// <summary>
-        /// LLama模型加载器ViewModel
+        /// 对话格式模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_CommunicatorLLama communicatorLLama_ViewModel = new ViewModel_CommunicatorLLama();
+        private ObservableCollection<Template> instructTemplate = new ObservableCollection<Template>();
         /// <summary>
-        /// TGW模型加载器ViewModel
+        /// 自定义模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_CommunicatorTGW communicatorTGW_ViewModel = new ViewModel_CommunicatorTGW();
+        private ObservableCollection<TemplateDic> templateDics = new ObservableCollection<TemplateDic>();
         /// <summary>
-        /// OpenAI模型加载器ViewModel
+        /// 通讯器参数模板
         /// </summary>
         [ObservableProperty]
-        private ViewModel_CommunicatorOpenAI communicatorOpenAI_ViewModel = new ViewModel_CommunicatorOpenAI();
+        private ObservableCollection<Template> communicatorParams = new ObservableCollection<Template>();
+        /// <summary>
+        /// 默认通讯器参数模板
+        /// </summary>
+        [ObservableProperty]
+        private Template? defaultCommunicatorParam;
+        /// <summary>
+        /// 通讯器模板
+        /// </summary>
+        [ObservableProperty]
+        private ViewModel_Communicator communicator = new ViewModel_Communicator();
+
+
+        ///// <summary>
+        ///// 是否使用OpenAI接口的第三方加载库
+        ///// </summary>
+        //[ObservableProperty]
+        //private CommunicatorType communicatorType;
+        ///// <summary>
+        ///// LLama模型加载器ViewModel
+        ///// </summary>
+        //[ObservableProperty]
+        //private ViewModel_CommunicatorLLama communicatorLLama_ViewModel = new ViewModel_CommunicatorLLama();
+        ///// <summary>
+        ///// OpenAI模型加载器ViewModel
+        ///// </summary>
+        //[ObservableProperty]
+        //private ViewModel_CommunicatorOpenAI communicatorOpenAI_ViewModel = new ViewModel_CommunicatorOpenAI();
         /// <summary>
         /// 设置界面的ViewModel
         /// </summary>
@@ -121,6 +149,8 @@ namespace AITranslator.View.Models
             {
                 if (task.State == TaskState.Translating)
                     await task.Pause();
+                while (task.State == TaskState.WaitPause)
+                    await Task.Delay(50);
 
                 string dicName = PublicParams.GetDicName(task.DicName);
                 if (Directory.Exists(dicName))
@@ -160,19 +190,22 @@ namespace AITranslator.View.Models
         }
 
         [RelayCommand]
-        private void StartAll()
+        private void CloseAddTaskPopup() => AddTaskPopupShow = false;
+
+        [RelayCommand]
+        private async void StartAll()
         {
             if (UnfinishedTasks.Count == 0)
                 return;
 
-            if (CommunicatorType == CommunicatorType.LLama && !CommunicatorLLama_ViewModel.ModelLoaded)
+            if (Communicator.CommunicatorType == CommunicatorType.LLama && !Communicator.ModelLoaded)
             {
                 Window_Message.ShowDialog("提示", "请先加载模型！");
                 return;
             }
 
             foreach (var _task in UnfinishedTasks)
-                _task.Start(false);
+                await _task.Start(false);
         }
 
         [RelayCommand]
@@ -193,7 +226,7 @@ namespace AITranslator.View.Models
         }
 
         [RelayCommand]
-        private void AddTask()
+        private void AddTaskFromFile()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog()
             {
@@ -207,15 +240,50 @@ namespace AITranslator.View.Models
                 return;
 
             foreach (var fileName in openFileDialog.FileNames)
-            {
-                ExpandedFuncs.TryExceptions(() =>
-                {
-                    FileInfo file = new FileInfo(fileName);
-                    TranslationTask task = new TranslationTask(file);
+                CreatAddTaskFromFile(fileName);
+        }
 
-                    AddTask(task);
-                });
-            }
+        [RelayCommand]
+        private void AddTaskFromFolder()
+        {
+            OpenFolderDialog openFolderDialog = new OpenFolderDialog()
+            {
+                Title = "请选择T++导出的包含csv文件的文件夹",
+                Multiselect = false
+            };
+
+            if (!openFolderDialog.ShowDialog()!.Value)
+                return;
+
+            CreatAddTaskFromFolder(openFolderDialog.FolderName);
+        }
+
+        public void CreatAddTaskFromFile(string fileName)
+        {
+            ExpandedFuncs.TryExceptions(() =>
+            {
+                FileInfo info = new FileInfo(fileName);
+                TranslateDataType type = info.Extension.ToLower() switch
+                {
+                    ".json" => TranslateDataType.KV,
+                    ".srt" => TranslateDataType.Srt,
+                    ".txt" => TranslateDataType.Txt,
+                    _ => TranslateDataType.Unknow
+                };
+                TranslationTask task = new TranslationTask(type, info.FullName, info.Name);
+
+                AddTask(task);
+            });
+        }
+
+        public void CreatAddTaskFromFolder(string folderName)
+        {
+            ExpandedFuncs.TryExceptions(() =>
+            {
+                DirectoryInfo info = new DirectoryInfo(folderName);
+                TranslationTask task = new TranslationTask(TranslateDataType.Tpp, info.FullName, info.Name);
+                AddTask(task);
+            });
         }
 
         [RelayCommand]
@@ -247,5 +315,69 @@ namespace AITranslator.View.Models
             window_CheckUpdate.Owner = Window_Message.DefaultOwner;
             window_CheckUpdate.ShowDialog();
         }
+
+        [RelayCommand]
+        private void ClearLogs()
+        {
+            Consoles.Clear();
+        }
+
+        [RelayCommand]
+        private void OpenInstructTemplateFolder()
+        {
+            string path = Path.GetFullPath(PublicParams.InstructTemplateDic);
+            Process.Start("explorer.exe", path);
+        }
+
+        [RelayCommand]
+        private void OpenInstructTemplateFile()
+        {
+            if (ViewModelManager.ViewModel.Communicator.CurrentInstructTemplate is null)
+            {
+                Window_Message.ShowDialog("提示", "请先选择对话格式");
+                return;
+            }
+            string path = Path.GetFullPath($"{PublicParams.InstructTemplateDic}\\{ViewModelManager.ViewModel.Communicator.CurrentInstructTemplate.Name}.csx");
+            Process.Start("explorer.exe", path);
+        }
+
+        [RelayCommand]
+        private void TestInstructTemplate()
+        {
+            try
+            {
+                if (ViewModelManager.ViewModel.Communicator.CurrentInstructTemplate is null)
+                {
+                    Window_Message.ShowDialog("提示", "请先选择对话格式");
+                    return;
+                }
+                Script<string> script = CSharpScript.Create<string>(File.ReadAllText($"{PublicParams.InstructTemplateDic}\\{ViewModelManager.ViewModel.Communicator.CurrentInstructTemplate.Name}.csx"), ScriptOptions.Default.WithReferences(typeof(Message).Assembly, typeof(StringBuilder).Assembly), globalsType: typeof(InstructScriptInput));
+                List<Message> restmessages = [new(AuthorRole.System, "这里是System语句"), new(AuthorRole.User, "这里是User语句1"), new(AuthorRole.Assistant, "这里是Assistant语句1"), new(AuthorRole.User, "这里是User语句2")];
+                InstructScriptInput testGloableClass = new InstructScriptInput() { Messages = restmessages };
+                string result = script.RunAsync(testGloableClass).Result.ReturnValue;
+                Window_Message.ShowDialog("查看对话格式", result);
+            }
+            catch (CompilationErrorException error)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("对话格式脚本错误:");
+                for (int i = 0; i < error.Diagnostics.Length; i++)
+                {
+                    Diagnostic diagnostic = error.Diagnostics[i];
+                    if (i != error.Diagnostics.Length - 1)
+                        sb.AppendLine(diagnostic.ToString());
+                    else
+                        sb.Append(diagnostic.ToString());
+                }
+                Window_Message.ShowDialog("错误", sb.Remove(sb.Length - 2, 2).ToString());
+            }
+            catch (Exception error)
+            {
+                Window_Message.ShowDialog("未知错误", error.ToString());
+            }
+        }
+
+
+
     }
 }

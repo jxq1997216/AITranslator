@@ -1,0 +1,460 @@
+﻿<UserControl x:Class="AITranslator.View.UserControls.UserControl_Template"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AITranslator.View.UserControls"
+             xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding"
+             xmlns:media ="clr-namespace:System.Windows.Media;assembly=PresentationCore" 
+             xmlns:controls="clr-namespace:AITranslator.View.Controls"
+             xmlns:vm="clr-namespace:AITranslator.View.Models"
+             xmlns:pros="clr-namespace:AITranslator.View.Properties"
+             mc:Ignorable="d" 
+             d:DesignHeight="550" d:DesignWidth="350" IsVisibleChanged="UserControl_IsVisibleChanged">
+    <!--<UserControl.DataContext>
+        <vm:ViewModel_DefaultTemplate/>
+    </UserControl.DataContext>-->
+    <ScrollViewer  Margin="5" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <GroupBox Margin="0,5,5,5" BorderThickness="0.1" BorderBrush="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="上下文记忆" Foreground="White"/>
+                        <TextBlock Text=" [?]" Foreground="White" Cursor="Help" ToolTip="软件在翻译时会将之前一定次数的翻译数据也发送至AI翻译服务&#x0a;能使翻译数据的一致性更强，但也会消耗更多的时间和性能"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid Margin="2,5,2,2" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+                    <Slider Grid.Column="0" Margin="0,0,10,0" Maximum="50" Minimum="0" Value="{Binding HistoryCount}" Ticks="0 5 10 15 20 25 30 35 40 45 50" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                    <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedInteger" CaretBrush="White" Text="{Binding HistoryCount}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Grid.Column="1" Margin="0,0,5,10" BorderThickness="0.1" BorderBrush="White" Foreground="White">
+                <GroupBox.Header>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="规则模板" Foreground="White"/>
+                        <TextBlock Text=" [?]" Foreground="White" Cursor="Help" ToolTip="您的翻译任务会按照您选择的模板进行翻译，您可以自己定义属于您的规则模板"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel>
+                    <ComboBox x:Name="cb_templateDic" Width="100" FontSize="12"  Foreground="White" SelectedItem="{Binding TemplateDic}" DisplayMemberPath="Name" ItemsSource="{Binding Path=TemplateDics,Source={x:Static vm:ViewModelManager.ViewModel}}" SelectionChanged="cb_templateDic_SelectionChanged"/>
+
+                    <Grid Margin="0,15,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="15"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Rectangle Grid.Column="1" Width="1" Grid.RowSpan="3" Margin="0,8,0,3" Fill="Gray"/>
+                        <Rectangle Grid.Row="1" Height="1" Margin="10,0,0,0" Fill="Gray"/>
+                        <Rectangle Grid.Row="1" Grid.Column="2" Height="1" Margin="0,0,10,0" Fill="Gray"/>
+                        <StackPanel >
+                            <Grid Margin="20,0,15,0" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="提示词" Foreground="White" FontSize="10"/>
+                                    <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于生成和模型的对话&#x0a;不同的提示词会导致模型输出不同的结果"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" DataContext="{Binding PromptTemplate}">
+                                    <controls:ViewButton Margin="0,0,2,0" Width="16" Height="16" ToolTip="打开文件" Command="{Binding OpenTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="3">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                    <controls:ViewButton  Width="16" Height="16" ToolTip="打开文件夹" Command="{Binding OpenTemplateFolderCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="2">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                </StackPanel>
+                            </Grid>
+                            <ComboBox x:Name="cb_PromptTemplate" Margin="5" Width="120" Foreground="White" DisplayMemberPath="Name" SelectedItem="{Binding PromptTemplate}" ItemsSource="{Binding Path=SelectedItem.PromptTemplate,ElementName=cb_templateDic}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <Grid Margin="20,0,15,0" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" >
+                                    <TextBlock Text="名词替换" Foreground="White" FontSize="10"/>
+                                    <TextBlock Text=" [?]" Foreground="White" FontSize="10" Cursor="Help" ToolTip="翻译时将部分名词替换成你想要的&#x0a;修改替换词不会对已经被翻译的文本生效"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding ReplaceTemplate}">
+                                    <controls:ViewButton Margin="0,0,2,0" Width="16" Height="16" ToolTip="打开文件" Command="{Binding OpenTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="3">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                    <controls:ViewButton  Width="16" Height="16" ToolTip="打开文件夹" Command="{Binding OpenTemplateFolderCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="2">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                </StackPanel>
+                            </Grid>
+                            <ComboBox x:Name="cb_ReplacesTemplate" Width="120" Margin="5" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding ReplaceTemplate}" ItemsSource="{Binding Path=SelectedItem.ReplaceTemplate,ElementName=cb_templateDic}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="2">
+                            <Grid Margin="20,0,15,0" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="清理校验" Foreground="White" FontSize="10"/>
+                                    <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于校验句子是否需要被清理，不需要翻译&#x0a;清理只在最开始翻译时进行一次&#x0a;并将结果保存到[清理后的数据]中"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" DataContext="{Binding CleanTemplate}">
+                                    <controls:ViewButton Margin="0,0,2,0" Width="16" Height="16" ToolTip="测试" Command="{Binding TestTemplateCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="1,0,3,1.5">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M704 128a32 32 0 0 1 0 64h-21.333333v160.789333a10.666667 10.666667 0 0 0 1.088 4.693334l180.874666 369.6c28.48 58.218667 4.384 128.490667-53.813333 156.970666A117.333333 117.333333 0 0 1 759.242667 896H264.746667c-64.8 0-117.333333-52.533333-117.333334-117.333333a117.333333 117.333333 0 0 1 11.946667-51.573334l180.874667-369.621333a10.666667 10.666667 0 0 0 1.088-4.693333V192h-21.333334a32 32 0 0 1-31.946666-30.122667L288 160a32 32 0 0 1 32-32z m51.968 522.666667H268.010667l-51.157334 104.554666A53.333333 53.333333 0 0 0 264.757333 832H759.253333a53.333333 53.333333 0 0 0 47.893334-76.778667L755.978667 650.666667zM618.666667 192H405.333333v160.789333a74.666667 74.666667 0 0 1-7.594666 32.821334L299.328 586.666667h425.322667l-98.389334-201.066667A74.666667 74.666667 0 0 1 618.666667 352.8V192z"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+
+                                    <controls:ViewButton Margin="0,0,2,0" Width="16" Height="16" ToolTip="打开文件" Command="{Binding OpenTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="3">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                    <controls:ViewButton  Width="16" Height="16" ToolTip="打开文件夹" Command="{Binding OpenTemplateFolderCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="2">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                </StackPanel>
+                            </Grid>
+                            <ComboBox x:Name="cb_CleanTemplate" Margin="5" Width="120" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding CleanTemplate}" ItemsSource="{Binding Path=SelectedItem.CleanTemplate,ElementName=cb_templateDic}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Grid.Row="2"  >
+                            <Grid Margin="20,0,15,0" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" >
+                                    <TextBlock Text="结果校验" Foreground="White" FontSize="10"/>
+                                    <TextBlock Text=" [?]" FontSize="10" Foreground="White" Cursor="Help" ToolTip="用于校验句子是否翻译成功&#x0a;修改结果校验规则不会对已经被翻译的文本生效"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" DataContext="{Binding VerificationTemplate}">
+                                    <controls:ViewButton Margin="0,0,2,0" Width="16" Height="16" ToolTip="测试" Command="{Binding TestTemplateCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="1,0,3,1.5">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M704 128a32 32 0 0 1 0 64h-21.333333v160.789333a10.666667 10.666667 0 0 0 1.088 4.693334l180.874666 369.6c28.48 58.218667 4.384 128.490667-53.813333 156.970666A117.333333 117.333333 0 0 1 759.242667 896H264.746667c-64.8 0-117.333333-52.533333-117.333334-117.333333a117.333333 117.333333 0 0 1 11.946667-51.573334l180.874667-369.621333a10.666667 10.666667 0 0 0 1.088-4.693333V192h-21.333334a32 32 0 0 1-31.946666-30.122667L288 160a32 32 0 0 1 32-32z m51.968 522.666667H268.010667l-51.157334 104.554666A53.333333 53.333333 0 0 0 264.757333 832H759.253333a53.333333 53.333333 0 0 0 47.893334-76.778667L755.978667 650.666667zM618.666667 192H405.333333v160.789333a74.666667 74.666667 0 0 1-7.594666 32.821334L299.328 586.666667h425.322667l-98.389334-201.066667A74.666667 74.666667 0 0 1 618.666667 352.8V192z"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+
+                                    <controls:ViewButton Margin="0,0,2,0" Width="16" Height="16" ToolTip="打开文件" Command="{Binding OpenTemplateFileCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="3">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M219.4 438.9h585.1V512H219.4zM219.4 658.3h585.1v73.1H219.4zM877.7 73.1v73.2h73.2v804.6H73.1V146.3h73.2V73.1H0V1024h1024V73.1zM219.4 0h585.1v219.4H219.4z"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                    <controls:ViewButton  Width="16" Height="16" ToolTip="打开文件夹" Command="{Binding OpenTemplateFolderCommand}" CommandParameter="{Binding Text,ElementName=cb_templateDic}">
+                                        <controls:ViewButton.Content>
+                                            <Viewbox Margin="2">
+                                                <Path Fill="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type controls:ViewButton}}}" Data="M1171.561026 935.253333H88.746667V246.285128h1082.814359zM88.746667 88.746667h398.047179L508.849231 157.538462h-420.102564zM1171.561026 157.538462H601.796923l-30.982564-96.098462A88.221538 88.221538 0 0 0 486.793846 0H88.746667A88.746667 88.746667 0 0 0 0 88.746667v846.506666a88.746667 88.746667 0 0 0 88.746667 88.746667h1082.814359A88.746667 88.746667 0 0 0 1260.307692 935.253333V246.285128A88.746667 88.746667 0 0 0 1171.561026 157.538462"/>
+                                            </Viewbox>
+                                        </controls:ViewButton.Content>
+                                    </controls:ViewButton>
+                                </StackPanel>
+                            </Grid>
+                            <ComboBox x:Name="cb_VerificationTemplate" Margin="5" Width="120" Foreground="White" SelectedIndex="0" DisplayMemberPath="Name" SelectedItem="{Binding VerificationTemplate}" ItemsSource="{Binding Path=SelectedItem.VerificationTemplate,ElementName=cb_templateDic}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Margin="0,0,5,10" BorderThickness="0.1" Header="合并翻译" Foreground="White">
+                <StackPanel DataContext="{Binding TranslatePrams_FirstMult}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
+                            <GroupBox.Header>
+                                <TextBlock Text="MaxTokens" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="8192" Minimum="1" Value="{Binding MaxTokens}" Ticks="16 32 64 128 256 512 1024 1536 2048 2560 3072 3584 4096 4608 5120 5632 6114 6656 7168 7680 8192" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding MaxTokens}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Temperature" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="0" Value="{Binding Temperature}" Ticks="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedDecimal" CaretBrush="White" Text="{Binding Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Frequency Penalty" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2" Grid.Row="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Presence Penalty" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding PresencePenalty}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding PresencePenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="4">
+                            <GroupBox.Header>
+                                <TextBlock Text="Top P" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="1" Minimum="0" Value="{Binding TopP}" Ticks="0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding TopP}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                    <Rectangle Height="1" Fill="Gray" Margin="-5,10,-5,5"/>
+                    <TextBlock Margin="5,0,0,0" Text="终结符"/>
+                    <Rectangle  Height="1" Margin="5,5,160,5" Fill="Gray"/>
+                    <TextBox Margin="5,0,0,0" Background="Transparent" BorderThickness="0" AcceptsReturn="True" Foreground="White" TextWrapping="Wrap" CaretBrush="White" MinHeight="30" Text="{Binding Stops,Converter={StaticResource TranslateStopsParams}}"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Margin="0,0,5,10" BorderThickness="0.1" Header="逐句翻译" Foreground="White">
+                <StackPanel DataContext="{Binding TranslatePrams_FirstSingle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
+                            <GroupBox.Header>
+                                <TextBlock Text="MaxTokens" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="8192" Minimum="1" Value="{Binding MaxTokens}" Ticks="16 32 64 128 256 512 1024 1536 2048 2560 3072 3584 4096 4608 5120 5632 6114 6656 7168 7680 8192" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding MaxTokens}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Temperature" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="0" Value="{Binding Temperature}" Ticks="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedDecimal" CaretBrush="White" Text="{Binding Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Frequency Penalty" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2" Grid.Row="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Presence Penalty" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding PresencePenalty}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding PresencePenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="4">
+                            <GroupBox.Header>
+                                <TextBlock Text="Top P" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="1" Minimum="0" Value="{Binding TopP}" Ticks="0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding TopP}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                    <Rectangle Height="1" Fill="Gray" Margin="-5,10,-5,5"/>
+                    <TextBlock Margin="5,0,0,0" Text="终结符"/>
+                    <Rectangle  Height="1" Margin="5,5,160,5" Fill="Gray"/>
+                    <TextBox Margin="5,0,0,0" Background="Transparent" BorderThickness="0" AcceptsReturn="True" Foreground="White" TextWrapping="Wrap" CaretBrush="White" MinHeight="30" Text="{Binding Stops,Converter={StaticResource TranslateStopsParams}}"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Margin="0,0,5,0" BorderThickness="0.1" Header="重试翻译" Foreground="White">
+                <StackPanel DataContext="{Binding TranslatePrams_Retry}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <GroupBox BorderThickness="0.1" BorderBrush="White" Grid.Column="0">
+                            <GroupBox.Header>
+                                <TextBlock Text="MaxTokens" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="8192" Minimum="1" Value="{Binding MaxTokens}" Ticks="16 32 64 128 256 512 1024 1536 2048 2560 3072 3584 4096 4608 5120 5632 6114 6656 7168 7680 8192" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding MaxTokens}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Temperature" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="0" Value="{Binding Temperature}" Ticks="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" pros:TextBoxAttachedProperties.InputType="UnsignedDecimal" CaretBrush="White" Text="{Binding Temperature}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Frequency Penalty" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding FrequencyPenalty}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding FrequencyPenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="2" Grid.Row="2">
+                            <GroupBox.Header>
+                                <TextBlock Text="Presence Penalty" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="2" Minimum="-2" Value="{Binding PresencePenalty}" Ticks="-2 -1.8 -1.6 -1.4 -1.2 -1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding PresencePenalty}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox  BorderThickness="0.1" BorderBrush="White" Grid.Column="0" Grid.Row="4">
+                            <GroupBox.Header>
+                                <TextBlock Text="Top P" Foreground="White" FontSize="10"/>
+                            </GroupBox.Header>
+                            <Grid Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Margin="0,0,10,0" IsSnapToTickEnabled="True" Maximum="1" Minimum="0" Value="{Binding TopP}" Ticks="0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1" TickPlacement="BottomRight" FocusVisualStyle="{x:Null}"/>
+                                <TextBox Grid.Column="1" CaretBrush="White" Text="{Binding TopP}" Background="Transparent" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                    <Rectangle Height="1" Fill="Gray" Margin="-5,10,-5,5"/>
+                    <TextBlock Margin="5,0,0,0" Text="终结符"/>
+                    <Rectangle  Height="1" Margin="5,5,160,5" Fill="Gray"/>
+                    <TextBox Margin="5,0,0,0" Background="Transparent" BorderThickness="0" AcceptsReturn="True" Foreground="White" TextWrapping="Wrap" CaretBrush="White" MinHeight="30" Text="{Binding Stops,Converter={StaticResource TranslateStopsParams}}"/>
+                </StackPanel>
+            </GroupBox>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

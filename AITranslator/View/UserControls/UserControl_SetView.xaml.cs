@@ -1,4 +1,6 @@
-﻿using AITranslator.Mail;
+﻿using AITranslator.Exceptions;
+using AITranslator.Mail;
+using AITranslator.Translator.Tools;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
 using System;
@@ -46,8 +48,23 @@ namespace AITranslator.View.UserControls
 
         public void EnableSet()
         {
-            (DataContext as ViewModel_SetView)!.Enable();
-            Window_Message.ShowDialog("提示","应用成功");
+            bool saveResult = ExpandedFuncs.TryExceptions(() => (DataContext as ViewModel_SetView)!.Enable(), (err) =>
+            {
+                string errorInfo = string.Empty;
+                if (err is KnownException)
+                    errorInfo = err.Message;
+                else
+                    errorInfo = err.ToString();
+                Window_Message.ShowDialog("错误", $"应用失败:{errorInfo}");
+            });
+
+            if (saveResult)
+                Window_Message.ShowDialog("提示", "应用成功");
+        }
+
+        private void cb_templateDic_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }

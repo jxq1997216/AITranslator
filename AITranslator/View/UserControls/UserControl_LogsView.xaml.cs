@@ -25,9 +25,9 @@ namespace AITranslator.View.UserControls
             InitializeComponent();
         }
 
-        public void ViewToItem(object? item)
+        public void ViewToItem()
         {
-            list_Logs.ScrollIntoView(item);
+            logView.ScrollToBottom();
         }
     }
 }

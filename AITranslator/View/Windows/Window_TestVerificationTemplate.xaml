@@ -1,0 +1,79 @@
+﻿<Window x:Class="AITranslator.View.Windows.Window_TestVerificationTemplate"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AITranslator" xmlns:vm="clr-namespace:AITranslator.View.Models"
+        xmlns:media ="clr-namespace:System.Windows.Media;assembly=PresentationCore"
+        xmlns:calc="clr-namespace:CalcBinding;assembly=CalcBinding" 
+        xmlns:controls="clr-namespace:AITranslator.View.Controls"
+        mc:Ignorable="d"
+        DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
+        Title="Test" SizeToContent="Height" Height="Auto" Width="320" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Background="Transparent" AllowsTransparency="True">
+    <Border x:Name="border_Main" CornerRadius="10" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="1" Color="#FF21252D"/>
+                <GradientStop Offset="0" Color="#FF273146"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FF6B6C6D"/>
+                <GradientStop Offset="1" Color="#FF464646"/>
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Grid>
+            <Grid.Clip>
+                <RectangleGeometry Rect="0 0 318 180.5" RadiusX="9" RadiusY="9"></RectangleGeometry>
+            </Grid.Clip>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid Background="#FF191D25" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                    <TextBlock Margin="10,3,0,0" Grid.ColumnSpan="2" Text="{Binding Title,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Window}}}" FontFamily="{StaticResource English}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12" Foreground="#FFD2D9DC"/>
+                    <StackPanel Margin="5,0,2,0" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
+                        <Button Style="{StaticResource TitleBarButton}" Click="Button_Close_Click">
+                            <Label Content="×" Margin="-5" Foreground="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="12"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Margin="5" Grid.Row="1">
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" Margin="5" Foreground="White" Text="请在下方输入您要测试的文本并点击[测试]按钮"/>
+                        <Grid  Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" Foreground="White" Text="翻译前文本:"/>
+                            <Border Grid.Column="1" BorderThickness="1" BorderBrush="White" Height="25" CornerRadius="12.5" >
+                                <TextBox Text="{Binding Untranslated}" Foreground="White" VerticalAlignment="Center"  CaretBrush="White" HorizontalContentAlignment="Center" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="16"/>
+                            </Border>
+                        </Grid>
+                        <Grid  Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" Foreground="White" Text="翻译后文本:"/>
+                            <Border Grid.Column="1" BorderThickness="1" BorderBrush="White" Height="25" CornerRadius="12.5" >
+                                <TextBox Text="{Binding Translated}" Foreground="White" VerticalAlignment="Center"  CaretBrush="White" HorizontalContentAlignment="Center" Margin="5,0" BorderThickness="0" Background="Transparent" FontSize="16"/>
+                            </Border>
+                        </Grid>
+
+                        <controls:ViewButton Margin="5"  Content="测试" Height="25" Click="Button_Test_Click"/>
+                        <Border Margin="5,0" CornerRadius="5" Height="20" Background="{calc:Binding IsSuccessful ? media:Brushes.Green : media:Brushes.Red}">
+                            <TextBlock Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding FailedMsg}"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+            <Grid Background="#CC000000" Visibility="{calc:Binding Testing,FalseToVisibility=Collapsed}">
+                <TextBlock Text="识别中..." Foreground="White" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

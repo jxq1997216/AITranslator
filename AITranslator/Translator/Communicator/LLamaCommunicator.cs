@@ -20,12 +20,20 @@ using AITranslator.Translator.PostData;
 using AITranslator.Translator.Tools;
 using AITranslator.Translator.Models;
 using System.Reflection.PortableExecutable;
+using LLama.Sampling;
+using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 
 namespace AITranslator.Translator.Communicator
 {
+    public sealed class InstructScriptInput
+    {
+        public List<Message> Messages = new List<Message>();
+    }
     public static class LLamaLoader
     {
-        public static bool Is1B8 => model is not null && model.ParameterCount <= 2000000000;
+        public static Script<string> Script;
+        //public static bool Is1B8 => model is not null && model.ParameterCount <= 2000000000;
         static LLamaWeights model;
         public static StatelessExecutor Executor;
         static LLamaLoader()
@@ -40,13 +48,41 @@ namespace AITranslator.Translator.Communicator
             }
             else
                 llamaPath += "llama.dll";
-            NativeLibraryConfig.Instance.WithLibrary(llamaPath, null);
+            NativeLibraryConfig.LLama.WithLibrary(llamaPath);
+            //NativeLibraryConfig.LLama.WithLogCallback(PrintLog);
         }
 
+
+        //static void PrintLog(LLamaLogLevel level, string message)
+        //{
+        //    Debug.Write(message);
+        //}
+
         static CancellationTokenSource _cts;
-        public static async Task<string> LoadModel()
+        public static async Task<string> LoadModel(string? templateName)
         {
-            ViewModel_CommunicatorLLama vm = ViewModelManager.ViewModel.CommunicatorLLama_ViewModel;
+            if (string.IsNullOrWhiteSpace(templateName))
+                return "请创建并选择对话模板！";
+            string templateFilePath = PublicParams.InstructTemplateDic + $"/{templateName}.csx";
+            if (!File.Exists(templateFilePath))
+                return "当前对话模板不存在！";
+            try
+            {
+                Script = CSharpScript.Create<string>(File.ReadAllText(templateFilePath), ScriptOptions.Default.WithReferences(typeof(Message).Assembly), globalsType: typeof(InstructScriptInput));
+                List<Message> restmessages = [new(AuthorRole.System, "1"), new(AuthorRole.User, "2"), new(AuthorRole.Assistant, "3"), new(AuthorRole.User, "4")];
+                InstructScriptInput testGloableClass = new InstructScriptInput() { Messages = restmessages };
+                _ = Script.RunAsync(testGloableClass).Result.ReturnValue;
+            }
+            catch (CompilationErrorException error)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("脚本错误:");
+                foreach (var diagnostic in error.Diagnostics)
+                    sb.AppendLine(diagnostic.ToString());
+                return sb.ToString();
+            }
+
+            ViewModel_Communicator vm = ViewModelManager.ViewModel.Communicator;
             if (!File.Exists("llama/llama.dll") && !File.Exists("llama/LLamaSelect.dll"))
                 return "模型加载库不存在，请下载对应您显卡版本的模型加载库放入软件目录下的llama文件夹中";
             if (!File.Exists(vm.ModelPath))
@@ -61,7 +97,7 @@ namespace AITranslator.Translator.Communicator
                 _cts = new CancellationTokenSource();
                 CancellationToken ctk = _cts.Token;
                 progress.ProgressChanged += Progress_ProgressChanged;
-                await LLamaLoader.Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, vm.FlashAttention, ctk, progress);
+                await Load(vm.ModelPath, vm.GpuLayerCount, vm.ContextSize, vm.FlashAttention, ctk, progress);
             }
             catch (KnownException err)
             {
@@ -87,7 +123,7 @@ namespace AITranslator.Translator.Communicator
         }
         private static void Progress_ProgressChanged(object? sender, float e)
         {
-            ViewModelManager.ViewModel.CommunicatorLLama_ViewModel.ModelLoadProgress = Math.Round(e * 100, 1);
+            ViewModelManager.ViewModel.Communicator.ModelLoadProgress = Math.Round(e * 100, 1);
         }
 
         public static async Task Load(string modelPath, int gpuLayerCount, uint contextSize, bool flashAttention, CancellationToken ctk, IProgress<float> progressReporter)
@@ -99,8 +135,14 @@ namespace AITranslator.Translator.Communicator
                     ContextSize = contextSize,
                     GpuLayerCount = gpuLayerCount,
                     FlashAttention = flashAttention,
+                    //Threads = 0,
+                    //BatchThreads = 0,
+                    //BatchSize = 512,
+                    //RopeFrequencyBase = 0,
                 };
                 model = await LLamaWeights.LoadFromFileAsync(parameters, ctk, progressReporter);
+                //foreach (var item in model.Metadata)
+                //    Debug.WriteLine($"{item.Key}:{item.Value}");
                 Executor = new StatelessExecutor(model, parameters);
             }
             catch (OperationCanceledException err)
@@ -120,13 +162,15 @@ namespace AITranslator.Translator.Communicator
         public static void Unload()
         {
             Executor = null;
+            GC.Collect();
             model?.Dispose();
         }
     }
+
     internal class LLamaCommunicator : ICommunicator
     {
         CancellationTokenSource _cts;
-
+        Stopwatch sw = new Stopwatch();
         public LLamaCommunicator()
         {
             _cts = new CancellationTokenSource();
@@ -143,9 +187,9 @@ namespace AITranslator.Translator.Communicator
             };
             return new(role, exampleDialogue.content);
         }
-        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText)
+        public string Translate(PostDataBase postData, ExampleDialogue[] headers, ExampleDialogue[] histories, string inputText, out double speed)
         {
-            LLamaPostData _postData = postData as LLamaPostData;
+            speed = 0;
             CancellationToken token = _cts.Token;
 
             Message[] _headers = new Message[headers.Length];
@@ -159,11 +203,7 @@ namespace AITranslator.Translator.Communicator
                 _histories.Add(ExampleDialogueToMessage(history));
 
 
-            InferenceParams inferenceParams = new InferenceParams()
-            {
-                MaxTokens = _postData.max_tokens,
-                AntiPrompts = _postData.stop,
-            };
+            InferenceParams inferenceParams = new PostDataNormal() { Base = postData }.ToInferenceParams();
 
             string str = string.Empty;
             bool noKvSlotError = false;
@@ -171,12 +211,14 @@ namespace AITranslator.Translator.Communicator
             {
                 try
                 {
-                    List<Message> messages = new List<Message>();
-                    messages.AddRange(_headers);
-                    messages.AddRange(_histories);
-                    messages.Add(new(AuthorRole.User, inputText));
-                    string data = HistoryToText(messages);
-                    str = string.Join(string.Empty, LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token));
+                    List<Message> messages = [.. _headers, .. _histories, new(AuthorRole.User, inputText)];
+                    InstructScriptInput gloableClass = new InstructScriptInput() { Messages = messages };
+                    string data = LLamaLoader.Script.RunAsync(gloableClass).Result.ReturnValue;
+                    sw.Restart();
+                    List<string> resultText = LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token).ToList();
+                    sw.Stop();
+                    str = string.Join(string.Empty, resultText);
+                    speed = resultText.Count / (sw.ElapsedMilliseconds / 1000d);
                     noKvSlotError = false;
                 }
                 catch (LLamaDecodeError err)
@@ -199,31 +241,6 @@ namespace AITranslator.Translator.Communicator
                 }
             } while (noKvSlotError);
 
-
-            //Task<string> translateTask;
-            //try
-            //{
-
-            //    translateTask = Task.Run(() => string.Join("", LLamaLoader.Executor.InferAsync(data, inferenceParams, token).ToBlockingEnumerable(token)));
-
-            //    while (!translateTask.IsCompleted)
-            //    {
-            //        if (_cts.Token.IsCancellationRequested)
-            //            throw new KnownException("按下暂停按钮");
-
-            //        Thread.Sleep(100);
-            //    }
-            //}
-            //catch (TaskCanceledException)
-            //{
-            //    return string.Empty;
-            //}
-            //catch (ObjectDisposedException)
-            //{
-            //    return string.Empty;
-            //}
-            //string str = translateTask.Result;
-
             foreach (var stop in postData.stop)
             {
                 if (str.EndsWith(stop))
@@ -241,32 +258,5 @@ namespace AITranslator.Translator.Communicator
         {
             _cts.Dispose();
         }
-
-        string HistoryToText(List<Message> example)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (var message in example)
-                EncodeMessage(message, sb);
-            EncodeHeader(new Message(AuthorRole.Assistant, ""), sb);
-            return sb.ToString();
-        }
-
-        private void EncodeHeader(Message message, StringBuilder sb)
-        {
-            sb.Append(StartHeaderId);
-            sb.Append(message.AuthorRole.ToString());
-            sb.Append('\n');
-        }
-
-        private void EncodeMessage(ChatHistory.Message message, StringBuilder sb)
-        {
-            EncodeHeader(message, sb);
-            sb.Append(message.Content);
-            sb.Append(EndHeaderId);
-            sb.Append('\n');
-        }
-
-        private const string StartHeaderId = "<|im_start|>";
-        private const string EndHeaderId = "<|im_end|>";
     }
 }

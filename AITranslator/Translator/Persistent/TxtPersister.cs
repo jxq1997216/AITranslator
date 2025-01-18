@@ -23,7 +23,23 @@ namespace AITranslator.Translator.Persistent
             string fileBakName = fileNameNoExtension + "_bak" + fileExtension;
             try
             {
-                string strSource = ReadNovel(filePath).Replace("\r\n", "\n");
+                string strSource;
+                if (File.Exists(fileBakName))
+                {
+                    try
+                    {
+                        strSource = ReadNovel(fileBakName);
+                        File.Move(fileBakName, fileName, true);
+                    }
+                    catch (Exception)
+                    {
+                        File.Delete(fileBakName);
+                        strSource = ReadNovel(fileName);
+                    }
+                }
+                else
+                    strSource = ReadNovel(fileName);
+
                 return strSource.Split("\n").Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
             }
             catch (IOException err)
@@ -85,7 +101,7 @@ namespace AITranslator.Translator.Persistent
                     using (StreamReader file = new StreamReader(filenameTxt, enc))
                     {
                         string content = file.ReadToEnd();
-                        return content;
+                        return content.Replace("\r\n", "\n");
                     }
                 }
                 catch (DecoderFallbackException)

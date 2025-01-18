@@ -19,13 +19,9 @@ namespace AITranslator.Translator.Models
         /// </summary>
         public string FileName { get; set; }
         /// <summary>
-        /// 日语/英语
+        /// 翻译模板配置
         /// </summary>
-        public bool IsEnglish { get; set; }
-        /// <summary>
-        /// 上下文记忆数量
-        /// </summary>
-        public uint HistoryCount { get; set; }
+        public string? TemplateConfig { get; set; }
         /// <summary>
         /// 翻译类型
         /// </summary>
@@ -37,7 +33,7 @@ namespace AITranslator.Translator.Models
         /// <summary>
         /// 替换文本
         /// </summary>
-        public Dictionary<string,string> Replaces { get; set; }
+        public Dictionary<string, string> Replaces { get; set; } = new Dictionary<string, string>();
         /// <summary>
         /// 当前任务状态
         /// </summary>

@@ -24,12 +24,20 @@ namespace AITranslator
         {
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
+        //用于检测用户关闭软件，用来做一些处理防止翻译结果文件损坏，不能写太耗时的操作，不然会完成不了，暂时没写
+        void CurrentDomain_ProcessExit(object? sender, EventArgs e)
+        {
+
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
+#if RELEASE
             int port = 30018;
             if (e.Args.Length != 0)
             {
@@ -51,6 +59,7 @@ namespace AITranslator
 
             UdpClient server = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             server.BeginReceive(Receive, server);
+#endif
             base.OnStartup(e);
         }
         static void Receive(IAsyncResult ar)

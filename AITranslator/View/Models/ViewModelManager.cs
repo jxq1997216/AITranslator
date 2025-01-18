@@ -17,15 +17,7 @@ namespace AITranslator.View.Models
     /// </summary>
     public static class ViewModelManager
     {
-        static bool _setted = false;
         public static ViewModel ViewModel { get; private set; } = new ViewModel();
-        public static void SetViewModel(ViewModel vm)
-        {
-            if (_setted)
-                throw new InvalidOperationException("已设置过ViewModel，不能再次设置");
-            ViewModel = vm;
-            _setted = true;
-        }
 
         /// <summary>
         /// 打印控制台
@@ -44,12 +36,9 @@ namespace AITranslator.View.Models
             ConfigSave_Base save = new ConfigSave_Base()
             {
                 AgreedStatement = ViewModel.AgreedStatement,
-                CommunicatorType = ViewModel.CommunicatorType,
+                DefaultCommunicator = ViewModel.DefaultCommunicatorParam?.Name
             };
             save.Set.CopyFromViewModel(ViewModel.SetView_ViewModel);
-            save.CommunicatorLLama.CopyFromViewModel(ViewModel.CommunicatorLLama_ViewModel);
-            save.CommunicatorOpenAI.CopyFromViewModel(ViewModel.CommunicatorOpenAI_ViewModel);
-            save.CommunicatorTGW.CopyFromViewModel(ViewModel.CommunicatorTGW_ViewModel);
 
             JsonPersister.Save(save, PublicParams.ConfigPath_LoadModel, true);
         }
@@ -59,18 +48,21 @@ namespace AITranslator.View.Models
         /// </summary>
         public static void LoadBaseConfig()
         {
-            if (File.Exists(PublicParams.ConfigPath_LoadModel))
-            {
-                ConfigSave_Base save = JsonPersister.Load<ConfigSave_Base>(PublicParams.ConfigPath_LoadModel);
-                ViewModel.AgreedStatement = save.AgreedStatement;
-                ViewModel.CommunicatorType = save.CommunicatorType;
-                save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
-                save.CommunicatorLLama.CopyToViewModel(ViewModel.CommunicatorLLama_ViewModel);
-                save.CommunicatorOpenAI.CopyToViewModel(ViewModel.CommunicatorOpenAI_ViewModel);
-                save.CommunicatorTGW.CopyToViewModel(ViewModel.CommunicatorTGW_ViewModel);
-            }
-            else
+            if (!File.Exists(PublicParams.ConfigPath_LoadModel))
                 SaveBaseConfig();
+
+            ConfigSave_Base save = JsonPersister.Load<ConfigSave_Base>(PublicParams.ConfigPath_LoadModel);
+            ViewModel.AgreedStatement = save.AgreedStatement;
+            if (save.DefaultCommunicator is not null)
+                ViewModel.DefaultCommunicatorParam = ViewModel.CommunicatorParams.FirstOrDefault(s => s.Name == save.DefaultCommunicator);
+
+            if (ViewModel.DefaultCommunicatorParam is null)
+                ViewModel.DefaultCommunicatorParam = ViewModel.CommunicatorParams.FirstOrDefault();
+
+            if (Window_Message.DefaultOwner is Window_Main win_Main)
+                win_Main.uc_ModelLoader.CurrentCommunicatorParam = ViewModel.DefaultCommunicatorParam;
+            save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
+
         }
 
         public static bool ShowDialogMessage(string title, string message, bool isSingleBtn = true, Window? owner = null)

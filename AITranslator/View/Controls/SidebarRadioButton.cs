@@ -74,22 +74,39 @@ DependencyProperty.Register(nameof(AnimProgress), typeof(double), typeof(Sidebar
         }
 
 
-        public static readonly DependencyProperty EnterBackgroundProperty =
-          DependencyProperty.Register(nameof(EnterBackground), typeof(Color), typeof(SidebarRadioButton));
+        public static readonly DependencyProperty UncheckedEnterBackgroundProperty =
+          DependencyProperty.Register(nameof(UncheckedEnterBackground), typeof(Color), typeof(SidebarRadioButton));
 
-        public Color EnterBackground
+        public Color UncheckedEnterBackground
         {
-            get => (Color)GetValue(EnterBackgroundProperty);
-            set => SetValue(EnterBackgroundProperty, value);
+            get => (Color)GetValue(UncheckedEnterBackgroundProperty);
+            set => SetValue(UncheckedEnterBackgroundProperty, value);
         }
 
-        public static readonly DependencyProperty LeaveBackgroundProperty =
-            DependencyProperty.Register(nameof(LeaveBackground), typeof(Color), typeof(SidebarRadioButton));
+        public static readonly DependencyProperty UncheckedBackgroundProperty =
+            DependencyProperty.Register(nameof(UncheckedBackground), typeof(Color), typeof(SidebarRadioButton));
 
-        public Color LeaveBackground
+        public Color UncheckedBackground
         {
-            get => (Color)GetValue(LeaveBackgroundProperty);
-            set => SetValue(LeaveBackgroundProperty, value);
+            get => (Color)GetValue(UncheckedBackgroundProperty);
+            set => SetValue(UncheckedBackgroundProperty, value);
+        }
+
+        public static readonly DependencyProperty CheckedEnterBackgroundProperty =
+  DependencyProperty.Register(nameof(CheckedEnterBackground), typeof(Color), typeof(SidebarRadioButton));
+
+        public Color CheckedEnterBackground
+        {
+            get => (Color)GetValue(CheckedEnterBackgroundProperty);
+            set => SetValue(CheckedEnterBackgroundProperty, value);
+        }
+
+        public static readonly DependencyProperty CheckedBackgroundProperty =
+DependencyProperty.Register(nameof(CheckedBackground), typeof(Color), typeof(SidebarRadioButton));
+        public Color CheckedBackground
+        {
+            get => (Color)GetValue(CheckedBackgroundProperty);
+            set => SetValue(CheckedBackgroundProperty, value);
         }
 
         public static readonly DependencyProperty CornerRadiusProperty =
@@ -101,12 +118,6 @@ DependencyProperty.Register(nameof(CornerRadius), typeof(CornerRadius), typeof(S
             set => SetValue(CornerRadiusProperty, value);
         }
 
-        public static readonly DependencyProperty CheckedBackgroundProperty =
-DependencyProperty.Register(nameof(CheckedBackground), typeof(Color), typeof(SidebarRadioButton));
-        public Color CheckedBackground
-        {
-            get => (Color)GetValue(CheckedBackgroundProperty);
-            set => SetValue(CheckedBackgroundProperty, value);
-        }
+
     }
 }

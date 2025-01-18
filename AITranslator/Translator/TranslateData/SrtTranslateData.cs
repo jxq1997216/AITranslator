@@ -53,21 +53,25 @@ namespace AITranslator.Translator.TranslateData
         public string FileName { get; set; }
         public string DicName { get; set; }
         /// <summary>
-        /// 原始翻译数据
+        /// 原始数据
         /// </summary>
-        public Dictionary<int, SrtData>? Dic_Cleaned;
+        public Dictionary<int, SrtData>? Dic_Source { get; private set; }
+        /// <summary>
+        /// 清理后的数据
+        /// </summary>
+        public Dictionary<int, SrtData>? Dic_Cleaned { get; private set; }
         /// <summary>
         /// 翻译成功的数据
         /// </summary>
-        public Dictionary<int, SrtData>? Dic_Successful;
+        public Dictionary<int, SrtData>? Dic_Successful { get; private set; }
         /// <summary>
         /// 翻译失败的数据
         /// </summary>
-        public Dictionary<int, SrtData>? Dic_Failed;
+        public Dictionary<int, SrtData>? Dic_Failed { get; private set; }
         /// <summary>
         /// 未翻译的数据
         /// </summary>
-        public Dictionary<int, SrtData> Dic_NotTranslated = new Dictionary<int, SrtData>();
+        public Dictionary<int, SrtData> Dic_NotTranslated { get; private set; } = new Dictionary<int, SrtData>();
 
         public SrtTranslateData(string dicName, string fileName)
         {
@@ -78,6 +82,12 @@ namespace AITranslator.Translator.TranslateData
         }
         public void ReloadData()
         {
+            string sourceFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Source);
+            if (File.Exists(sourceFile))
+                Dic_Source = SrtPersister.Load(sourceFile);
+            else
+                throw new KnownException("不存在清理后的文件！");
+
             string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
             if (File.Exists(cleanedFile))
                 Dic_Cleaned = SrtPersister.Load(cleanedFile);
@@ -100,7 +110,7 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 获取未翻译的内容
         /// </summary>
-        public void GetNotTranslatedData()
+        public void GetUntranslatedData()
         {
             Dic_NotTranslated.Clear();
             foreach (var key in Dic_Cleaned.Keys)
@@ -112,13 +122,20 @@ namespace AITranslator.Translator.TranslateData
                 Dic_NotTranslated[key] = Dic_Cleaned[key];
             }
         }
-
+        /// <summary>
+        /// 清除翻译失败的内容，用于重翻
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public void ClearFailedData()
+        {
+            Dic_Failed.Clear();
+        }
         public double GetProgress()
         {
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;
         }
 
-        public static void Clear(string dicName)
+        public static void Clear(string dicName,string clearTemplatePath)
         {
             Dictionary<int, SrtData> dic_Source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -127,12 +144,7 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            ////替换名词
-            //foreach (var source in dic_Source)
-            //{
-            //    foreach (var replace in replaces)
-            //        source.Value.Text = source.Value.Text.Replace(replace.Key, replace.Value);
-            //}
+            dic_Source = dic_Source.Pretreatment(clearTemplatePath);
 
             SrtPersister.Save(dic_Source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
         }

@@ -1,60 +1,161 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ApplicationIcon>View\Resources\Icon\Icon.ico</ApplicationIcon>
-	<FileVersion>2.1.5</FileVersion>
-	<Authors>FireFrog</Authors>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<ApplicationIcon>View\Resources\Icon\Icon.ico</ApplicationIcon>
+		<FileVersion>2.2.0</FileVersion>
+		<Authors>FireFrog</Authors>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<SatelliteResourceLanguages>null</SatelliteResourceLanguages>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
-    <None Remove="内置参数\固定示例对话_en.json" />
-    <None Remove="内置参数\固定示例对话_en_1b8.json" />
-    <None Remove="内置参数\固定示例对话_jp.json" />
-    <None Remove="内置参数\固定示例对话_jp_1b8.json" />
-    <None Remove="内置参数\屏蔽列表.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
+		<None Remove="Window_Main.xaml.cs~RF85b1393.TMP" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="View\Resources\Icon\Icon.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="View\Resources\Icon\Icon.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CalcBinding" Version="2.5.2" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="H.NotifyIcon.Wpf" Version="2.0.131" />
-    <PackageReference Include="LLamaSharp" Version="0.13.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CalcBinding" Version="2.5.2" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="CsvHelper" Version="33.0.1" />
+		<PackageReference Include="H.NotifyIcon.Wpf" Version="2.2.0" />
+		<PackageReference Include="LLamaSharp" Version="0.19.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.12.0" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
-    <Resource Include="内置参数\固定示例对话_en.json" />
-    <Resource Include="内置参数\固定示例对话_en_1b8.json" />
-    <Resource Include="内置参数\固定示例对话_jp.json" />
-    <Resource Include="内置参数\固定示例对话_jp_1b8.json" />
-    <Resource Include="内置参数\屏蔽列表.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="View\Resources\Font\AGARAMONDPRO-BOLD.OTF" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="View\UserControls\UserControl_SetView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="View\UserControls\UserControl_Template.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Update="View\UserControls\UserControl_SetView.xaml.cs">
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="加载器\TGW.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\字幕 日→中 ChatML.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\字幕 英→中 ChatML.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\文本 日→中 ChatML.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\文本 英→中 ChatML.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\游戏 日→中 ChatML.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\名词替换\空.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\名词替换\示例模板.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="加载器\内置加载器\对话格式\Gemma2.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="加载器\内置加载器\对话格式\ChatML.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\提示词\其他.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\提示词\游戏_1b8.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\提示词\游戏.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\校验规则\字幕.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\校验规则\游戏.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\校验规则\不校验.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\校验规则\文本.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\清理规则\不清理.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\清理规则\游戏.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\日文→中文\清理规则\默认.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\游戏 英→中 ChatML.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\名词替换\示例模板.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\名词替换\空.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\提示词\其他.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\提示词\游戏_1b8.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\提示词\游戏.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\校验规则\不校验.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\校验规则\字幕.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\校验规则\文本.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\校验规则\游戏.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\清理规则\不清理.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\清理规则\游戏.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="模板\英文→中文\清理规则\默认.csx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

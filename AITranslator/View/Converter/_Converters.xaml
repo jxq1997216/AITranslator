@@ -3,7 +3,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     
     <converter:AnimProgressTo2ColorConver x:Key="AnimProgressTo2Color"/>
-    <converter:AnimProgressTo3ColorConver x:Key="AnimProgressTo3Color"/>
+    <converter:AnimProgressTo4ColorConver x:Key="AnimProgressTo4Color"/>
     <converter:HeightToMarginConverter x:Key="HeightToMargin"/>
     <converter:StartButtonTextConverter x:Key="StartButtonText"/>
     <converter:CollectionCountToStrConverter x:Key="CollectionCountToStr"/>
@@ -17,6 +17,8 @@
     <converter:CommunicatorTypeToIndexConverter x:Key="CommunicatorTypeToIndex"/>
     <converter:TaskStateToStringConverter x:Key="TaskStateToString"/>
     <converter:TaskStateToEnableConverter x:Key="TaskStateToEnable"/>
+    <converter:TaskStateToSpeedVisibilityConverter x:Key="TaskStateToSpeedVisibility"/>
     <converter:ViewTitleConverter x:Key="ViewTitle"/>
-
+    <converter:ComboBoxStyleMarginConverter x:Key="ComboBoxStyleMargin"/>
+    <converter:TranslateStopsParamsConverter x:Key="TranslateStopsParams"/>
 </ResourceDictionary>

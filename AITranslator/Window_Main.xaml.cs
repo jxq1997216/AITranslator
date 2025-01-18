@@ -1,39 +1,17 @@
-﻿using AITranslator.Exceptions;
-using AITranslator.Translator.Communicator;
-using AITranslator.Translator.Models;
+﻿using AITranslator.Translator.Models;
 using AITranslator.Translator.Persistent;
-using AITranslator.Translator.Pretreatment;
 using AITranslator.Translator.Tools;
-using AITranslator.Translator.TranslateData;
-using AITranslator.Translator.Translation;
 using AITranslator.View.Models;
 using AITranslator.View.Windows;
-using Microsoft.Win32;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Resources;
-using System.Windows.Shapes;
-using Path = System.IO.Path;
 
 namespace AITranslator
 {
@@ -42,9 +20,10 @@ namespace AITranslator
     /// </summary>
     public partial class Window_Main : Window
     {
+        bool templateLoaded = false;
         public Window_Main()
         {
-            ServicePointManager.SecurityProtocol =  SecurityProtocolType.Tls |
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls |
                                                     SecurityProtocolType.Tls11 |
                                                     SecurityProtocolType.Tls12 |
                                                     SecurityProtocolType.Tls13;
@@ -54,13 +33,17 @@ namespace AITranslator
             Window_Message.DefaultOwner = this;
 
             //初始化ViewModel
-            ViewModel vm = (DataContext as ViewModel)!;
+            ViewModel vm = ViewModelManager.ViewModel;
             vm.Dispatcher = Dispatcher;
             vm.Consoles.CollectionChanged += Consoles_CollectionChanged;
-            ViewModelManager.SetViewModel(vm);
+            CheckTemplateChanged();
+            Task.Factory.StartNew(CheckTemplateChangedCycle, TaskCreationOptions.LongRunning);
         }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            while (!templateLoaded)
+                Thread.Sleep(10);
             //读取初始化配置
             InitState();
         }
@@ -85,19 +68,28 @@ namespace AITranslator
             {
                 //加载配置信息
                 ViewModelManager.LoadBaseConfig();
-
                 if (!ViewModelManager.ViewModel.AgreedStatement)
                 {
-                    Window_Statement window_Statement = new Window_Statement();
-                    window_Statement.Owner = this;
-                    bool agreed = window_Statement.ShowDialog()!.Value;
-                    if (!agreed)
+                    Task.Run(() =>
                     {
-                        Environment.Exit(0);
-                        return;
-                    }
-                    ViewModelManager.ViewModel.AgreedStatement = agreed;
-                    ViewModelManager.SaveBaseConfig();
+                        Thread.Sleep(1);
+
+                        bool agreed = Dispatcher.Invoke(() =>
+                        {
+                            Window_Statement window_Statement = new Window_Statement();
+                            window_Statement.Owner = this;
+                            return window_Statement.ShowDialog()!.Value;
+                        });
+
+                        if (!agreed)
+                        {
+                            Environment.Exit(0);
+                            return;
+                        }
+                        ViewModelManager.ViewModel.AgreedStatement = agreed;
+                        ViewModelManager.SaveBaseConfig();
+
+                    });
                 }
 
             }
@@ -133,12 +125,7 @@ namespace AITranslator
         private void Consoles_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                // 获取最后一个添加的项            
-                var newItem = e.NewItems[0];
-                // 滚动到最后一个添加的项
-                uc_Logs.ViewToItem(newItem);
-            }
+                uc_Logs.ViewToItem();   // 滚动到最后
         }
 
         private void tbIcon_TrayLeftMouseDoubleClick(object sender, RoutedEventArgs e) => AnimShow();
@@ -192,10 +179,188 @@ namespace AITranslator
             Close();
         }
 
-
-        private void Button_EnableSet_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 拖入文件时切换到翻译中视图
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_PreviewDragEnter(object sender, DragEventArgs e)
         {
-            uc_Set.EnableSet();
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Link;
+                rb_TranslatingView.IsChecked = true;
+            }
+            else
+                e.Effects = DragDropEffects.None;
+        }
+
+        /// <summary>
+        /// 拖入文件完成时新建任务
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_PreviewDrop(object sender, DragEventArgs e)
+        {
+            string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (var path in paths)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    FileAttributes attr = File.GetAttributes(path);
+                    //如果是文件夹
+                    if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                        ViewModelManager.ViewModel.CreatAddTaskFromFolder(path);
+                    else
+                        ViewModelManager.ViewModel.CreatAddTaskFromFile(path);
+                });
+            }
+        }
+
+        void CheckTemplateChangedCycle()
+        {
+            while (true)
+            {
+                try
+                {
+                    CheckTemplateChanged();
+                }
+                catch (Exception err)
+                {
+                    ViewModelManager.WriteLine(err.ToString());
+                }
+                templateLoaded = true;
+                Thread.Sleep(1000);
+            }
+        }
+
+        void CheckTemplateChanged()
+        {
+            ViewModel vm = ViewModelManager.ViewModel;
+            CheckDicChanged();
+            foreach (var templateDic in ViewModelManager.ViewModel.TemplateDics)
+            {
+                if (CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.ReplaceTemplateDic}", "*.json", TemplateType.Replace, templateDic.ReplaceTemplate))
+                    Dispatcher.Invoke(() => templateDic.ReplaceTemplate = new ObservableCollection<Template>(templateDic.ReplaceTemplate.OrderBy(s => s.Name)));
+
+                if (CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.PromptTemplateDic}", "*.json", TemplateType.Prompt, templateDic.PromptTemplate))
+                    Dispatcher.Invoke(() => templateDic.PromptTemplate = new ObservableCollection<Template>(templateDic.PromptTemplate.OrderBy(s => s.Name)));
+
+                if (CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.CleanTemplateDic}", "*.csx", TemplateType.Clean, templateDic.CleanTemplate))
+                    Dispatcher.Invoke(() => templateDic.CleanTemplate = new ObservableCollection<Template>(templateDic.CleanTemplate.OrderBy(s => s.Name)));
+
+                if (CheckFileChanged($"{PublicParams.TemplatesDic}/{templateDic.Name}/{PublicParams.VerificationTemplateDic}", "*.csx", TemplateType.Verification, templateDic.VerificationTemplate))
+                    Dispatcher.Invoke(() => templateDic.VerificationTemplate = new ObservableCollection<Template>(templateDic.VerificationTemplate.OrderBy(s => s.Name)));
+
+            }
+            if (CheckFileChanged(PublicParams.InstructTemplateDic, "*.csx", TemplateType.Instruct, vm.InstructTemplate))
+                Dispatcher.Invoke(() => vm.InstructTemplate = new ObservableCollection<Template>(ViewModelManager.ViewModel.InstructTemplate.OrderBy(s => s.Name)));
+
+
+            if (CheckFileChanged(PublicParams.TemplatesDic, "*.json", TemplateType.TemplateConfig, vm.TemplateConfigs))
+                Dispatcher.Invoke(() => vm.TemplateConfigs = new ObservableCollection<Template>(vm.TemplateConfigs.OrderBy(s => s.Name)));
+
+            if (CheckFileChanged(PublicParams.CommunicatorDic, "*.json", TemplateType.Communicator, vm.CommunicatorParams))
+                Dispatcher.Invoke(() => vm.CommunicatorParams = new ObservableCollection<Template>(vm.CommunicatorParams.OrderBy(s => s.Name)));
+
+
+            if (vm.InstructTemplate.Count > 0 &&
+                vm.Communicator.CurrentInstructTemplate is null)
+                vm.Communicator.CurrentInstructTemplate = vm.InstructTemplate[0];
+
+            if (vm.TemplateConfigs.Count > 0 &&
+                uc_Template.CurrentTemplateConfig is null)
+                uc_Template.CurrentTemplateConfig = vm.TemplateConfigs[0];
+
+
+            //if (vm.CommunicatorParams.Count > 0 &&
+            //    uc_ModelLoader.CurrentCommunicatorParam is null)
+            //    uc_ModelLoader.CurrentCommunicatorParam = vm.CommunicatorParams[0];
+        }
+
+        bool CheckFileChanged(string dicName, string extension, TemplateType templateType, ObservableCollection<Template> templates)
+        {
+            if (!Directory.Exists(dicName))
+                Directory.CreateDirectory(dicName);
+            //读取名词替换模板文件夹信息，加载名词替换模板列表
+            FileInfo[] templateFiles = Directory.GetFiles(dicName, extension).Select(s => new FileInfo(s)).OrderBy(s => s.CreationTime).ToArray();
+            bool changed = false;
+            foreach (var fileInfo in templateFiles)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    string fileName = fileInfo.Name[..^fileInfo.Extension.Length];
+                    if (!templates.Any(s => s.Name == fileName))
+                    {
+                        Template template = new Template(fileName, templateType);
+                        Dispatcher.Invoke(() => templates.Add(template));
+                        changed = true;
+                    }
+                },
+                ShowDialog: false);
+            }
+            for (int i = 0; i < templates.Count; i++)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    if (!templateFiles.Any(s => s.Name[..^s.Extension.Length] == templates[i].Name))
+                    {
+                        Dispatcher.Invoke(() => templates.RemoveAt(i));
+                        changed = true;
+                        i--;
+                    }
+                },
+              ShowDialog: false);
+            }
+
+            return changed;
+        }
+
+        void CheckDicChanged()
+        {
+            string templatesDicName = PublicParams.TemplatesDic;
+            ObservableCollection<TemplateDic> templates = ViewModelManager.ViewModel.TemplateDics;
+            if (!Directory.Exists(templatesDicName))
+                Directory.CreateDirectory(templatesDicName);
+            DirectoryInfo[] templateDics = Directory.GetDirectories(templatesDicName).Select(s => new DirectoryInfo(s)).ToArray();
+            foreach (var dicInfo in templateDics)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    if (!templates.Any(s => s.Name == dicInfo.Name))
+                    {
+                        TemplateDic templateDic = new TemplateDic(dicInfo.Name);
+                        Dispatcher.Invoke(() => templates.Add(templateDic));
+                    }
+                },
+                ShowDialog: false);
+            }
+            for (int i = 0; i < templates.Count; i++)
+            {
+                ExpandedFuncs.TryExceptions(() =>
+                {
+                    if (!templateDics.Any(s => s.Name == templates[i].Name))
+                    {
+                        Dispatcher.Invoke(() => templates.RemoveAt(i));
+                        i--;
+                    }
+                },
+              ShowDialog: false);
+            }
+        }
+
+
+        private void Button_EnableSet_Click(object sender, RoutedEventArgs e) => uc_Set.EnableSet();
+
+        private void ComboBox_Template_SelectionChanged(object sender, SelectionChangedEventArgs e) => uc_Template.UpdataContext();
+        private void Button_CopyTemplate_Click(object sender, RoutedEventArgs e) => uc_Template.CopyTemplate();
+        private void Button_SaveTemplate_Click(object sender, RoutedEventArgs e) => uc_Template.SaveTemplate();
+        private void Button_SetManualParams_Click(object sender, RoutedEventArgs e)
+        {
+            Window_SetManualParams setWindow = new Window_SetManualParams();
+            setWindow.DataContext = uc_ManualTranslate;
+            setWindow.Owner = this;
+            setWindow.ShowDialog();
         }
     }
 }

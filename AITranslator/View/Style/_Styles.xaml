@@ -9,5 +9,6 @@
         <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/SidebarRadioButton.xaml"/>
         <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/Styles_ScrollBar.xaml"/>
         <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/Styles_ScrollViewer.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/AITranslator;component/View/Style/LogView.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

@@ -8,18 +8,23 @@ using AITranslator.Translator.Translation;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CsvHelper.Configuration;
+using CsvHelper;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using static System.Net.Mime.MediaTypeNames;
 using FileLoadException = AITranslator.Exceptions.FileLoadException;
+using FileNotFoundException = AITranslator.Exceptions.FileNotFoundException;
 
 namespace AITranslator.View.Models
 {
@@ -79,6 +84,16 @@ namespace AITranslator.View.Models
         [ObservableProperty]
         private string dicName;
         /// <summary>
+        /// 翻译规则模板
+        /// </summary>
+        [ObservableProperty]
+        private Template? templateConfig;
+        /// <summary>
+        /// 翻译规则模板具体数据
+        /// </summary>
+        [ObservableProperty]
+        ConfigSave_DefaultTemplate templateConfigParams;
+        /// <summary>
         /// 文本替换列表
         /// </summary>
         [ObservableProperty]
@@ -88,26 +103,16 @@ namespace AITranslator.View.Models
         /// </summary>
         [ObservableProperty]
         private TaskState state;
-
         /// <summary>
         /// 翻译进度
         /// </summary>
         [ObservableProperty]
         private double progress;
-
         /// <summary>
-        /// 是否是英语翻译
+        /// 翻译速度tokens/s
         /// </summary>
         [ObservableProperty]
-        private bool isEnglish;
-
-        /// <summary>
-        /// 上下文记忆数量
-        /// </summary>
-        [Range(typeof(uint), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
-        [ObservableProperty]
-        private uint historyCount = 5;
-
+        private double speed;
         /// <summary>
         /// 翻译类型
         /// </summary>
@@ -116,25 +121,42 @@ namespace AITranslator.View.Models
 
         public TranslationTask() { }
 
-        public TranslationTask(FileInfo file)
+        /// <summary>
+        /// 创建一个全新的翻译项目
+        /// </summary>
+        /// <param name="file"></param>
+        /// <exception cref="KnownException"></exception>
+        public TranslationTask(TranslateDataType type, string path, string fileName)
         {
-            switch (file.Extension)
+            ViewModel_DefaultTemplate? defaultTemplate = new ViewModel_DefaultTemplate();
+            FileName = fileName;
+            TranslateType = type;
+            switch (TranslateType)
             {
-                case ".json":
-                    TranslateType = TranslateDataType.KV;
-                    Dictionary<string, string> kvSource = JsonPersister.Load<Dictionary<string, string>>(file.FullName);
+                case TranslateDataType.KV:
+                    templateConfig = ViewModelManager.ViewModel.SetView_ViewModel.DefaultTemplate_MTool;
+                    Dictionary<string, string> kvSource = JsonPersister.Load<Dictionary<string, string>>(path);
                     DicName = CreateRandomDic();
                     JsonPersister.Save(kvSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
                     break;
-                case ".srt":
-                    TranslateType = TranslateDataType.Srt;
-                    Dictionary<int, SrtData> srtSource = SrtPersister.Load(file.FullName);
+                case TranslateDataType.Tpp:
+                    templateConfig = ViewModelManager.ViewModel.SetView_ViewModel.DefaultTemplate_Tpp;
+                    Dictionary<string, Dictionary<string, string?>> csvDicDatas = CsvPersister.LoadFromFolder(path);
+                    if (csvDicDatas.GetTotalCount() == 0)
+                        throw new KnownException("无效的文件夹，请确保是Translator++导出的包含csv文件的文件夹");
+                    DicName = CreateRandomDic();
+                    string sourceDicName = PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source);
+                    CsvPersister.SaveToFolder(sourceDicName, csvDicDatas);
+                    break;
+                case TranslateDataType.Srt:
+                    templateConfig = ViewModelManager.ViewModel.SetView_ViewModel.DefaultTemplate_Srt;
+                    Dictionary<int, SrtData> srtSource = SrtPersister.Load(path);
                     DicName = CreateRandomDic();
                     SrtPersister.Save(srtSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
                     break;
-                case ".txt":
-                    TranslateType = TranslateDataType.Txt;
-                    List<string> txtSource = TxtPersister.Load(file.FullName);
+                case TranslateDataType.Txt:
+                    templateConfig = ViewModelManager.ViewModel.SetView_ViewModel.DefaultTemplate_Txt;
+                    List<string> txtSource = TxtPersister.Load(path);
                     DicName = CreateRandomDic();
                     TxtPersister.Save(txtSource, PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Source));
                     break;
@@ -142,12 +164,15 @@ namespace AITranslator.View.Models
                     throw new KnownException("不支持的翻译文件类型");
             }
 
-            FileName = file.Name;
             State = TaskState.Initialized;
             //创建配置文件
             SaveConfig();
         }
 
+        /// <summary>
+        /// 从已经存在的文件夹中读取生成翻译任务
+        /// </summary>
+        /// <param name="dic"></param>
         public TranslationTask(DirectoryInfo dic)
         {
             DicName = dic.Name;
@@ -165,9 +190,10 @@ namespace AITranslator.View.Models
             Directory.CreateDirectory(PublicParams.GetDicName(DicName));
             return DicName;
         }
-        private void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
+        private async void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
         {
             _translator.Stoped -= _translator_Stoped;
+            Speed = 0;
             if (ViewModelManager.ViewModel.ActiveTask == this)
                 ViewModelManager.ViewModel.ActiveTask = null;
 
@@ -204,74 +230,118 @@ namespace AITranslator.View.Models
                     Process.Start("c:/windows/system32/shutdown.exe", "-s -f -t 0");
             }
             else
-                nextTask.Start();
+                await nextTask.Start();
         }
 
-        public void Start(bool showErrorMsg = true)
+        public async Task Start(bool showErrorMsg = true)
         {
-            TaskState beforeState = State;
-            ExpandedFuncs.TryExceptions(() =>
-            {
-                string diaName = PublicParams.GetDicName(DicName);
-                if (!Directory.Exists(diaName))
-                    throw new DicNotFoundException($"任务[{fileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
+            await Task.Run(() =>
+             {
+                 TaskState beforeState = State;
+                 ExpandedFuncs.TryExceptions(() =>
+                 {
+                     string diaName = PublicParams.GetDicName(DicName);
+                     if (!Directory.Exists(diaName))
+                         throw new DicNotFoundException($"任务[{FileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
+
+                     //检测配置模板是否配置
+                     if (TemplateConfig is null)
+                         throw new KnownException("请先配置翻译模板！");
+
+                     //检测配置模板对应的文件是否存在
+                     string templateConfigPath = PublicParams.GetTemplateFilePath(TemplateType.TemplateConfig, TemplateConfig.Name);
+                     if (!File.Exists(templateConfigPath))
+                         throw new FileNotFoundException($"翻译配置文件[{TemplateConfig.Name}]不存在，请确认配置文件是否已被删除");
+
+                     //加载模板配置文件
+                     TemplateConfigParams = JsonPersister.Load<ConfigSave_DefaultTemplate>(templateConfigPath);
 
 
-                if (ViewModelManager.ViewModel.ActiveTask is not null)
-                {
-                    if (State == TaskState.Initialized || State == TaskState.Pause)
-                        State = TaskState.WaitTranslate;
-                    return;
-                }
+                     //检测配置模板里的规则模板文件夹是否配置
+                     if (TemplateConfigParams.TemplateDic is null)
+                         throw new KnownException($"请先配置模板文件夹");
 
-                ViewModelManager.ViewModel.ActiveTask = this;
-                //如果不存在清理后文件，执行清理流程
-                if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
-                {
-                    switch (TranslateType)
-                    {
-                        case TranslateDataType.KV:
-                            KVTranslateData.Clear(DicName);
-                            break;
-                        case TranslateDataType.Srt:
-                            SrtTranslateData.Clear(DicName);
-                            break;
-                        case TranslateDataType.Txt:
-                            TxtTranslateData.Clear(DicName);
-                            break;
-                        default:
-                            throw new KnownException("不支持的翻译文件类型");
-                    }
-                }
-                //创建翻译器
-                CreateTranslator();
+                     //检测配置模板里的规则模板文件夹是否存在
+                     string templateDicPath = $"{PublicParams.TemplatesDic}\\{TemplateConfigParams.TemplateDic}";
+                     if (!Directory.Exists(templateDicPath))
+                         throw new DicNotFoundException($"模板文件夹{TemplateConfigParams.TemplateDic}不存在，请确认模板文件夹是否已被删除");
 
-                //启动翻译
-                State = TaskState.Translating;
-                _translator.Stoped += _translator_Stoped;
-                _translator.Start();
-            },
-            (err) =>
-            {
-                if (err is DicNotFoundException)
-                {
-                    ViewModelManager.ViewModel.RemoveTask(this);
-                    return;
-                }
-                if (ViewModelManager.ViewModel.ActiveTask == this)
-                    ViewModelManager.ViewModel.ActiveTask = null;
-                if (_translator is not null)
-                    _translator = null;
+                     //如果当前存在正在执行的任务，将状态设置为等待开始翻译
+                     if (ViewModelManager.ViewModel.ActiveTask is not null)
+                     {
+                         if (State == TaskState.Initialized || State == TaskState.Pause)
+                             State = TaskState.WaitTranslate;
+                         return;
+                     }
 
-                State = beforeState;
-            }, showErrorMsg);
+                     //设置当前正在翻译的任务为此任务
+                     ViewModelManager.ViewModel.ActiveTask = this;
+                     //如果不存在清理后文件，执行清理流程
+                     if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
+                     {
+                         State = TaskState.Cleaning;
+                         string? cleanTemplateName = TemplateConfigParams.CleanTemplate;
+                         //检测清理规则模板是否配置
+                         if (string.IsNullOrWhiteSpace(cleanTemplateName))
+                             throw new KnownException("请先配置好清理规则模板");
+
+                         //检测清理规则模板文件是否存在
+                         string cleanTemplatePath = PublicParams.GetTemplateFilePath(TemplateConfigParams.TemplateDic, TemplateType.Clean, cleanTemplateName);
+                         if (!File.Exists(templateConfigPath))
+                             throw new FileNotFoundException($"清理模板文件[{cleanTemplateName}]不存在，请确认配置文件是否已被删除");
+
+                         switch (TranslateType)
+                         {
+                             case TranslateDataType.KV:
+                                 KVTranslateData.Clear(DicName, cleanTemplatePath);
+                                 break;
+                             case TranslateDataType.Tpp:
+                                 TppTranslateData.Clear(DicName, cleanTemplatePath);
+                                 break;
+                             case TranslateDataType.Srt:
+                                 SrtTranslateData.Clear(DicName, cleanTemplatePath);
+                                 break;
+                             case TranslateDataType.Txt:
+                                 TxtTranslateData.Clear(DicName, cleanTemplatePath);
+                                 break;
+                             default:
+                                 throw new KnownException("不支持的翻译文件类型");
+                         }
+                     }
+                     //创建翻译器
+                     CreateTranslator();
+
+                     //启动翻译
+                     State = TaskState.Translating;
+                     _translator.Stoped += _translator_Stoped;
+                     _translator.Start();
+                 },
+                 (err) =>
+                 {
+                     if (err is DicNotFoundException)
+                     {
+                         ViewModelManager.ViewModel.RemoveTask(this);
+                         return;
+                     }
+                     if (ViewModelManager.ViewModel.ActiveTask == this)
+                         ViewModelManager.ViewModel.ActiveTask = null;
+                     if (_translator is not null)
+                         _translator = null;
+
+                     State = beforeState;
+                 }, showErrorMsg);
+
+             });
         }
+
 
         public Task Pause()
         {
             //停止翻译
             return Task.Run(() =>
              {
+                 if (State == TaskState.Pause || State == TaskState.WaitPause)
+                     return;
                  //设置界面暂停中
                  if (State == TaskState.Translating)
                  {
@@ -290,6 +360,7 @@ namespace AITranslator.View.Models
             return TranslateType switch
             {
                 TranslateDataType.KV => KVTranslateData.HasFailedData(DicName),
+                TranslateDataType.Tpp => TppTranslateData.HasFailedData(DicName),
                 TranslateDataType.Srt => SrtTranslateData.HasFailedData(DicName),
                 TranslateDataType.Txt => TxtTranslateData.HasFailedData(DicName),
                 _ => throw new KnownException("不支持的翻译文件类型"),
@@ -299,7 +370,7 @@ namespace AITranslator.View.Models
         {
             if (_translator is null)
                 CreateTranslator();
-            _translator.MergeData();
+            _translator!.MergeData();
             _translator = null;
             ToCompletedTasks();
         }
@@ -315,6 +386,7 @@ namespace AITranslator.View.Models
             _translator = TranslateType switch
             {
                 TranslateDataType.KV => new KVTranslator(this),
+                TranslateDataType.Tpp => new TppTranslator(this),
                 TranslateDataType.Srt => new SrtTranslator(this),
                 TranslateDataType.Txt => new TxtTranslator(this),
                 _ => throw new KnownException("不支持的翻译文件类型"),
@@ -342,8 +414,7 @@ namespace AITranslator.View.Models
                     ConfigSave_Translate config = new ConfigSave_Translate()
                     {
                         FileName = FileName,
-                        IsEnglish = IsEnglish,
-                        HistoryCount = HistoryCount,
+                        TemplateConfig = TemplateConfig?.Name,
                         TranslateType = TranslateType,
                         Replaces = Replaces.ToReplaceDictionary(),
                         Progress = Progress,
@@ -357,7 +428,6 @@ namespace AITranslator.View.Models
                     count++;
                     if (count >= 3)
                         throw;
-                    Debug.WriteLine($"记录[配置文件]失败{count + 1}");
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[配置文件]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }
@@ -374,13 +444,32 @@ namespace AITranslator.View.Models
             //读取配置文件
             ConfigSave_Translate config = JsonPersister.Load<ConfigSave_Translate>(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Config));
             FileName = config.FileName;
-            IsEnglish = config.IsEnglish;
-            HistoryCount = config.HistoryCount;
+            TemplateConfig = ViewModelManager.ViewModel.TemplateConfigs.FirstOrDefault(s => s.Name == config.TemplateConfig);
             TranslateType = config.TranslateType;
             Replaces = config.Replaces.ToReplaceCollection();
             Progress = config.Progress;
             State = config.State;
         }
+
+        [RelayCommand]
+        public async Task ReTranslateFailed()
+        {
+            ViewModel vm = ViewModelManager.ViewModel;
+            if (vm.Communicator.CommunicatorType == CommunicatorType.LLama && !vm.Communicator.ModelLoaded)
+            {
+                Window_Message.ShowDialog("提示", "请先加载模型！");
+                return;
+            }
+            ExpandedFuncs.TryExceptions(() =>
+            {
+                File.Delete(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Failed));
+                State = TaskState.Pause;
+            });
+
+
+            await Start();
+        }
+
 
         [RelayCommand]
         private async Task Remove()
@@ -396,10 +485,7 @@ namespace AITranslator.View.Models
         [RelayCommand]
         private void OpenDic()
         {
-            ExpandedFuncs.TryExceptions(() =>
-            {
-                openDic();
-            },
+            ExpandedFuncs.TryExceptions(() => openDic(),
             (err) =>
             {
                 if (err is DicNotFoundException)

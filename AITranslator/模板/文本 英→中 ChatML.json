@@ -1,0 +1,47 @@
+{
+  "TemplateDic": "英文→中文",
+  "PromptTemplate": "其他",
+  "ReplaceTemplate": "空",
+  "VerificationTemplate": "文本",
+  "CleanTemplate": "不清理",
+  "HistoryCount": 5,
+  "TranslatePrams_FirstMult": {
+    "MaxTokens": 1024,
+    "Temperature": 0.2,
+    "FrequencyPenalty": 0.0,
+    "PresencePenalty": 0.0,
+    "TopP": 0.9,
+    "Stops": [
+      "\n###",
+      "\n\n",
+      "[PAD151645]",
+      "<|im_end|>"
+    ]
+  },
+  "TranslatePrams_FirstSingle": {
+    "MaxTokens": 600,
+    "Temperature": 0.2,
+    "FrequencyPenalty": 0.0,
+    "PresencePenalty": 0.0,
+    "TopP": 0.9,
+    "Stops": [
+      "\n###",
+      "\n\n",
+      "[PAD151645]",
+      "<|im_end|>"
+    ]
+  },
+  "TranslatePrams_Retry": {
+    "MaxTokens": 600,
+    "Temperature": 0.1,
+    "FrequencyPenalty": 0.15,
+    "PresencePenalty": 0.0,
+    "TopP": 0.9,
+    "Stops": [
+      "\n###",
+      "\n\n",
+      "[PAD151645]",
+      "<|im_end|>"
+    ]
+  }
+}

@@ -26,44 +26,13 @@ namespace AITranslator.Translator.Translation
         public TxtTranslateData Data => (TranslateData as TxtTranslateData)!;
         internal override int FailedDataCount => Data.Dic_Failed!.Count;
 
-        string tempFileExtension = ".json";
-        public TxtTranslator(TranslationTask task) : base(task)
-        {
-            //生成PostData
-
-            //设置示例对话,negative_prompt和prompt_with_text
-            if (_translationTask.IsEnglish)
-            {
-                _example = new ExampleDialogue[]
-                {
-                    new("user","将下面的英文文本翻译成中文：Hello"),
-                    new("assistant","你好"),
-                    new("user","将下面的英文文本翻译成中文：「Is everything alright?」"),
-                    new("assistant","「一切都还好么？」"),
-                };
-                prompt_with_text = "将下面的英文文本翻译成中文：";
-                system_prompt = "你是一个英文翻译模型，可以流畅通顺地将英文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
-            }
-            else
-            {
-                _example = new ExampleDialogue[]
-                {
-                    new("user","将下面的日文文本翻译成中文：「ぐふふ……なるほどなァ。　だが、ワシの一存では決められぬなァ……？」"),
-                    new("assistant","「咕呼呼……原来如此啊。 但是这可不能由我一个人做决定……」"),
-                    new("user","将下面的日文文本翻译成中文：敵単体に防御力無視の先行攻撃"),
-                    new("assistant","敌单体无视防御力的先行攻击"),
-                };
-                prompt_with_text = "将下面的日文文本翻译成中文：";
-                system_prompt = "你是一个日文翻译模型，可以流畅通顺地将日文翻译成简体中文，并联系上下文正确使用人称代词，不擅自添加原文中没有的代词。";
-            }
-
-
-        }
+        readonly string tempFileExtension = ".json";
+        public TxtTranslator(TranslationTask task) : base(task) { }
 
         internal override void LoadHistory()
         {
             //添加历史记录
-            uint historyCount = _translationTask.HistoryCount;
+            int historyCount = _translationTask.TemplateConfigParams.HistoryCount;
             if (historyCount > 0)
             {
                 long endIndex = Data.Dic_Successful.Count - 1 - historyCount;
@@ -102,11 +71,11 @@ namespace AITranslator.Translator.Translation
                     string[] results;
                     string sourceData;
                     if (mergeValues.Count == 1)//进行单句翻译
-                        results = new string[] { Translate_NoResetNewline(mergeValues[0], true, 600, 0.2, 0) };
+                        results = new string[] { Translate_NoResetNewline(mergeValues[0], true, TryTranslateType.Single) };
                     else
                     {
                         sourceData = string.Join('\n', mergeValues);
-                        string result_mult = Translate_NoResetNewline(sourceData, true, 1024, 0.2, 0);
+                        string result_mult = Translate_NoResetNewline(sourceData, true, TryTranslateType.Mult);
                         results = result_mult.Split('\n');
                     }
 
@@ -116,13 +85,27 @@ namespace AITranslator.Translator.Translation
                         for (int i = 0; i < mergeValues.Count; i++)
                         {
                             //单句翻译
-                            string result_single = Translate_NoResetNewline(mergeValues[i], true, 600, 0.2, 0);
+                            string result_single = Translate_NoResetNewline(mergeValues[i], true, TryTranslateType.Single);
                             //检测翻译结果是否通过
-                            if (result_single.Length > mergeValues[i].Length + 100)
+                            if (!Verification(mergeValues[i], result_single, out string error))
                             {
-                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译后字数超过限制，怀疑模型退化，记录到错误列表。");
-                                Data.Dic_Failed[mergeKeys[i]] = mergeValues[i];
-                                SaveFailedFile();
+                                ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，正在尝试重新翻译...");
+                                result_single = Translate_NoResetNewline(mergeValues[i], true, TryTranslateType.Retry);
+                                if (!Verification(mergeValues[i], result_single, out error))
+                                {
+                                    ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，重试翻译仍未达标，记录到错误列表。");
+                                    Data.Dic_Failed[mergeKeys[i]] = result_single;
+                                    SaveFailedFile();
+                                }
+                                else
+                                {
+                                    Data.Dic_Successful[mergeKeys[i]] = result_single;
+                                    SaveSuccessfulFile();
+                                    AddHistory(mergeValues[i], result_single);
+                                    ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                }
                             }
                             else
                             {
@@ -142,11 +125,25 @@ namespace AITranslator.Translator.Translation
                         for (int i = 0; i < mergeValues.Count; i++)
                         {
                             string result_single = results[i];
-                            if (result_single.Length > mergeValues[i].Length + 100)
+                            if (!Verification(mergeValues[i], result_single, out string error))
                             {
-                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译后字数超过限制，怀疑模型退化，记录到错误列表。");
-                                Data.Dic_Failed[mergeKeys[i]] = mergeValues[i];
-                                SaveFailedFile();
+                                ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，正在尝试重新翻译...");
+                                result_single = Translate_NoResetNewline(mergeValues[i], true, TryTranslateType.Retry);
+                                if (!Verification(mergeValues[i], result_single, out error))
+                                {
+                                    ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                    ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error}，重试翻译仍未达标，记录到错误列表。");
+                                    Data.Dic_Failed[mergeKeys[i]] = result_single;
+                                    SaveFailedFile();
+                                }
+                                else
+                                {
+                                    Data.Dic_Successful[mergeKeys[i]] = result_single;
+                                    SaveSuccessfulFile();
+                                    AddHistory(mergeValues[i], result_single);
+                                    ViewModelManager.WriteLine($"\r\n" + mergeValues[i] + "\r\n" + "    ⬇" + "\r\n" + result_single);
+                                }
                             }
                             else
                             {
@@ -170,6 +167,7 @@ namespace AITranslator.Translator.Translation
             }
         }
 
+
         internal override void MergeData()
         {
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始合并翻译文件");
@@ -182,8 +180,6 @@ namespace AITranslator.Translator.Translation
                     str.Add(Data.Dic_Successful[i]);
                 else if (Data.Dic_Failed.ContainsKey(i))
                     str.Add(Data.Dic_Failed[i]);
-                else
-                    throw new KnownException("合并文件错误,存在未翻译的段落,请检查文件是否被修改");
             }
             TxtPersister.Save(str, PublicParams.GetFileName(Data, GenerateFileType.Merged));
             _translationTask.State = TaskState.Completed;
@@ -207,7 +203,6 @@ namespace AITranslator.Translator.Translation
                     if (count >= 3)
                         throw;
 
-                    Debug.WriteLine($"记录[翻译失败{tempFileExtension}]失败{count + 1}");
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译失败{tempFileExtension}]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }
@@ -230,7 +225,6 @@ namespace AITranslator.Translator.Translation
                     count++;
                     if (count >= 3)
                         throw;
-                    Debug.WriteLine($"记录[翻译成功{tempFileExtension}]失败{count + 1}");
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]记录[翻译成功{tempFileExtension}]失败,将进行第{count + 1}次尝试");
                     Thread.Sleep(500);
                 }

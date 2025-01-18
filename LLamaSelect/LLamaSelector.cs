@@ -4,17 +4,17 @@ namespace LLamaSelect
 {
     public static class LLamaSelector
     {
-        [DllImport("CUDA/cudart64_12.dll")] // 假设你使用的是CUDA 10.0版本
+        [DllImport("CUDA/cudart64_12.dll")]
         private static extern int cudaDriverGetVersion(out int version);
 
         public static string GetLLamaPath()
         {
             cudaDriverGetVersion(out int driverVersion);
 
-            if (driverVersion > 12000)
+            if (driverVersion >= 12020)
                 return "CUDA/llama.dll";
             else
-                return "OpenCL/llama.dll";
+                return "Vulkan/llama.dll";
         }
     }
 }

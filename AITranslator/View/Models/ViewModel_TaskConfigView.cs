@@ -1,27 +1,25 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AITranslator.Translator.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AITranslator.View.Models
 {
     public partial class ViewModel_TaskConfigView : ViewModel_ValidateBase
-    {        /// <summary>
-             /// 是否是英语翻译
-             /// </summary>
-        [ObservableProperty]
-        private bool isEnglish;
-
+    {
         /// <summary>
-        /// 上下文记忆数量
+        /// 翻译模板
         /// </summary>
-        [Range(typeof(uint), "0", "50", ErrorMessage = "上下文记忆数量超过限制！")]
+        [Required(ErrorMessage = "必须选择翻译模板")]
         [ObservableProperty]
-        private uint historyCount = 5;
+        private Template? templateConfig;
 
         /// <summary>
         /// 文本替换列表
@@ -73,19 +71,18 @@ namespace AITranslator.View.Models
             task.Replaces.Clear();
             foreach (var replace in Replaces)
                 task.Replaces.Add(replace);
-            task.HistoryCount = HistoryCount;
-            task.IsEnglish = IsEnglish;
+            task.TemplateConfig = TemplateConfig;
         }
 
         public static ViewModel_TaskConfigView Create(TranslationTask task)
         {
-            ViewModel_TaskConfigView vm = new ViewModel_TaskConfigView()
-            {
-                HistoryCount = task.HistoryCount,
-                IsEnglish = task.IsEnglish
-            };
+            ViewModel_TaskConfigView vm = new ViewModel_TaskConfigView();
+
             foreach (var replace in task.Replaces)
                 vm.Replaces.Add(replace);
+
+            vm.TemplateConfig = task.TemplateConfig;
+
             return vm;
         }
     }

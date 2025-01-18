@@ -37,6 +37,13 @@
                                     </Viewbox>
                                 </Button.Content>
                             </controls:ViewButton>
+                            <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" EnableAnimation="Horizontal" IsEnabled="{Binding State,Converter={StaticResource TaskStateToEnable},ConverterParameter='Merge'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" ToolTip="重翻错误部分" Command="{Binding ReTranslateFailedCommand}">
+                                <Button.Content>
+                                    <Viewbox Margin="3,2.5,3,3.5">
+                                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Data="M511.12717473 65.46376948v84.25211895c199.84602618 0 362.28411157 162.43808535 362.28411152 362.28411157S710.97320093 874.28411157 511.12717473 874.28411157 148.84306315 711.84602618 148.84306315 512c0-85.93716134 31.00477979-169.1782549 85.93716137-234.22089074V387.30686393h84.25211896v-261.1815688h-271.2918231v84.25211899h134.1293734c-75.15289014 81.89305963-117.2789496 189.73577193-117.27894959 301.62258588 0 246.35319584 200.18303466 446.53623052 446.53623054 446.53623052S957.66340525 758.35319584 957.66340525 512 757.48037059 65.46376948 511.12717473 65.46376948zM642.56048033 497.84564401l-192.43183971-111.21279707c-1.68504239-1.01102544-3.70709323 0.33700849-3.70709326 2.35905939v222.42559403c0 2.02205085 2.02205085 3.03307629 3.70709326 2.35905937l192.43183971-111.21279704c1.68504239-1.01102544 1.68504239-3.70709323 0-4.71811868z"/>
+                                    </Viewbox>
+                                </Button.Content>
+                            </controls:ViewButton>
                             <controls:ViewButton Margin="0,0,2,0" Width="24" Height="24" EnableAnimation="Horizontal" IsEnabled="{Binding State,Converter={StaticResource TaskStateToEnable},ConverterParameter='Merge'}" Visibility="{calc:Binding 'Opacity != 0',FalseToVisibility=Collapsed,RelativeSource={RelativeSource Mode=Self}}" ToolTip="合并" Command="{Binding MergeCommand}">
                                 <Button.Content>
                                     <Viewbox Margin="2.5,2.5,4,4">
@@ -57,7 +64,8 @@
                         <TextBlock x:Name="tb_title" DockPanel.Dock="Top" HorizontalAlignment="Left" MaxWidth="180" Foreground="Gray" FocusVisualStyle="{x:Null}"  Text="{Binding FileName}" ToolTip="{Binding FileName}"/>
                         <Rectangle DockPanel.Dock="Top" Margin="0,2" HorizontalAlignment="Left" MaxWidth="180" Width="{Binding ActualWidth, ElementName=tb_title}" Fill="#3CFFFFFF" Height="1"/>
                         <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" Width="58" Foreground="Gray" Text="{Binding Progress,StringFormat={}{0:0.00}%}"/>
-                        <TextBlock HorizontalAlignment="Left" Foreground="Gray" Text="{Binding State,Converter={StaticResource TaskStateToString}}"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="0,0,10,0" Foreground="Gray" Text="{Binding State,Converter={StaticResource TaskStateToString}}"/>
+                        <TextBlock HorizontalAlignment="Left" Foreground="Gray" Visibility="{Binding State,Converter={StaticResource TaskStateToSpeedVisibility}}" Text="{Binding Speed,StringFormat={}{0:0.##} Tokens/s}"/>
                     </DockPanel>
                 </Border>
             </DataTemplate>
