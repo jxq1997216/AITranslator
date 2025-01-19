@@ -321,14 +321,10 @@ namespace AITranslator.View.Models
         [RelayCommand]
         private void SetDefaultCommunicatorParam(UserControl_ModelLoader uc)
         {
-            ExpandedFuncs.TryExceptions(async () => await SetDefaultCommunicatorParamAsync(uc).ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                    ExpandedFuncs.TryExceptions(() => throw task.Exception.InnerExceptions.FirstOrDefault()!);
-            }), (_) => uc.WaitViewStr = string.Empty);
+            ExpandedFuncs.TryExceptions(() => SetDefaultCommunicatorParamAsync(uc), (_) => uc.WaitViewStr = string.Empty);
         }
 
-        async Task SetDefaultCommunicatorParamAsync(UserControl_ModelLoader uc)
+        void SetDefaultCommunicatorParamAsync(UserControl_ModelLoader uc)
         {
             if (uc.CurrentCommunicatorParam is null)
                 throw new KnownException("请先选择加载器配置模板");

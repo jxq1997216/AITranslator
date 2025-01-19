@@ -17,14 +17,14 @@ namespace AITranslator.View.Converter
             TaskState state = (TaskState)value;
             if (isTooltip)
             {
-                if (state == TaskState.WaitTranslate || state == TaskState.Translating || state == TaskState.WaitPause)
+                if (state == TaskState.WaitTranslate || state == TaskState.Translating || state == TaskState.WaitPause || state == TaskState.Cleaning)
                     return "暂停";
                 else
                     return "开始";
             }
             else
             {
-                if (state == TaskState.WaitTranslate || state == TaskState.Translating || state == TaskState.WaitPause)
+                if (state == TaskState.WaitTranslate || state == TaskState.Translating || state == TaskState.WaitPause || state == TaskState.Cleaning)
                     return "‖";
                 else
                     return "▶";

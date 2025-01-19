@@ -1,5 +1,6 @@
 ﻿using AITranslator.EventArg;
 using AITranslator.Translator.Translation;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,8 @@ namespace AITranslator.Translator.TranslateData
         public string FileName { get; set; }
         public string DicName { get; set; }
 
-        public void GetUntranslatedData(); 
+        public bool IsCleaned { get; }
+        public void GetUntranslatedData();
         public void ClearFailedData();
         public double GetProgress();
 
@@ -31,7 +33,7 @@ namespace AITranslator.Translator.TranslateData
         /// 替换和清理原始数据
         /// </summary>
         /// <param name="dicName"></param>
-        public abstract static void Clear(string dicName, string clearTemplatePath);
+        public abstract static void Clear(string dicName, string clearTemplatePath, CancellationToken token);
 
         public abstract static bool HasFailedData(string dicName);
     }

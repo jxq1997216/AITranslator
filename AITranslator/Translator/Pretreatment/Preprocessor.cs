@@ -33,7 +33,7 @@ namespace AITranslator.Translator.Pretreatment
         /// <param name="isEnglish"></param>
         /// <param name="dic_block"></param>
         /// <returns></returns>
-        public static Dictionary<string, Dictionary<string, string?>> Pretreatment(this Dictionary<string, Dictionary<string, string?>> input, string scriptPath)
+        public static Dictionary<string, Dictionary<string, string?>> Pretreatment(this Dictionary<string, Dictionary<string, string?>> input, string scriptPath, CancellationToken token)
         {
             Dictionary<string, Dictionary<string, string?>> output = new Dictionary<string, Dictionary<string, string?>>();
             Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
@@ -44,12 +44,12 @@ namespace AITranslator.Translator.Pretreatment
                 foreach (var key in kv.Value.Keys)
                 {
                     strClearScriptInput.Str = key;
-                    if (!clearScript.RunAsync(strClearScriptInput).Result.ReturnValue)
+                    if (!clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue)
                     {
                         if (!output.ContainsKey(kv.Key))
                             output[kv.Key] = new Dictionary<string, string?>();
                         output[kv.Key][key] = key.Normalize(NormalizationForm.FormKC);//标准化字符串格式
-                    } 
+                    }
                 }
             }
 
@@ -62,7 +62,7 @@ namespace AITranslator.Translator.Pretreatment
         /// <param name="isEnglish"></param>
         /// <param name="dic_block"></param>
         /// <returns></returns>
-        public static Dictionary<string, string> Pretreatment(this Dictionary<string, string> input, string scriptPath)
+        public static Dictionary<string, string> Pretreatment(this Dictionary<string, string> input, string scriptPath, CancellationToken token)
         {
             Dictionary<string, string> output = new Dictionary<string, string>();
             Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
@@ -72,7 +72,7 @@ namespace AITranslator.Translator.Pretreatment
             {
                 string key = kv.Key;
                 strClearScriptInput.Str = key;
-                if (!clearScript.RunAsync(strClearScriptInput).Result.ReturnValue)
+                if (!clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue)
                     output[key] = kv.Value.Normalize(NormalizationForm.FormKC);//标准化字符串格式
             }
 
@@ -86,7 +86,7 @@ namespace AITranslator.Translator.Pretreatment
         /// <param name="isEnglish"></param>
         /// <param name="dic_block"></param>
         /// <returns></returns>
-        public static Dictionary<int, SrtData> Pretreatment(this Dictionary<int, SrtData> input, string scriptPath)
+        public static Dictionary<int, SrtData> Pretreatment(this Dictionary<int, SrtData> input, string scriptPath, CancellationToken token)
         {
             Dictionary<int, SrtData> output = new Dictionary<int, SrtData>();
             Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
@@ -99,12 +99,12 @@ namespace AITranslator.Translator.Pretreatment
                 KeyValuePair<int, SrtData> kv = kvs[i];
                 string text = kv.Value.Text;
                 strClearScriptInput.Str = text;
-                if (!clearScript.RunAsync(strClearScriptInput).Result.ReturnValue)
+                if (!clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue)
                 {
                     output[t] = kv.Value;
                     t++;
                 }
-                   
+
             }
 
             return output;
@@ -117,7 +117,7 @@ namespace AITranslator.Translator.Pretreatment
         /// <param name="isEnglish"></param>
         /// <param name="dic_block"></param>
         /// <returns></returns>
-        public static List<string> Pretreatment(this List<string> input, string scriptPath)
+        public static List<string> Pretreatment(this List<string> input, string scriptPath, CancellationToken token)
         {
             List<string> output = new List<string>();
             Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
@@ -126,7 +126,7 @@ namespace AITranslator.Translator.Pretreatment
             foreach (var item in input)
             {
                 strClearScriptInput.Str = item;
-                if (!clearScript.RunAsync(strClearScriptInput).Result.ReturnValue)
+                if (!clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue)
                     output.Add(item);
             }
             return output;

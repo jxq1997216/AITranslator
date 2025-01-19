@@ -18,11 +18,11 @@ namespace AITranslator.View.Converter
             switch (param)
             {
                 case "Start":
-                    return taskState != TaskState.WaitMerge;
+                    return taskState != TaskState.WaitMerge && taskState != TaskState.Merging;
                 case "Set":
-                    return taskState != TaskState.WaitTranslate && taskState != TaskState.Translating && taskState != TaskState.WaitPause && taskState != TaskState.WaitMerge && taskState != TaskState.Merging;
+                    return taskState != TaskState.WaitTranslate && taskState != TaskState.Translating && taskState != TaskState.WaitPause && taskState != TaskState.WaitMerge && taskState != TaskState.Merging && taskState != TaskState.Cleaning;
                 case "Merge":
-                    return taskState == TaskState.WaitMerge;
+                    return taskState == TaskState.WaitMerge && taskState != TaskState.Merging;
                 default:
                     return true;
             }

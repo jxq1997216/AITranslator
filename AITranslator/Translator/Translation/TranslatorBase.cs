@@ -81,6 +81,8 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         Task _task;
 
+        CancellationTokenSource _cts;
+
         internal TranslationTask _translationTask;
         readonly Script<(bool, string)> _verification;
         readonly VerificationScriptInput _verificationScriptInput = new VerificationScriptInput();
@@ -100,7 +102,7 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         internal ExampleDialogue[] _example;
 
-        internal ICommunicator _communicator;
+        internal ICommunicator? _communicator;
 
         internal void TrigerStopedEvent(TranslateStopEventArgs args)
         {
@@ -165,10 +167,53 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         public void Start()
         {
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
+
             _task = Task.Factory.StartNew(() =>
             {
                 try
                 {
+                    //如果不存在清理后文件，执行清理流程
+                    if (!TranslateData.IsCleaned)
+                    {
+                        ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始清理");
+
+                        _translationTask.State = TaskState.Cleaning;
+
+                        //检测配置模板里的规则模板文件夹是否配置
+                        if (_translationTask.TemplateConfigParams.TemplateDic is null)
+                            throw new KnownException($"请先配置模板文件夹");
+
+                        string? cleanTemplateName = _translationTask.TemplateConfigParams.CleanTemplate;
+                        //检测清理规则模板是否配置
+                        if (string.IsNullOrWhiteSpace(cleanTemplateName))
+                            throw new KnownException("请先配置好清理规则模板");
+
+                        //检测清理规则模板文件是否存在
+                        string cleanTemplatePath = PublicParams.GetTemplateFilePath(_translationTask.TemplateConfigParams.TemplateDic, TemplateType.Clean, cleanTemplateName);
+                        if (!File.Exists(cleanTemplatePath))
+                            throw new FileNotFoundException($"清理模板文件[{cleanTemplateName}]不存在，请确认配置文件是否已被删除");
+
+                        switch (Type)
+                        {
+                            case TranslateDataType.KV:
+                                KVTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
+                                break;
+                            case TranslateDataType.Tpp:
+                                TppTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
+                                break;
+                            case TranslateDataType.Srt:
+                                SrtTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
+                                break;
+                            case TranslateDataType.Txt:
+                                TxtTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
+                                break;
+                            default:
+                                throw new KnownException("不支持的翻译文件类型");
+                        }
+                    }
+
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
                     //创建连接客户端，设置超时时间10分钟
                     _communicator = ViewModelManager.ViewModel.Communicator.CommunicatorType switch
@@ -260,9 +305,9 @@ namespace AITranslator.Translator.Translation
         /// <returns>暂停翻译线程</returns>
         public void Pause()
         {
-
+            _cts.Cancel();
             //通知停止线程
-            _communicator.Cancel();
+            _communicator?.Cancel();
             //等待线程停止
             _task?.Wait();
 
@@ -291,7 +336,8 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         void TranslateSuccessful()
         {
-            _communicator.Dispose();
+            _cts.Dispose();
+            _communicator?.Dispose();
             _task = null;
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成");
             TrigerStopedEvent(TranslateStopEventArgs.CreateSucess());
@@ -302,7 +348,8 @@ namespace AITranslator.Translator.Translation
         /// </summary>
         void TranslateNeedMerge()
         {
-            _communicator.Dispose();
+            _cts.Dispose();
+            _communicator?.Dispose();
             _task = null;
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]翻译完成，但存在翻译失败的文件，请手动翻译后合并");
             TrigerStopedEvent(TranslateStopEventArgs.CreateNeedMerge());
@@ -314,7 +361,8 @@ namespace AITranslator.Translator.Translation
             if (save)
                 SaveFiles();
 
-            _communicator.Dispose();
+            _cts.Dispose();
+            _communicator?.Dispose();
             _task = null;
 
             ViewModelManager.WriteLine($"[{DateTime.Now:G}]{error} 翻译暂停");
@@ -453,25 +501,13 @@ namespace AITranslator.Translator.Translation
             postData.presence_penalty = param.PresencePenalty;
             postData.stop = param.Stops.ToArray();
 
-            string str_result = _communicator.Translate(postData, headers, histories, $"{prompt_with_text}{str}", out double speed);
+            string str_result = _communicator!.Translate(postData, headers, histories, $"{prompt_with_text}{str}", out double speed);
             _translationTask.Speed = speed;
             return str_result;
         }
 
         ConfigSave_TranslatePrams? GetTranslatePrams(TryTranslateType type)
         {
-
-            //ViewModel_DefaultTemplate? defaultTemplate = Type switch
-            //{
-            //    TranslateDataType.KV => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_MTool,
-            //    TranslateDataType.Tpp => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Tpp,
-            //    TranslateDataType.Srt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Srt,
-            //    TranslateDataType.Txt => ViewModelManager.ViewModel.AdvancedView_ViewModel.Template_Txt,
-            //    _ => null
-            //};
-
-
-
             ConfigSave_TranslatePrams? transParams = type switch
             {
                 TryTranslateType.Single => _translationTask.TemplateConfigParams.TranslatePrams_FirstSingle,
