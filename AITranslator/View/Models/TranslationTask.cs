@@ -190,7 +190,7 @@ namespace AITranslator.View.Models
             Directory.CreateDirectory(PublicParams.GetDicName(DicName));
             return DicName;
         }
-        private async void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
+        private void _translator_Stoped(object? sender, EventArg.TranslateStopEventArgs e)
         {
             _translator.Stoped -= _translator_Stoped;
             Speed = 0;
@@ -230,108 +230,78 @@ namespace AITranslator.View.Models
                     Process.Start("c:/windows/system32/shutdown.exe", "-s -f -t 0");
             }
             else
-                await nextTask.Start();
+                nextTask.Start();
         }
 
-        public async Task Start(bool showErrorMsg = true)
+        public void Start(bool showErrorMsg = true)
         {
-            await Task.Run(() =>
-             {
-                 TaskState beforeState = State;
-                 ExpandedFuncs.TryExceptions(() =>
-                 {
-                     string diaName = PublicParams.GetDicName(DicName);
-                     if (!Directory.Exists(diaName))
-                         throw new DicNotFoundException($"任务[{FileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
+            TaskState beforeState = State;
+            ExpandedFuncs.TryExceptions(() =>
+            {
+                //如果当前存在正在执行的任务，将状态设置为等待开始翻译
+                if (ViewModelManager.ViewModel.ActiveTask is not null)
+                {
+                    if (State == TaskState.Initialized || State == TaskState.Pause)
+                        State = TaskState.WaitTranslate;
+                    return;
+                }
 
-                     //检测配置模板是否配置
-                     if (TemplateConfig is null)
-                         throw new KnownException("请先配置翻译模板！");
+                //设置当前正在翻译的任务为此任务
+                ViewModelManager.ViewModel.ActiveTask = this;
+                ////如果不存在清理后文件，执行清理流程
+                //if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
+                //{
+                //    State = TaskState.Cleaning;
+                //    string? cleanTemplateName = TemplateConfigParams.CleanTemplate;
+                //    //检测清理规则模板是否配置
+                //    if (string.IsNullOrWhiteSpace(cleanTemplateName))
+                //        throw new KnownException("请先配置好清理规则模板");
 
-                     //检测配置模板对应的文件是否存在
-                     string templateConfigPath = PublicParams.GetTemplateFilePath(TemplateType.TemplateConfig, TemplateConfig.Name);
-                     if (!File.Exists(templateConfigPath))
-                         throw new FileNotFoundException($"翻译配置文件[{TemplateConfig.Name}]不存在，请确认配置文件是否已被删除");
+                //    //检测清理规则模板文件是否存在
+                //    string cleanTemplatePath = PublicParams.GetTemplateFilePath(TemplateConfigParams.TemplateDic, TemplateType.Clean, cleanTemplateName);
+                //    if (!File.Exists(cleanTemplatePath))
+                //        throw new FileNotFoundException($"清理模板文件[{cleanTemplateName}]不存在，请确认配置文件是否已被删除");
 
-                     //加载模板配置文件
-                     TemplateConfigParams = JsonPersister.Load<ConfigSave_DefaultTemplate>(templateConfigPath);
+                //    switch (TranslateType)
+                //    {
+                //        case TranslateDataType.KV:
+                //            KVTranslateData.Clear(DicName, cleanTemplatePath);
+                //            break;
+                //        case TranslateDataType.Tpp:
+                //            TppTranslateData.Clear(DicName, cleanTemplatePath);
+                //            break;
+                //        case TranslateDataType.Srt:
+                //            SrtTranslateData.Clear(DicName, cleanTemplatePath);
+                //            break;
+                //        case TranslateDataType.Txt:
+                //            TxtTranslateData.Clear(DicName, cleanTemplatePath);
+                //            break;
+                //        default:
+                //            throw new KnownException("不支持的翻译文件类型");
+                //    }
+                //}
+                //创建翻译器
+                CreateTranslator();
 
+                //启动翻译
+                State = TaskState.Translating;
+                _translator.Stoped += _translator_Stoped;
+                _translator.Start();
+            },
+            (err) =>
+            {
+                if (err is DicNotFoundException)
+                {
+                    ViewModelManager.ViewModel.RemoveTask(this);
+                    return;
+                }
+                if (ViewModelManager.ViewModel.ActiveTask == this)
+                    ViewModelManager.ViewModel.ActiveTask = null;
+                if (_translator is not null)
+                    _translator = null;
 
-                     //检测配置模板里的规则模板文件夹是否配置
-                     if (TemplateConfigParams.TemplateDic is null)
-                         throw new KnownException($"请先配置模板文件夹");
-
-                     //检测配置模板里的规则模板文件夹是否存在
-                     string templateDicPath = $"{PublicParams.TemplatesDic}\\{TemplateConfigParams.TemplateDic}";
-                     if (!Directory.Exists(templateDicPath))
-                         throw new DicNotFoundException($"模板文件夹{TemplateConfigParams.TemplateDic}不存在，请确认模板文件夹是否已被删除");
-
-                     //如果当前存在正在执行的任务，将状态设置为等待开始翻译
-                     if (ViewModelManager.ViewModel.ActiveTask is not null)
-                     {
-                         if (State == TaskState.Initialized || State == TaskState.Pause)
-                             State = TaskState.WaitTranslate;
-                         return;
-                     }
-
-                     //设置当前正在翻译的任务为此任务
-                     ViewModelManager.ViewModel.ActiveTask = this;
-                     //如果不存在清理后文件，执行清理流程
-                     if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
-                     {
-                         State = TaskState.Cleaning;
-                         string? cleanTemplateName = TemplateConfigParams.CleanTemplate;
-                         //检测清理规则模板是否配置
-                         if (string.IsNullOrWhiteSpace(cleanTemplateName))
-                             throw new KnownException("请先配置好清理规则模板");
-
-                         //检测清理规则模板文件是否存在
-                         string cleanTemplatePath = PublicParams.GetTemplateFilePath(TemplateConfigParams.TemplateDic, TemplateType.Clean, cleanTemplateName);
-                         if (!File.Exists(templateConfigPath))
-                             throw new FileNotFoundException($"清理模板文件[{cleanTemplateName}]不存在，请确认配置文件是否已被删除");
-
-                         switch (TranslateType)
-                         {
-                             case TranslateDataType.KV:
-                                 KVTranslateData.Clear(DicName, cleanTemplatePath);
-                                 break;
-                             case TranslateDataType.Tpp:
-                                 TppTranslateData.Clear(DicName, cleanTemplatePath);
-                                 break;
-                             case TranslateDataType.Srt:
-                                 SrtTranslateData.Clear(DicName, cleanTemplatePath);
-                                 break;
-                             case TranslateDataType.Txt:
-                                 TxtTranslateData.Clear(DicName, cleanTemplatePath);
-                                 break;
-                             default:
-                                 throw new KnownException("不支持的翻译文件类型");
-                         }
-                     }
-                     //创建翻译器
-                     CreateTranslator();
-
-                     //启动翻译
-                     State = TaskState.Translating;
-                     _translator.Stoped += _translator_Stoped;
-                     _translator.Start();
-                 },
-                 (err) =>
-                 {
-                     if (err is DicNotFoundException)
-                     {
-                         ViewModelManager.ViewModel.RemoveTask(this);
-                         return;
-                     }
-                     if (ViewModelManager.ViewModel.ActiveTask == this)
-                         ViewModelManager.ViewModel.ActiveTask = null;
-                     if (_translator is not null)
-                         _translator = null;
-
-                     State = beforeState;
-                 }, showErrorMsg);
-
-             });
+                State = beforeState;
+            }, showErrorMsg);
         }
 
 
@@ -343,7 +313,7 @@ namespace AITranslator.View.Models
                  if (State == TaskState.Pause || State == TaskState.WaitPause)
                      return;
                  //设置界面暂停中
-                 if (State == TaskState.Translating)
+                 if (State == TaskState.Translating || State == TaskState.Cleaning)
                  {
                      State = TaskState.WaitPause;
                      _translator?.Pause();
@@ -383,6 +353,32 @@ namespace AITranslator.View.Models
         }
         void CreateTranslator()
         {
+            string diaName = PublicParams.GetDicName(DicName);
+            if (!Directory.Exists(diaName))
+                throw new DicNotFoundException($"任务[{FileName}]文件夹已被删除，无法打开文件夹，此任务将被删除");
+
+            //检测配置模板是否配置
+            if (TemplateConfig is null)
+                throw new KnownException("请先配置翻译模板！");
+
+            //检测配置模板对应的文件是否存在
+            string templateConfigPath = PublicParams.GetTemplateFilePath(TemplateType.TemplateConfig, TemplateConfig.Name);
+            if (!File.Exists(templateConfigPath))
+                throw new FileNotFoundException($"翻译配置文件[{TemplateConfig.Name}]不存在，请确认配置文件是否已被删除");
+
+            //加载模板配置文件
+            TemplateConfigParams = JsonPersister.Load<ConfigSave_DefaultTemplate>(templateConfigPath);
+
+
+            //检测配置模板里的规则模板文件夹是否配置
+            if (TemplateConfigParams.TemplateDic is null)
+                throw new KnownException($"请先配置模板文件夹");
+
+            //检测配置模板里的规则模板文件夹是否存在
+            string templateDicPath = $"{PublicParams.TemplatesDic}\\{TemplateConfigParams.TemplateDic}";
+            if (!Directory.Exists(templateDicPath))
+                throw new DicNotFoundException($"模板文件夹{TemplateConfigParams.TemplateDic}不存在，请确认模板文件夹是否已被删除");
+
             _translator = TranslateType switch
             {
                 TranslateDataType.KV => new KVTranslator(this),
@@ -452,7 +448,7 @@ namespace AITranslator.View.Models
         }
 
         [RelayCommand]
-        public async Task ReTranslateFailed()
+        public void ReTranslateFailed()
         {
             ViewModel vm = ViewModelManager.ViewModel;
             if (vm.Communicator.CommunicatorType == CommunicatorType.LLama && !vm.Communicator.ModelLoaded)
@@ -467,7 +463,7 @@ namespace AITranslator.View.Models
             });
 
 
-            await Start();
+            Start();
         }
 
 

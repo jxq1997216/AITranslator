@@ -44,6 +44,8 @@ namespace AITranslator.Translator.TranslateData
         /// 未翻译的数据
         /// </summary>
         public Dictionary<string, string?> Dic_NotTranslated { get; set; } = new Dictionary<string, string?>();
+
+        public bool IsCleaned => Dic_Cleaned is not null;
         public TppTranslateData(string dicName, string fileName)
         {
             DicName = dicName;
@@ -57,13 +59,13 @@ namespace AITranslator.Translator.TranslateData
             if (Directory.Exists(sourceFile))
                 Dic_Source = CsvPersister.LoadMergeDicFromFolder(sourceFile);
             else
-                throw new KnownException("不存在清理后的文件！");
+                throw new KnownException("不存在原始文件！");
 
             string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
             if (File.Exists(cleanedFile))
                 Dic_Cleaned = JsonPersister.Load<Dictionary<string, Dictionary<string, string?>>>(cleanedFile).ToMergeDic();
             else
-                throw new KnownException("不存在清理后的文件！");
+                Dic_Cleaned = null;
 
             string successfulFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Successful);
             if (File.Exists(successfulFile))
@@ -103,10 +105,12 @@ namespace AITranslator.Translator.TranslateData
         }
         public double GetProgress()
         {
+            if (!IsCleaned)
+                return 0;
             return (Dic_Successful!.Count + Dic_Failed!.Count) / (double)Dic_Cleaned!.Count * 100;
         }
 
-        public static void Clear(string dicName, string clearTemplatePath)
+        public static void Clear(string dicName, string clearTemplatePath, CancellationToken token)
         {
             Dictionary<string, Dictionary<string, string?>> dic_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -115,7 +119,7 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            dic_source = dic_source.Pretreatment(clearTemplatePath);
+            dic_source = dic_source.Pretreatment(clearTemplatePath, token);
 
             JsonPersister.Save(dic_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
         }

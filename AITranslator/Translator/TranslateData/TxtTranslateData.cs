@@ -26,6 +26,10 @@ namespace AITranslator.Translator.TranslateData
         /// <summary>
         /// 原始翻译数据
         /// </summary>
+        public List<string>? List_Source { get; private set; }
+        /// <summary>
+        /// 清理后的数据
+        /// </summary>
         public List<string>? List_Cleaned { get; private set; }
         /// <summary>
         /// 翻译成功的数据
@@ -39,7 +43,7 @@ namespace AITranslator.Translator.TranslateData
         /// 未翻译的数据
         /// </summary>
         public Dictionary<int, string> Dic_NotTranslated { get; private set; } = new Dictionary<int, string>();
-
+        public bool IsCleaned => List_Cleaned is not null;
 
         public TxtTranslateData(string dicName, string fileName)
         {
@@ -50,11 +54,17 @@ namespace AITranslator.Translator.TranslateData
 
         public void ReloadData()
         {
+            string sourceFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Source);
+            if (Directory.Exists(sourceFile))
+                List_Source = TxtPersister.Load(sourceFile);
+            else
+                throw new KnownException("不存在原始文件！");
+
             string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
             if (File.Exists(cleanedFile))
                 List_Cleaned = TxtPersister.Load(cleanedFile);
             else
-                throw new KnownException("不存在清理后的文件！");
+                List_Cleaned = null;
 
             string successfulFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Successful);
             if (File.Exists(successfulFile))
@@ -93,13 +103,15 @@ namespace AITranslator.Translator.TranslateData
         {
             Dic_Failed.Clear();
         }
-
+            
         public double GetProgress()
         {
+            if (!IsCleaned)
+                return 0;
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)List_Cleaned.Count * 100;
         }
 
-        public static void Clear(string dicName, string clearTemplatePath)
+        public static void Clear(string dicName, string clearTemplatePath, CancellationToken token)
         {
             List<string> list_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -108,7 +120,7 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            list_source = list_source.Pretreatment(clearTemplatePath);
+            list_source = list_source.Pretreatment(clearTemplatePath, token);
 
             TxtPersister.Save(list_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
         }

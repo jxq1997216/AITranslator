@@ -28,7 +28,7 @@ namespace AITranslator.View.UserControls
         {
             InitializeComponent();
         }
-        private async void Button_StartOrPause_Click(object sender, RoutedEventArgs e)
+        private void Button_StartOrPause_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.DataContext is TranslationTask task)
             {
@@ -42,7 +42,7 @@ namespace AITranslator.View.UserControls
                         Window_Message.ShowDialog("提示", "请先加载模型！");
                         return;
                     }
-                    await task.Start();
+                    task.Start();
                 }
             }
         }

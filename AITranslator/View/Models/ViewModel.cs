@@ -193,7 +193,7 @@ namespace AITranslator.View.Models
         private void CloseAddTaskPopup() => AddTaskPopupShow = false;
 
         [RelayCommand]
-        private async void StartAll()
+        private void StartAll()
         {
             if (UnfinishedTasks.Count == 0)
                 return;
@@ -205,7 +205,7 @@ namespace AITranslator.View.Models
             }
 
             foreach (var _task in UnfinishedTasks)
-                await _task.Start(false);
+                _task.Start(false);
         }
 
         [RelayCommand]

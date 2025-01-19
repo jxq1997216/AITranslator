@@ -6,6 +6,7 @@ using AITranslator.Translator.Tools;
 using AITranslator.Translator.Translation;
 using AITranslator.View.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -44,7 +45,10 @@ namespace AITranslator.Translator.TranslateData
         /// 未翻译的数据
         /// </summary>
         public Dictionary<string, string> Dic_NotTranslated { get; private set; } = new Dictionary<string, string>();
-        public KVTranslateData(string dicName,string fileName)
+
+        public bool IsCleaned => Dic_Cleaned is not null;
+
+        public KVTranslateData(string dicName, string fileName)
         {
             DicName = dicName;
             FileName = fileName;
@@ -57,13 +61,13 @@ namespace AITranslator.Translator.TranslateData
             if (File.Exists(sourceFile))
                 Dic_Source = JsonPersister.Load<Dictionary<string, string>>(sourceFile);
             else
-                throw new KnownException("不存在清理后的文件！");
+                throw new KnownException("不存在原始文件！");
 
             string cleanedFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Cleaned);
             if (File.Exists(cleanedFile))
                 Dic_Cleaned = JsonPersister.Load<Dictionary<string, string>>(cleanedFile);
             else
-                throw new KnownException("不存在清理后的文件！");
+                Dic_Cleaned = null;
 
             string successfulFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Successful);
             if (File.Exists(successfulFile))
@@ -103,10 +107,12 @@ namespace AITranslator.Translator.TranslateData
         }
         public double GetProgress()
         {
+            if (!IsCleaned)
+                return 0;
             return (Dic_Successful.Count + Dic_Failed.Count) / (double)Dic_Cleaned.Count * 100;
         }
 
-        public static void Clear(string dicName,string clearTemplatePath)
+        public static void Clear(string dicName, string clearTemplatePath, CancellationToken token)
         {
             Dictionary<string, string> dic_source;
             string sourceFile = PublicParams.GetFileName(dicName, type, GenerateFileType.Source);
@@ -115,7 +121,7 @@ namespace AITranslator.Translator.TranslateData
             else
                 throw new KnownException("不存在原始数据文件！");
 
-            dic_source = dic_source.Pretreatment(clearTemplatePath);
+            dic_source = dic_source.Pretreatment(clearTemplatePath, token);
 
             JsonPersister.Save(dic_source, PublicParams.GetFileName(dicName, type, GenerateFileType.Cleaned));
         }
