@@ -177,43 +177,51 @@ namespace AITranslator.Translator.Translation
                     //如果不存在清理后文件，执行清理流程
                     if (!TranslateData.IsCleaned)
                     {
-                        ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始清理");
-
-                        _translationTask.State = TaskState.Cleaning;
-
-                        //检测配置模板里的规则模板文件夹是否配置
-                        if (_translationTask.TemplateConfigParams.TemplateDic is null)
-                            throw new KnownException($"请先配置模板文件夹");
-
-                        string? cleanTemplateName = _translationTask.TemplateConfigParams.CleanTemplate;
-                        //检测清理规则模板是否配置
-                        if (string.IsNullOrWhiteSpace(cleanTemplateName))
-                            throw new KnownException("请先配置好清理规则模板");
-
-                        //检测清理规则模板文件是否存在
-                        string cleanTemplatePath = PublicParams.GetTemplateFilePath(_translationTask.TemplateConfigParams.TemplateDic, TemplateType.Clean, cleanTemplateName);
-                        if (!File.Exists(cleanTemplatePath))
-                            throw new FileNotFoundException($"清理模板文件[{cleanTemplateName}]不存在，请确认配置文件是否已被删除");
-
-                        switch (Type)
+                        try
                         {
-                            case TranslateDataType.KV:
-                                KVTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
-                                break;
-                            case TranslateDataType.Tpp:
-                                TppTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
-                                break;
-                            case TranslateDataType.Srt:
-                                SrtTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
-                                break;
-                            case TranslateDataType.Txt:
-                                TxtTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
-                                break;
-                            default:
-                                throw new KnownException("不支持的翻译文件类型");
-                        }
+                            ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始清理");
 
-                        TranslateData.ReloadData();
+                            _translationTask.State = TaskState.Cleaning;
+
+                            //检测配置模板里的规则模板文件夹是否配置
+                            if (_translationTask.TemplateConfigParams.TemplateDic is null)
+                                throw new KnownException($"请先配置模板文件夹");
+
+                            string? cleanTemplateName = _translationTask.TemplateConfigParams.CleanTemplate;
+                            //检测清理规则模板是否配置
+                            if (string.IsNullOrWhiteSpace(cleanTemplateName))
+                                throw new KnownException("请先配置好清理规则模板");
+
+                            //检测清理规则模板文件是否存在
+                            string cleanTemplatePath = PublicParams.GetTemplateFilePath(_translationTask.TemplateConfigParams.TemplateDic, TemplateType.Clean, cleanTemplateName);
+                            if (!File.Exists(cleanTemplatePath))
+                                throw new FileNotFoundException($"清理模板文件[{cleanTemplateName}]不存在，请确认配置文件是否已被删除");
+
+                            switch (Type)
+                            {
+                                case TranslateDataType.KV:
+                                    KVTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
+                                    break;
+                                case TranslateDataType.Tpp:
+                                    TppTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
+                                    break;
+                                case TranslateDataType.Srt:
+                                    SrtTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
+                                    break;
+                                case TranslateDataType.Txt:
+                                    TxtTranslateData.Clear(_translationTask.DicName, cleanTemplatePath, token);
+                                    break;
+                                default:
+                                    throw new KnownException("不支持的翻译文件类型");
+                            }
+
+                            TranslateData.ReloadData();
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            if (_cts.Token.IsCancellationRequested)
+                                throw new KnownException("按下暂停按钮");
+                        }
                     }
 
                     _translationTask.State = TaskState.Translating;

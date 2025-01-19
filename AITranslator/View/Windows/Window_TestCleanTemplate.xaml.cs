@@ -27,7 +27,7 @@ namespace AITranslator.View.Windows
     [ObservableObject]
     public partial class Window_TestCleanTemplate : Window
     {
-        Script<bool> _script;
+        Script<List<string>> _script;
         StrClearScriptInput _scriptInput = new StrClearScriptInput();
 
         [ObservableProperty]
@@ -41,8 +41,8 @@ namespace AITranslator.View.Windows
             InitializeComponent();
             try
             {
-                _script = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
-                _scriptInput.Str = string.Empty;
+                _script = CSharpScript.Create<List<string>>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
+                _scriptInput.Strs = new List<string>();
                 _ = _script.RunAsync(_scriptInput).Result;
             }
             catch (Exception)
@@ -59,9 +59,9 @@ namespace AITranslator.View.Windows
             try
             {
                 Testing = true;
-                _scriptInput.Str = Input;
-                ScriptState<bool> state = await _script.RunAsync(_scriptInput);
-                NeedClear = state.ReturnValue;
+                _scriptInput.Strs = [Input];
+                ScriptState<List<string>> state = await _script.RunAsync(_scriptInput);
+                NeedClear = state.ReturnValue.Count == 0;
             }
             catch (CompilationErrorException err)
             {

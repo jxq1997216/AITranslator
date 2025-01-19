@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿//Strs是脚本输入的变量,是一个List<string>类型的数据
+//需要返回的也是一个List<string>，这个List里包含的是需要被保留的数据
+
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>
@@ -26158,18 +26161,31 @@ Dictionary<Regex, bool> regexes = new Dictionary<Regex, bool>()
     { new Regex(@"^[,.;_*+/=]+$"),true },  // 匹配仅包含标点字符的组合
 };
 
-if (clearDics.ContainsKey(Str))
-    return true;
 
-foreach (var regexkv in regexes)
+List<string> output = new List<string>();
+
+foreach (var Str in Strs)
 {
-    Regex regex = regexkv.Key;
-    bool reverse = regexkv.Value;
-    bool result = regex.IsMatch(Str);
-    if (!reverse)
-        result = !result;
-    if (result)
-        return true;
+    if (clearDics.ContainsKey(Str))
+        continue;
+
+    bool needAdd = true;
+    foreach (var regexkv in regexes)
+    {
+        Regex regex = regexkv.Key;
+        bool reverse = regexkv.Value;
+        bool result = regex.IsMatch(Str);
+        if (!reverse)
+            result = !result;
+        if (result)
+        {
+            needAdd = false;
+            break;
+        }
+    }
+
+    if (needAdd)
+        output.Add(Str);
 }
 
-return false;
+return output;

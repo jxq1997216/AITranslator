@@ -19,7 +19,7 @@ namespace AITranslator.Translator.Pretreatment
 {
     public sealed class StrClearScriptInput
     {
-        public string Str;
+        public List<string> Strs;
     }
     /// <summary>
     /// KV结构被翻译数据的预处理器，用于替换和清理被翻译数据
@@ -35,16 +35,16 @@ namespace AITranslator.Translator.Pretreatment
         /// <returns></returns>
         public static Dictionary<string, Dictionary<string, string?>> Pretreatment(this Dictionary<string, Dictionary<string, string?>> input, string scriptPath, CancellationToken token)
         {
-            Dictionary<string, Dictionary<string, string?>> output = new Dictionary<string, Dictionary<string, string?>>();
-            Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
-            StrClearScriptInput strClearScriptInput = new StrClearScriptInput();
+            List<string> notCleanStrs = getNotCleanStrs(input.SelectMany(s => s.Value.Keys).ToList(), scriptPath, token);
 
+            Dictionary<string, Dictionary<string, string?>> output = new Dictionary<string, Dictionary<string, string?>>();
             foreach (var kv in input)
             {
                 foreach (var key in kv.Value.Keys)
                 {
-                    strClearScriptInput.Str = key;
-                    if (!clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue)
+                    if (token.IsCancellationRequested)
+                        throw new OperationCanceledException("清理任务被终止", token);
+                    if (notCleanStrs.Contains(key))
                     {
                         if (!output.ContainsKey(kv.Key))
                             output[kv.Key] = new Dictionary<string, string?>();
@@ -64,15 +64,15 @@ namespace AITranslator.Translator.Pretreatment
         /// <returns></returns>
         public static Dictionary<string, string> Pretreatment(this Dictionary<string, string> input, string scriptPath, CancellationToken token)
         {
-            Dictionary<string, string> output = new Dictionary<string, string>();
-            Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
-            StrClearScriptInput strClearScriptInput = new StrClearScriptInput();
+            List<string> notCleanStrs = getNotCleanStrs(input.Select(s => s.Key).ToList(), scriptPath, token);
 
+            Dictionary<string, string> output = new Dictionary<string, string>();
             foreach (var kv in input)
             {
+                if (token.IsCancellationRequested)
+                    throw new OperationCanceledException("清理任务被终止", token);
                 string key = kv.Key;
-                strClearScriptInput.Str = key;
-                if (!clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue)
+                if (notCleanStrs.Contains(key))
                     output[key] = kv.Value.Normalize(NormalizationForm.FormKC);//标准化字符串格式
             }
 
@@ -88,18 +88,16 @@ namespace AITranslator.Translator.Pretreatment
         /// <returns></returns>
         public static Dictionary<int, SrtData> Pretreatment(this Dictionary<int, SrtData> input, string scriptPath, CancellationToken token)
         {
-            Dictionary<int, SrtData> output = new Dictionary<int, SrtData>();
-            Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
-            StrClearScriptInput strClearScriptInput = new StrClearScriptInput();
+            List<string> notCleanStrs = getNotCleanStrs(input.Select(s => s.Value.Text).ToList(), scriptPath, token);
 
+            Dictionary<int, SrtData> output = new Dictionary<int, SrtData>();
             KeyValuePair<int, SrtData>[] kvs = input.OrderBy(s => s.Key).ToArray();
             int t = 1;
             for (int i = 0; i < kvs.Length; i++)
             {
                 KeyValuePair<int, SrtData> kv = kvs[i];
                 string text = kv.Value.Text;
-                strClearScriptInput.Str = text;
-                if (!clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue)
+                if (notCleanStrs.Contains(text))
                 {
                     output[t] = kv.Value;
                     t++;
@@ -119,17 +117,19 @@ namespace AITranslator.Translator.Pretreatment
         /// <returns></returns>
         public static List<string> Pretreatment(this List<string> input, string scriptPath, CancellationToken token)
         {
-            List<string> output = new List<string>();
-            Script<bool> clearScript = CSharpScript.Create<bool>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
-            StrClearScriptInput strClearScriptInput = new StrClearScriptInput();
+            return getNotCleanStrs(input.Where(s => true).ToList(), scriptPath, token);
+        }
 
-            foreach (var item in input)
+
+        static List<string> getNotCleanStrs(this List<string> input, string scriptPath, CancellationToken token)
+        {
+            Script<List<string>> clearScript = CSharpScript.Create<List<string>>(File.ReadAllText(scriptPath), ScriptOptions.Default, globalsType: typeof(StrClearScriptInput));
+            StrClearScriptInput strClearScriptInput = new StrClearScriptInput()
             {
-                strClearScriptInput.Str = item;
-                if (!clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue)
-                    output.Add(item);
-            }
-            return output;
+                Strs = input,
+            };
+
+            return clearScript.RunAsync(strClearScriptInput, token).Result.ReturnValue;
         }
     }
 }
