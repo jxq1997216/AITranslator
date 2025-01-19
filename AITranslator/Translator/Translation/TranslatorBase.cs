@@ -212,8 +212,11 @@ namespace AITranslator.Translator.Translation
                             default:
                                 throw new KnownException("不支持的翻译文件类型");
                         }
+
+                        TranslateData.ReloadData();
                     }
 
+                    _translationTask.State = TaskState.Translating;
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
                     //创建连接客户端，设置超时时间10分钟
                     _communicator = ViewModelManager.ViewModel.Communicator.CommunicatorType switch

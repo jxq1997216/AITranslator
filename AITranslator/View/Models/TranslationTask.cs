@@ -248,38 +248,6 @@ namespace AITranslator.View.Models
 
                 //设置当前正在翻译的任务为此任务
                 ViewModelManager.ViewModel.ActiveTask = this;
-                ////如果不存在清理后文件，执行清理流程
-                //if (!File.Exists(PublicParams.GetFileName(DicName, TranslateType, GenerateFileType.Cleaned)))
-                //{
-                //    State = TaskState.Cleaning;
-                //    string? cleanTemplateName = TemplateConfigParams.CleanTemplate;
-                //    //检测清理规则模板是否配置
-                //    if (string.IsNullOrWhiteSpace(cleanTemplateName))
-                //        throw new KnownException("请先配置好清理规则模板");
-
-                //    //检测清理规则模板文件是否存在
-                //    string cleanTemplatePath = PublicParams.GetTemplateFilePath(TemplateConfigParams.TemplateDic, TemplateType.Clean, cleanTemplateName);
-                //    if (!File.Exists(cleanTemplatePath))
-                //        throw new FileNotFoundException($"清理模板文件[{cleanTemplateName}]不存在，请确认配置文件是否已被删除");
-
-                //    switch (TranslateType)
-                //    {
-                //        case TranslateDataType.KV:
-                //            KVTranslateData.Clear(DicName, cleanTemplatePath);
-                //            break;
-                //        case TranslateDataType.Tpp:
-                //            TppTranslateData.Clear(DicName, cleanTemplatePath);
-                //            break;
-                //        case TranslateDataType.Srt:
-                //            SrtTranslateData.Clear(DicName, cleanTemplatePath);
-                //            break;
-                //        case TranslateDataType.Txt:
-                //            TxtTranslateData.Clear(DicName, cleanTemplatePath);
-                //            break;
-                //        default:
-                //            throw new KnownException("不支持的翻译文件类型");
-                //    }
-                //}
                 //创建翻译器
                 CreateTranslator();
 

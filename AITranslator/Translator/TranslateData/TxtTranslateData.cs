@@ -55,7 +55,7 @@ namespace AITranslator.Translator.TranslateData
         public void ReloadData()
         {
             string sourceFile = PublicParams.GetFileName(DicName, Type, GenerateFileType.Source);
-            if (Directory.Exists(sourceFile))
+            if (File.Exists(sourceFile))
                 List_Source = TxtPersister.Load(sourceFile);
             else
                 throw new KnownException("不存在原始文件！");
