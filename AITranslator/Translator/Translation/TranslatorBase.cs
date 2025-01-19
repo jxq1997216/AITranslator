@@ -216,6 +216,7 @@ namespace AITranslator.Translator.Translation
                         TranslateData.ReloadData();
                     }
 
+                    _translationTask.State = TaskState.Translating;
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
                     //创建连接客户端，设置超时时间10分钟
                     _communicator = ViewModelManager.ViewModel.Communicator.CommunicatorType switch
