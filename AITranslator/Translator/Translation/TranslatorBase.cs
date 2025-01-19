@@ -212,6 +212,8 @@ namespace AITranslator.Translator.Translation
                             default:
                                 throw new KnownException("不支持的翻译文件类型");
                         }
+
+                        TranslateData.ReloadData();
                     }
 
                     ViewModelManager.WriteLine($"[{DateTime.Now:G}]开始翻译");
