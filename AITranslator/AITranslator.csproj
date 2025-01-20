@@ -8,7 +8,7 @@
 		<UseWPF>true</UseWPF>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ApplicationIcon>View\Resources\Icon\Icon.ico</ApplicationIcon>
-		<FileVersion>2.2.2</FileVersion>
+		<FileVersion>2.2.3</FileVersion>
 		<Authors>FireFrog</Authors>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<SatelliteResourceLanguages>null</SatelliteResourceLanguages>
