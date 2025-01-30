@@ -126,6 +126,11 @@ namespace AITranslator.View.Windows
             Close();
         }
 
+        /// <summary>
+        /// 将字符串形式的版本号拆分为主版本，子版本，修正版本三个整形返回值
+        /// </summary>
+        /// <param name="versionStr">输入的字符串形式的版本号</param>
+        /// <returns>返回的主版本，子版本，修正版本/returns>
         public (int MajorVersion, int MinorVersion, int RevisionVersion) ParseVersion(string versionStr)
         {
             string[] versions = versionStr.Split('.');
@@ -135,6 +140,13 @@ namespace AITranslator.View.Windows
             return (majorVersion, minorVersion, revisionVersion);
         }
 
+        /// <summary>
+        /// 比较本地版本号和远程版本号，返回是否需要更新
+        /// </summary>
+        /// <param name="version_local">本地版本号</param>
+        /// <param name="version_romate">远程版本号</param>
+        /// <param name="isBate">本地是否为测试版本</param>
+        /// <returns>是否需要更新</returns>
         public bool IsNeedUpgrade((int MajorVersion, int MinorVersion, int RevisionVersion) version_local, (int MajorVersion, int MinorVersion, int RevisionVersion) version_romate, bool isBate)
         {
             //检测远程主版本号是否大于本地主版本号，如果远程主版本号大于本地，则需要更新
