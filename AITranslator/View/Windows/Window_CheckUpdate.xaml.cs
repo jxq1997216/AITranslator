@@ -68,19 +68,32 @@ namespace AITranslator.View.Windows
 
                     // 读取响应内容
                     string responseBody = response.Content.ReadAsStringAsync().Result;
-                    JObject? jObj = (JObject)JsonConvert.DeserializeObject(responseBody);
                     // 检查响应是否成功
                     if (response.IsSuccessStatusCode)
                     {
+                        JObject? jObj = (JObject?)JsonConvert.DeserializeObject(responseBody);
+
                         Version = jObj?["name"]?.ToString();
-                        UpdateLog = jObj?["body"]?.ToString();
-                        NeedUpdate = Version != $"v{ViewModelManager.ViewModel.Version}";
-                        Checking = false;
+                        if (jObj is null || Version is null)
+                        {
+                            Version = "获取更新信息失败";
+                            UpdateLog = string.Empty;
+                            NeedUpdate = false;
+                            Checking = false;
+                        }
+                        else
+                        {
+                            UpdateLog = jObj?["body"]?.ToString();
+                            var version_local = ParseVersion(ViewModelManager.ViewModel.Version!);
+                            var version_romate = ParseVersion(Version[1..]);
+                            NeedUpdate = IsNeedUpgrade(version_local, version_romate, ViewModelManager.ViewModel.IsBeta);
+                            Checking = false;
+                        }
                     }
                     else
                     {
                         Version = "获取更新信息失败";
-                        UpdateLog = jObj?["message"].ToString();
+                        UpdateLog = string.Empty;
                         NeedUpdate = false;
                         Checking = false;
                     }
@@ -111,6 +124,44 @@ namespace AITranslator.View.Windows
         private void Button_Close_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        public (int MajorVersion, int MinorVersion, int RevisionVersion) ParseVersion(string versionStr)
+        {
+            string[] versions = versionStr.Split('.');
+            int majorVersion = int.Parse(versions[0]);
+            int minorVersion = int.Parse(versions[1]);
+            int revisionVersion = int.Parse(versions[2]);
+            return (majorVersion, minorVersion, revisionVersion);
+        }
+
+        public bool IsNeedUpgrade((int MajorVersion, int MinorVersion, int RevisionVersion) version_local, (int MajorVersion, int MinorVersion, int RevisionVersion) version_romate, bool isBate)
+        {
+            //检测远程主版本号是否大于本地主版本号，如果远程主版本号大于本地，则需要更新
+            if (version_romate.MajorVersion > version_local.MajorVersion)
+                return true;
+
+            //检测远程主版本号是否小于本地主版本号，如果远程主版本号小于本地，则不需要更新
+            if (version_romate.MajorVersion < version_local.MajorVersion)
+                return false;
+
+            //检测远程主版本号等于本地主版本号，继续检测子版本号
+            if (version_romate.MinorVersion > version_local.MinorVersion)
+                return true;
+
+            if (version_romate.MinorVersion < version_local.MinorVersion)
+                return false;
+
+            //检测远程子版本号等于本地子版本号，继续检测修正版本号
+            if (version_romate.RevisionVersion > version_local.RevisionVersion)
+                return true;
+            if (version_romate.RevisionVersion < version_local.RevisionVersion)
+                return false;
+
+            //如果版本号完全一致，检测本地是否为测试版本，是测试版本则需要更新
+            if (isBate)
+                return true;
+            return false;
         }
     }
 }
