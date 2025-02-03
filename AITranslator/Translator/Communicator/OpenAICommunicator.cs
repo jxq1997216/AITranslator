@@ -67,11 +67,24 @@ namespace AITranslator.Translator.Communicator
                             string json_result = httpResponse.Content.ReadAsStringAsync().Result;
                             if (httpResponse.StatusCode == HttpStatusCode.OK)
                             {
-                                JObject jobj = (JObject)JsonConvert.DeserializeObject(json_result);
-                                str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString()?.Trim() ?? string.Empty;
-                                int completion_tokens = jobj["usage"]!["completion_tokens"]!.Value<int>();
-                                speed = completion_tokens / (sw.ElapsedMilliseconds / 1000d);
-                                retry = false;
+                                JObject? jobj = (JObject?)JsonConvert.DeserializeObject(json_result);
+                                if (jobj is not null)
+                                {
+                                    str_result = jobj["choices"]?[0]?["message"]?["content"]?.ToString()?.Trim() ?? string.Empty;
+                                    JToken? cplation_tokens_node = jobj["usage"]?["completion_tokens"];
+                                    if (cplation_tokens_node is not null)
+
+                                    {
+                                        int completion_tokens = cplation_tokens_node.Value<int>();
+                                        speed = completion_tokens / (sw.ElapsedMilliseconds / 1000d);
+                                    }
+                                    else
+                                        speed = 0;
+                                    retry = false;
+                                }
+                                else
+                                    ViewModelManager.WriteLine($"解析返回数据失败,返回数据为:{json_result}");
+
                             }
                             else
                             {

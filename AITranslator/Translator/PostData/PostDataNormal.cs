@@ -29,8 +29,8 @@ namespace AITranslator.Translator.PostData
                 SamplingPipeline = new DefaultSamplingPipeline
                 {
                     Temperature = (float)Base.temperature,
-                    AlphaFrequency = (float)Base.frequency_penalty,
-                    AlphaPresence = (float)Base.presence_penalty,
+                    FrequencyPenalty = (float)Base.frequency_penalty,
+                    PresencePenalty = (float)Base.presence_penalty,
                     TopP = (float)Base.top_p,
                 },
 

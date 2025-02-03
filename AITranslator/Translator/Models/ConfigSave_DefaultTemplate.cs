@@ -65,6 +65,7 @@ namespace AITranslator.Translator.Models
         }
         public void CopyFromViewModel(ViewModel_DefaultTemplate vm)
         {
+            HistoryCount = vm.HistoryCount;
             TemplateDic = vm.TemplateDic?.Name;
             PromptTemplate = vm.PromptTemplate?.Name;
             ReplaceTemplate = vm.ReplaceTemplate?.Name;
