@@ -59,7 +59,7 @@ namespace AITranslator.View.Models
             if (ViewModel.DefaultCommunicatorParam is null)
                 ViewModel.DefaultCommunicatorParam = ViewModel.CommunicatorParams.FirstOrDefault();
 
-            if (Window_Message.DefaultOwner is Window_Main win_Main)
+            if (Application.Current.MainWindow is Window_Main win_Main)
                 win_Main.uc_ModelLoader.CurrentCommunicatorParam = ViewModel.DefaultCommunicatorParam;
             save.Set.CopyToViewModel(ViewModel.SetView_ViewModel);
 

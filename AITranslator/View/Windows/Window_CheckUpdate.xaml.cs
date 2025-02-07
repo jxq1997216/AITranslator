@@ -83,7 +83,7 @@ namespace AITranslator.View.Windows
                         }
                         else
                         {
-                            UpdateLog = jObj?["body"]?.ToString();
+                            UpdateLog = jObj["body"]?.ToString();
                             var version_local = ParseVersion(ViewModelManager.ViewModel.Version!);
                             var version_romate = ParseVersion(Version[1..]);
                             NeedUpdate = IsNeedUpgrade(version_local, version_romate, ViewModelManager.ViewModel.IsBeta);

@@ -8,7 +8,7 @@
 		<UseWPF>true</UseWPF>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ApplicationIcon>View\Resources\Icon\Icon.ico</ApplicationIcon>
-		<FileVersion>2.2.3</FileVersion>
+		<FileVersion>2.2.4</FileVersion>
 		<Authors>FireFrog</Authors>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<SatelliteResourceLanguages>null</SatelliteResourceLanguages>
@@ -36,7 +36,7 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="CsvHelper" Version="33.0.1" />
 		<PackageReference Include="H.NotifyIcon.Wpf" Version="2.2.0" />
-		<PackageReference Include="LLamaSharp" Version="0.20.0" />
+		<PackageReference Include="LLamaSharp" Version="0.21.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.12.0" />
 		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
