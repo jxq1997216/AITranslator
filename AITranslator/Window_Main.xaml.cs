@@ -30,7 +30,6 @@ namespace AITranslator
             InitializeComponent();
 
             App.OtherProgressSend += App_OtherProgressSend;
-            Window_Message.DefaultOwner = this;
 
             //初始化ViewModel
             ViewModel vm = ViewModelManager.ViewModel;

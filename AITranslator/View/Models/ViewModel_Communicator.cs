@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace AITranslator.View.Models
 {
@@ -139,7 +140,7 @@ namespace AITranslator.View.Models
         private void OpenMoreConfigsWindow()
         {
             Window_MoreLLamaConfigs window_MoreLLamaConfigs = new Window_MoreLLamaConfigs();
-            window_MoreLLamaConfigs.Owner = Window_Message.DefaultOwner;
+            window_MoreLLamaConfigs.Owner = Application.Current.MainWindow;
             window_MoreLLamaConfigs.ShowDialog();
         }
 
@@ -181,7 +182,7 @@ namespace AITranslator.View.Models
         {
             Window_SetCommunicatorName window_SetCommunicatorName = new Window_SetCommunicatorName()
             {
-                Owner = Window_Message.DefaultOwner,
+                Owner = Application.Current.MainWindow,
             };
             bool? result = window_SetCommunicatorName.ShowDialog();
             if (result.HasValue && result.Value)
@@ -232,7 +233,7 @@ namespace AITranslator.View.Models
             string sourceFileName = uc.CurrentCommunicatorParam.Name;
             Window_SetCommunicatorName window_SetCommunicatorName = new Window_SetCommunicatorName(sourceFileName)
             {
-                Owner = Window_Message.DefaultOwner,
+                Owner = Application.Current.MainWindow,
             };
             bool? result = window_SetCommunicatorName.ShowDialog();
             if (result.HasValue && result.Value)

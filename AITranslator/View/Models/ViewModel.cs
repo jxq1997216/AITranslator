@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Windows;
 using System.Windows.Threading;
 using static LLama.Common.ChatHistory;
 using Path = System.IO.Path;
@@ -293,7 +294,7 @@ namespace AITranslator.View.Models
                 return;
 
             Window_ConfirmClear window_ConfirmClear = new Window_ConfirmClear();
-            window_ConfirmClear.Owner = Window_Message.DefaultOwner;
+            window_ConfirmClear.Owner = Application.Current.MainWindow;
             if (!window_ConfirmClear.ShowDialog()!.Value)
                 return;
 
@@ -312,7 +313,7 @@ namespace AITranslator.View.Models
         private void CheckUpdate()
         {
             Window_CheckUpdate window_CheckUpdate = new Window_CheckUpdate();
-            window_CheckUpdate.Owner = Window_Message.DefaultOwner;
+            window_CheckUpdate.Owner = Application.Current.MainWindow;
             window_CheckUpdate.ShowDialog();
         }
 

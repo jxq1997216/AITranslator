@@ -156,7 +156,7 @@ namespace AITranslator.View.Models
             if (testCleanWindow is null)
                 return;
 
-            testCleanWindow.Owner = Window_Message.DefaultOwner;
+            testCleanWindow.Owner = Application.Current.MainWindow;
             testCleanWindow.ShowDialog();
         }
     }

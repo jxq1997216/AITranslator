@@ -33,8 +33,6 @@ namespace AITranslator.View.Windows
         /// </summary>
         [ObservableProperty]
         private bool isSingleBtn;
-
-        public static Window? DefaultOwner;
         private Window_Message()
         {
             InitializeComponent();
@@ -55,7 +53,7 @@ namespace AITranslator.View.Windows
 
         public static bool ShowDialog(string title, string message, bool isSingleBtn = true, Window? owner = null)
         {
-            return DefaultOwner!.Dispatcher.Invoke(() =>
+            return Application.Current.Dispatcher.Invoke(() =>
             {
                 Window_Message window = InitWindow(title, message, isSingleBtn, owner);
                 window.ShowDialog();
@@ -73,7 +71,7 @@ namespace AITranslator.View.Windows
         {
             Window_Message window = new Window_Message();
             if (owner is null)
-                owner = DefaultOwner;
+                owner = Application.Current.MainWindow;
             if (owner != null && owner.IsLoaded)
             {
                 window.Owner = owner;

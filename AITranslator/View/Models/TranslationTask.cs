@@ -8,23 +8,11 @@ using AITranslator.Translator.Translation;
 using AITranslator.View.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CsvHelper.Configuration;
-using CsvHelper;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Threading;
-using static System.Net.Mime.MediaTypeNames;
-using FileLoadException = AITranslator.Exceptions.FileLoadException;
 using FileNotFoundException = AITranslator.Exceptions.FileNotFoundException;
+using System.Windows;
 
 namespace AITranslator.View.Models
 {
@@ -439,7 +427,7 @@ namespace AITranslator.View.Models
         private async Task Remove()
         {
             Window_ConfirmClear window_ConfirmClear = new Window_ConfirmClear();
-            window_ConfirmClear.Owner = Window_Message.DefaultOwner;
+            window_ConfirmClear.Owner = Application.Current.MainWindow;
             if (!window_ConfirmClear.ShowDialog()!.Value)
                 return;
 
@@ -450,10 +438,10 @@ namespace AITranslator.View.Models
         private void OpenDic()
         {
             ExpandedFuncs.TryExceptions(() => openDic(),
-            (err) =>
+            async (err) =>
             {
                 if (err is DicNotFoundException)
-                    ViewModelManager.ViewModel.RemoveTask(this);
+                   await ViewModelManager.ViewModel.RemoveTask(this);
             });
         }
 
@@ -494,7 +482,7 @@ namespace AITranslator.View.Models
         private void TransConfig()
         {
             Window_SetTrans window_SetTrans = new Window_SetTrans(this);
-            window_SetTrans.Owner = Window_Message.DefaultOwner;
+            window_SetTrans.Owner = Application.Current.MainWindow;
             window_SetTrans.ShowDialog();
         }
     }
